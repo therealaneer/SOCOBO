@@ -16,7 +16,9 @@ This file is the source of truth for context. Read it fully before writing any c
 
 - **About 5 users at the start**, on fixed PCs of the local network. About **50 workers** exist but they are employees (payroll/assignments), **not** users.
 - Planned workstations ("postes"): 1 Direction (DG), 2 Contrôle, 3 Comptabilité et saisie, 4 Point de vente (Caisse). Later: 5 Usine, 6 Maintenance.
-- **Server: a Windows machine inside the company** (local network, no cloud dependency). Clients use the app through a web browser over the LAN.
+- **Server: a Synology NAS (DSM 7.2.2) inside the company**, address `192.168.1.10` on the local network. It shows as a DS920+ but is most likely **XPEnology on a standard server** (unofficial). Hardware: Intel Xeon E3-1220 v5 (4 cores), 16 GB RAM, plus an **external USB disk**. No cloud dependency: clients use the app through a web browser over the LAN.
+- **The NAS is already in production as the employees' file server. Do not change anything on it** (settings, packages, shares, users, updates) without the owner's explicit approval. Anything we install must live in its own containers and its own folder, and must never touch the existing shares.
+- **Deployment target: Docker (`docker-compose`) on Synology Container Manager.** The application must stay **portable**: it has to run unchanged on any other machine that has Docker (no dependency on DSM, Windows or a specific path).
 - Data must never be lost: automatic backups, audit log and a tested restore procedure are mandatory (see section 8).
 - The app must keep working if the internet is down.
 
@@ -73,10 +75,17 @@ Permissions must be **enforced on the server**, never only hidden in the UI. Lat
 
 ## 8. Engineering principles
 
-- **Stack (proposed, pending owner approval in the architecture PR): Django + PostgreSQL**, server-rendered templates (+ HTMX), run as a Windows service. Do not introduce other frameworks without asking.
+- **Stack (proposed, pending owner approval in the architecture PR): Django + PostgreSQL**, server-rendered templates (+ HTMX). Do not introduce other frameworks without asking.
+- **Runtime**: `docker-compose` with (at least) a `web` service (Django served by Waitress or Gunicorn) and a `db` service (PostgreSQL). Configuration only through environment variables / `.env` (never committed); data in named volumes or bind mounts under one dedicated folder, so that moving to another machine = copy the compose file, the `.env` and restore a backup. Images pinned to explicit versions. `restart: unless-stopped` so the stack comes back after a reboot.
+- **No-DSM-update rule (see section 10).**
 - Every schema change goes through **migrations**. Never edit the database by hand.
 - Every sensitive action writes an **append-only audit entry** (user, time, action, object, before/after).
-- **Backups**: nightly `pg_dump` + copy to an external disk and an encrypted off-site copy; a documented and regularly tested restore. Never ship a feature that deletes data without soft-delete or confirmation.
+- **Backups** (the NAS is unofficial hardware: assume it can fail or be broken by an update at any time):
+  1. nightly `pg_dump` run by a **DSM Task Scheduler** job (`docker exec` into the `db` container), kept as dated files with daily/weekly/monthly retention;
+  2. a copy of every dump on the **external USB disk**;
+  3. an **encrypted copy outside the NAS itself** (another machine or a cloud storage), so that losing the NAS and its USB disk does not lose the data;
+  4. a documented restore procedure, **tested on another machine** regularly; a failed backup must raise a visible alert.
+  Never ship a feature that deletes data without soft-delete or confirmation.
 - **Tests**: automated tests for all money/stock calculations (balances, VAT, margins, cost per mille, stock). A failing test blocks merging.
 - Small, reviewable pull requests; one module at a time; deploy to a **test instance first**, back up before every production update.
 - Never commit secrets (`.env`, passwords, backups, real customer data).
@@ -87,3 +96,9 @@ Permissions must be **enforced on the server**, never only hidden in the UI. Lat
 - The owner sends notes in batches; **record them, propose, and apply only when he writes "طبق" / "TABBIK" / "NAFFID"**.
 - Ask for missing business facts (tariffs, recipes, product list, legal name on bank documents) instead of inventing them. Placeholder values must be visibly marked as such.
 - Open questions still pending: internal kWh tariff, drying days (7 assumed), final product list, legal company name on cheques/effets, real company details (address, ICE, RC, IF).
+
+## 10. DSM / NAS safety warning
+
+- **NEVER update DSM (or any NAS system package, Container Manager included) without (a) a complete verified backup of the database and the application data AND (b) the explicit approval of the owner.** The system is probably XPEnology: an update can render it unbootable and take the file server and SOCOBO down together.
+- Do not change storage, network, users, shared folders or scheduled tasks on the NAS beyond what the approved deployment plan lists. Prepare everything as files in this repository (compose file, backup scripts, written procedures) and let the owner apply them.
+- Until the owner explicitly says otherwise, treat the NAS as **read-only for us**: development and testing happen elsewhere.
