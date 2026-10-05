@@ -1098,7 +1098,7 @@ body.pos-full header.top { display: none !important; }
 
     <!-- Machines -->
     <section id="view-machines" hidden>
-      <div class="head"><div><h1>Machines</h1><p class="sub">Carrière et usine : heures, maintenance, pièces et coûts</p></div><div class="hbtns"><button type="button" class="btn primary" id="new-mach">+ Nouvelle machine</button></div></div>
+      <div class="head"><div><h1>Parc</h1><p class="sub">Machines et camions : heures, maintenance, pièces et coûts</p></div><div class="hbtns"><button type="button" class="btn primary" id="new-mach">+ Nouvelle machine</button></div></div>
       <div class="kpis" id="mach-kpis"></div>
       <div class="sheet" id="mach-body"></div>
     </section>
@@ -1135,6 +1135,22 @@ body.pos-full header.top { display: none !important; }
       <div class="tools-row" id="mag-per"></div>
       <div class="kpis" id="mag-kpis"></div>
       <div class="sheet"><section class="box"><div class="tabs" role="tablist" id="mag-tabs"></div><div id="mag-main"></div></section></div>
+    </section>
+
+    <!-- Oued -->
+    <section id="view-oued" hidden>
+      <div class="head"><div><h1 id="ou-t"></h1><p class="sub" id="ou-s"></p></div><div class="hbtns" id="ou-a"></div></div>
+      <div class="tools-row" id="ou-per"></div>
+      <div class="kpis" id="ou-kpis"></div>
+      <div class="sheet"><section class="box"><div class="tabs" role="tablist" id="ou-tabs"></div><div id="ou-main"></div></section></div>
+    </section>
+
+    <!-- Carrière -->
+    <section id="view-carr" hidden>
+      <div class="head"><div><h1 id="ca-t"></h1><p class="sub" id="ca-s"></p></div><div class="hbtns" id="ca-a"></div></div>
+      <div class="tools-row" id="ca-per"></div>
+      <div class="kpis" id="ca-kpis"></div>
+      <div class="sheet"><section class="box"><div class="tabs" role="tablist" id="ca-tabs"></div><div id="ca-main"></div></section></div>
     </section>
 
     <section id="view-asaisir" hidden>
@@ -1246,9 +1262,9 @@ body.pos-full header.top { display: none !important; }
     { k: 'documents', l: 'Documents', i: 'file' },
     { k: 'banque', l: 'Banque', i: 'bank', sub: ['Suivi chèque'] },
     { k: 'oued', l: 'Oued', i: 'waves', sub: ['Bouaanfir', 'Nfifa'] },
+    { k: 'carriere', l: 'Carrière', i: 'pit', sub: ['Ancien Machine', 'Nouveau Machine', 'Machine Nfifa'] },
     { k: 'agglos', l: 'Usine Agglos', i: 'factory', sub: ['Tableau de bord', 'Saisie du jour', 'Matières', 'Produits finis', 'Coûts et marge'] },
-    { k: 'machines', l: 'Machines', i: 'wrench' },
-    { k: 'parc', l: 'Parc', i: 'car' },
+    { k: 'machines', l: 'Parc', i: 'wrench' },
     { k: 'location', l: 'Location', i: 'key' },
     { k: 'stock', l: 'Magasin', i: 'box', sub: ['Pièces de rechange', 'Gasoil', 'Huiles et graisses'] },
     { k: 'etablissement', l: 'Établissement', i: 'landmark' },
@@ -1257,7 +1273,7 @@ body.pos-full header.top { display: none !important; }
     { k: 'utilisateurs', l: 'Utilisateurs', i: 'cog' },
     { k: 'audit', l: 'Audit', i: 'clip' }
   ];
-  ic.cash = '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9v.01M18 15v.01"/>'; ic.check = '<path d="M20 6 9 17l-5-5"/><rect x="3" y="3" width="18" height="18" rx="3" opacity=".35"/>'; ic.eye = '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>';
+  ic.pit = '<path d="m2 20 6-11 4 6 3-4 7 9z"/>'; ic.cash = '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9v.01M18 15v.01"/>'; ic.check = '<path d="M20 6 9 17l-5-5"/><rect x="3" y="3" width="18" height="18" rx="3" opacity=".35"/>'; ic.eye = '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>';
   var cur = { k: 'dashboard', sub: null }, openG = {};
   var svg = function (n) { return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ic[n] + '</svg>'; };
   function navBadge(k) {
@@ -1287,14 +1303,14 @@ body.pos-full header.top { display: none !important; }
     }).join('');
   }
   var SOON_HTML = '';
-  var ALLV = ['view-dashboard', 'view-pesees', 'view-produits', 'view-fournisseurs', 'view-clients', 'view-fiche', 'view-cheques', 'view-machines', 'view-machine', 'view-usine', 'view-personnel', 'view-stockp', 'view-mag', 'view-asaisir', 'view-controle', 'view-users', 'view-fsaisie', 'view-pdvdash', 'view-hist', 'view-depense', 'view-soon'];
+  var ALLV = ['view-dashboard', 'view-pesees', 'view-produits', 'view-fournisseurs', 'view-clients', 'view-fiche', 'view-cheques', 'view-machines', 'view-machine', 'view-usine', 'view-personnel', 'view-stockp', 'view-mag', 'view-oued', 'view-carr', 'view-asaisir', 'view-controle', 'view-users', 'view-fsaisie', 'view-pdvdash', 'view-hist', 'view-depense', 'view-soon'];
   var VIEWHOOKS = {};
   function go(k, sub) {
     if (typeof closeDrawer === 'function') closeDrawer();
     if (typeof ROLES !== 'undefined' && ROLES && !roleAllows(k, sub)) { var hm = ROLES[ROLE].home; k = hm[0]; sub = hm[1]; }
     cur = { k: k, sub: sub || null };
     var m = menu.filter(function (x) { return x.k === k; })[0];
-    var vm = { dashboard: 'view-dashboard', pdv: 'view-pesees', fournisseurs: 'view-fournisseurs', clients: 'view-clients', machines: 'view-machines', agglos: 'view-usine', personnel: 'view-personnel', asaisir: 'view-asaisir', controle: 'view-controle', utilisateurs: 'view-users', historique: 'view-hist', depense: 'view-depense' }, target = vm[k] || 'view-soon';
+    var vm = { dashboard: 'view-dashboard', oued: 'view-oued', carriere: 'view-carr', pdv: 'view-pesees', fournisseurs: 'view-fournisseurs', clients: 'view-clients', machines: 'view-machines', agglos: 'view-usine', personnel: 'view-personnel', asaisir: 'view-asaisir', controle: 'view-controle', utilisateurs: 'view-users', historique: 'view-hist', depense: 'view-depense' }, target = vm[k] || 'view-soon';
     if (k === 'fournisseurs' && typeof ROLE !== 'undefined' && ROLE === 'compta') target = 'view-fsaisie';
     if (k === 'dashboard' && typeof ROLE !== 'undefined' && ROLE === 'pdv') target = 'view-pdvdash';
     if (k === 'banque' && sub === 'Suivi chèque') target = 'view-cheques';
@@ -1350,11 +1366,11 @@ body.pos-full header.top { display: none !important; }
 
   var TVA = 1.2;
   var P = {
-    tv:  { n: 'Tout-venant 0/80', site: 'Bouaanfir',    u: 't', px: 38 },
-    gr:  { n: 'Grave 0/31,5',     site: 'Nfifa',        u: 't', px: 85 },
-    g8:  { n: 'Gravette 8/16',    site: 'Nfifa',        u: 't', px: 110 },
-    g15: { n: 'Gravette 15/25',   site: 'Nfifa',        u: 't', px: 105 },
-    sa:  { n: 'Sable 0/4',        site: 'Nfifa',        u: 't', px: 95 },
+    tv:  { n: 'Tout-venant 0/80', site: 'Bouaanfir',    u: 't', px: 38, line: 'Ancien Machine' },
+    gr:  { n: 'Grave 0/31,5',     site: 'Nfifa',        u: 't', px: 85, line: 'Machine Nfifa' },
+    g8:  { n: 'Gravette 8/16',    site: 'Bouaanfir',    u: 't', px: 110, line: 'Nouveau Machine' },
+    g15: { n: 'Gravette 15/25',   site: 'Bouaanfir',    u: 't', px: 105, line: 'Ancien Machine' },
+    sa:  { n: 'Sable 0/4',        site: 'Nfifa',        u: 't', px: 95, line: 'Machine Nfifa' },
     b8:  { n: 'Brique 8 trous',   site: 'Usine Agglos', u: 'mille', px: 1450 },
     b12: { n: 'Brique 12 trous',  site: 'Usine Agglos', u: 'mille', px: 2250 },
     hr:  { n: 'Hourdis 16',       site: 'Usine Agglos', u: 'mille', px: 4800 }
@@ -3351,7 +3367,7 @@ body.pos-full header.top { display: none !important; }
     var cnt = {}; pdv.lines.forEach(function (l) { cnt[l.key] = (cnt[l.key] || 0) + 1; });
     return stepH(3, 'Choisissez la marchandise', pdv.lines.length > 0) + '<div class="tiles pt">' + pfreq().map(function (k) {
       var p = P[k], ok = p.px > 0, pr = !ok ? '<span>Prix à renseigner</span>' : (p.u === 'mille' ? '<span>' + nf2.format(p.px) + ' / mille</span>' : '<span>' + nf2.format(p.px) + ' / t</span>' + (pm3(k) > 0 ? '<span>' + nf2.format(pm3(k)) + ' / m³</span>' : ''));
-      return '<button type="button" class="pcard' + (cnt[k] ? ' on' : '') + '" ' + (ok ? '' : 'disabled ') + 'style="--tint:' + tintOf(k) + '" data-pprod="' + k + '"><span class="pi">' + ico2(p.u === 'mille' ? 'brick' : 'pile', 24) + '</span><b>' + esc(p.n) + '</b><small>' + esc(p.site) + '</small><span class="price">' + pr + '</span>' + (function () { var lf = stockLeft(k); return lf ? '<small class="rest' + (lf.n <= 0 ? ' out' : '') + '">Reste : ' + lf.txt + '</small>' : ''; })() + (cnt[k] ? '<i class="qb">×' + cnt[k] + '</i>' : '') + '</button>';
+      return '<button type="button" class="pcard' + (cnt[k] ? ' on' : '') + '" ' + (ok ? '' : 'disabled ') + 'style="--tint:' + tintOf(k) + '" data-pprod="' + k + '"><span class="pi">' + ico2(p.u === 'mille' ? 'brick' : 'pile', 24) + '</span><b>' + esc(p.n) + '</b><small>' + esc(p.site) + '</small><span class="price">' + pr + '</span>' + (function () { var lf = stockLeft(k); return lf ? '<small class="rest' + (lf.n <= 0 ? ' out' : '') + '">' + (lf.unl ? '' : 'Reste : ') + lf.txt + '</small>' : ''; })() + (cnt[k] ? '<i class="qb">×' + cnt[k] + '</i>' : '') + '</button>';
     }).join('') + '</div>';
   }
   function pdvQtyPanel() {
@@ -3568,13 +3584,13 @@ body.pos-full header.top { display: none !important; }
     openModal('<h2>' + (edit ? 'Modifier le produit' : 'Nouveau produit') + '</h2><p class="m">' + (edit ? esc(p.n) : 'Les prix sont HT. Vous pourrez les modifier à tout moment.') + '</p>' +
       '<div class="row2"><div class="f"><label for="pm-n">Nom du produit *</label><input class="in" id="pm-n" value="' + esc(p.n) + '"></div><div class="f"><label for="pm-site">Site de production</label><select class="in" id="pm-site">' + SITES.map(function (x) { return '<option' + (p.site === x ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></div></div>' +
       '<div class="f"><label>Mode de vente</label><div class="modes" id="pm-u"><button type="button" data-u="t" aria-pressed="' + (u === 't') + '">Au poids (t) et au volume (m³)</button><button type="button" data-u="mille" aria-pressed="' + (u === 'mille') + '">Au nombre (prix au mille)</button></div></div>' +
-      '<div class="row2" id="pm-prices"></div><div class="f" id="pm-st-wrap"><label for="pm-st">Stock initial en tonnes (vide = stock non suivi)</label><input class="in" id="pm-st" inputmode="decimal" placeholder="Non suivi" value="' + (p.stock0 != null ? String(p.stock0).replace('.', ',') : '') + '"></div>' +
+      '<div class="row2" id="pm-prices"></div><div class="row2" id="pm-st-wrap"><div class="f"><label>Stock</label><input class="in" value="Stock illimité" disabled></div><div class="f"><label for="pm-line">Ligne principale</label><select class="in" id="pm-line"></select></div></div>' +
       '<div id="pm-rec"><hr class="sep"><h3 class="sech">Recette par millier<span>consommation de matières, modifiable</span></h3><div class="row3"><div class="f"><label for="pm-r-sa">Sable 0/4 (t)</label><input class="in" id="pm-r-sa" inputmode="decimal" placeholder="À renseigner" value="' + fv(rc.sa) + '"></div><div class="f"><label for="pm-r-g8">Gravette 8/16 (t)</label><input class="in" id="pm-r-g8" inputmode="decimal" placeholder="À renseigner" value="' + fv(rc.g8) + '"></div><div class="f"><label for="pm-r-ci">Ciment (kg)</label><input class="in" id="pm-r-ci" inputmode="decimal" placeholder="À renseigner" value="' + fv(rc.ci) + '"></div></div><p class="sugg">Les valeurs actuelles sont indicatives : remplacez-les par les quantités réelles quand vous les connaîtrez.</p></div>' +
       '<p class="err" id="pm-err" hidden></p><div class="mact"><button type="button" class="btn" id="pm-cancel">Annuler</button><button type="button" class="btn primary" id="pm-save">Enregistrer</button></div>', 'big');
     function drawPrices() {
       $('pm-prices').innerHTML = u === 't' ? '<div class="f"><label for="pm-px">Prix HT par tonne (MAD)</label><input class="in" id="pm-px" inputmode="decimal" placeholder="À renseigner" value="' + fv(p.px) + '"></div><div class="f"><label for="pm-pm3">Prix HT par m³ (MAD)</label><input class="in" id="pm-pm3" inputmode="decimal" placeholder="À renseigner" value="' + fv(p.pm3) + '"></div>' : '<div class="f"><label for="pm-px">Prix HT par mille (MAD)</label><input class="in" id="pm-px" inputmode="decimal" placeholder="À renseigner" value="' + fv(p.px) + '"></div><div class="f"></div>';
     }
-    function drawRec() { var us = $('pm-site').value === 'Usine Agglos'; $('pm-rec').hidden = !us; $('pm-st-wrap').hidden = us; }
+    function drawRec() { var site = $('pm-site').value, us = site === 'Usine Agglos', ls = site === 'Bouaanfir' ? ['Ancien Machine', 'Nouveau Machine'] : ['Machine Nfifa']; $('pm-rec').hidden = !us; $('pm-st-wrap').hidden = us; $('pm-line').innerHTML = ls.map(function (x) { return '<option' + (p.line === x ? ' selected' : '') + '>' + x + '</option>'; }).join(''); }
     drawPrices(); drawRec();
     $('pm-site').addEventListener('change', drawRec);
     $('pm-u').addEventListener('click', function (e) { var b = e.target.closest('button[data-u]'); if (!b) return; u = b.dataset.u; p.px = num($('pm-px').value) || 0; $('pm-u').querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); drawPrices(); });
@@ -3585,7 +3601,7 @@ body.pos-full header.top { display: none !important; }
       if (!n) return err('Saisissez le nom du produit.');
       if (!(px >= 0) || !(pm >= 0)) return err('Les prix doivent être des nombres positifs.');
       if (Object.keys(P).some(function (k) { return k !== key && normTxt(P[k].n) === normTxt(n); })) return err('Un produit porte déjà ce nom.');
-      var site = $('pm-site').value, rec = null, st0 = $('pm-st').value.trim() ? num($('pm-st').value) : null; if (st0 !== null && !(st0 >= 0)) return err('Le stock initial doit être un nombre positif.'); if (site === 'Usine Agglos') st0 = null;
+      var site = $('pm-site').value, rec = null, line = site === 'Usine Agglos' ? null : $('pm-line').value;
       if (site === 'Usine Agglos') {
         var r = ['sa', 'g8', 'ci'].map(function (x) { var v = $('pm-r-' + x).value.trim(); return v ? num(v) : 0; });
         if (r.some(function (x) { return !(x >= 0); })) return err('La recette doit contenir des nombres positifs.');
@@ -3593,7 +3609,7 @@ body.pos-full header.top { display: none !important; }
       }
       var k = key || 'p' + Date.now(), old = edit ? P[k] : null, oldTxt = old ? nf2.format(old.px) + (old.pm3 ? ' / ' + nf2.format(old.pm3) : '') : '';
       var recChanged = old && JSON.stringify(old.rec) !== JSON.stringify(rec);
-      var np = { n: n, site: site, u: u, px: px, pm3: pm, actif: edit ? old.actif : true, rec: rec, recInd: recChanged ? false : (old ? old.recInd : false), stock0: st0 }; if (old) Object.keys(np).forEach(function (x) { old[x] = np[x]; }); else P[k] = np;
+      var np = { n: n, site: site, u: u, px: px, pm3: pm, actif: edit ? old.actif : true, rec: rec, recInd: recChanged ? false : (old ? old.recInd : false), stock0: null, line: line }; if (old) Object.keys(np).forEach(function (x) { old[x] = np[x]; }); else P[k] = np;
       if (!edit) audit('Produit créé', n, site + ' · ' + nf2.format(px));
       else if (oldTxt !== nf2.format(px) + (pm ? ' / ' + nf2.format(pm) : '')) audit('Prix modifié', n, oldTxt + ' → ' + nf2.format(px) + (pm ? ' / ' + nf2.format(pm) : ''));
       else audit('Produit modifié', n, '');
@@ -3718,7 +3734,7 @@ body.pos-full header.top { display: none !important; }
 
   /* ===== Machines : compteur d'heures, maintenance, pièces changées, coûts ===== */
   var dAgo = function (n) { return addDays(TODAY, -n); };
-  var MTYPES = ['Engin', 'Concasseur', 'Crible', 'Presse', 'Malaxeur', 'Convoyeur', 'Chariot', 'Autre'], MSITES = ['Bouaanfir', 'Nfifa', 'Usine Agglos'];
+  var MTYPES = ['Engin', 'Camion', 'Concasseur', 'Crible', 'Presse', 'Malaxeur', 'Convoyeur', 'Chariot', 'Autre'], MSITES = ['Bouaanfir', 'Nfifa', 'Usine Agglos'];
   var mSeq = 0, newId = function () { mSeq += 1; return mSeq; };
   function mkMach(nom, type, site, marque, h, plans, ints) {
     var m = { id: newId(), nom: nom, type: type, site: site, marque: marque, serie: '', actif: true, h: h, releves: [], plans: [], ints: [] };
@@ -3728,6 +3744,7 @@ body.pos-full header.top { display: none !important; }
     ints.forEach(function (x) { m.ints.push({ id: newId(), d: dAgo(x[0]), h: x[1], type: x[2], desc: x[3], mo: x[4], pieces: x[5].map(function (q) { return { nom: q[0], qte: q[1], cout: q[2] }; }), cause: x[6] || '', plan: null }); });
     return m;
   }
+  function mkTruck(nom, site, marque, h, cap) { var m = mkMach(nom, 'Camion', site, marque, h, [['Vidange moteur', 'h', 250, 30, h - 120], ['Graissage général', 'h', 100, 10, h - 50]], []); m.cap = cap; return m; }
   var MACH = [
     mkMach('Chargeuse CAT 950', 'Engin', 'Bouaanfir', 'Caterpillar 950 GC', 8420, [['Vidange moteur', 'h', 250, 28, 8190], ['Filtres (air, gasoil)', 'h', 500, 60, 8010], ['Graissage général', 'h', 50, 5, 8385]], [[88, 8260, 'Panne', 'Flexible hydraulique du godet éclaté', 450, [['Flexible hydraulique', 1, 780]], 'Frottement contre le bras'], [52, 8330, 'Panne', 'Fuite sur flexible du vérin', 300, [['Flexible hydraulique', 1, 780]], 'Mauvais cheminement du flexible'], [14, 8402, 'Panne', 'Flexible hydraulique percé', 350, [['Flexible hydraulique', 1, 780]], 'Frottement contre le bras']]),
     mkMach('Chargeuse Volvo L90', 'Engin', 'Bouaanfir', 'Volvo L90F', 9560, [['Vidange moteur', 'h', 250, 40, 9380], ['Graissage général', 'h', 50, 12, 9520]], [[70, 9390, 'Entretien', 'Vidange et filtres', 600, [['Huile moteur', 30, 1450], ['Filtre à huile', 2, 380]], '']]),
@@ -3737,7 +3754,16 @@ body.pos-full header.top { display: none !important; }
     mkMach('Crible vibrant 3 étages', 'Crible', 'Nfifa', 'Svedala', 7130, [['Graissage vibrateur', 'h', 120, 6, 7080], ['Contrôle grilles', 'j', 45, 20, 7040]], [[145, 6620, 'Panne', 'Courroie du vibrateur cassée', 250, [['Courroie vibrateur', 2, 420]], 'Poulie désalignée'], [95, 6850, 'Panne', 'Courroie cassée', 250, [['Courroie vibrateur', 2, 420]], 'Poulie désalignée'], [33, 7020, 'Panne', 'Courroie coupée', 250, [['Courroie vibrateur', 2, 420]], 'Tension excessive']]),
     mkMach('Presse à briques', 'Presse', 'Usine Agglos', 'Presse hydraulique 4 moules', 3120, [['Graissage colonnes', 'h', 100, 6, 3105], ['Contrôle hydraulique', 'h', 500, 80, 2870], ['Nettoyage et réglage moules', 'j', 15, 9, 3060]], [[60, 2980, 'Réparation', 'Changement joints du vérin', 700, [['Kit joints vérin', 1, 1200]], 'Usure normale']]),
     mkMach('Malaxeur à béton', 'Malaxeur', 'Usine Agglos', 'Malaxeur 750 L', 3010, [['Graissage axe', 'h', 80, 4, 2995], ['Contrôle pales', 'j', 30, 25, 2940]], []),
-    mkMach('Chariot élévateur', 'Chariot', 'Usine Agglos', 'Toyota 3 t', 2210, [['Révision 250 h', 'h', 250, 55, 2010]], [])
+    mkMach('Chariot élévateur', 'Chariot', 'Usine Agglos', 'Toyota 3 t', 2210, [['Révision 250 h', 'h', 250, 55, 2010]], []),
+    mkMach('Concasseur Ancien Machine', 'Concasseur', 'Bouaanfir', 'Metso C96', 7210, [['Graissage roulements', 'h', 100, 3, 7205], ['Révision mâchoires', 'h', 1500, 40, 6600]], []),
+    mkMach('Crible Ancien Machine', 'Crible', 'Bouaanfir', 'Svedala', 6890, [['Graissage vibrateur', 'h', 120, 8, 6820]], []),
+    mkMach('Concasseur Nouveau Machine', 'Concasseur', 'Bouaanfir', 'Sandvik CJ411', 2890, [['Graissage roulements', 'h', 100, 5, 2870], ['Huile hydraulique', 'h', 1000, 90, 2300]], []),
+    mkMach('Crible Nouveau Machine', 'Crible', 'Bouaanfir', 'Sandvik QA441', 2760, [['Graissage vibrateur', 'h', 120, 11, 2700]], []),
+    mkTruck('Camion benne 31204-B-6', 'Bouaanfir', 'Mercedes Actros 3340', 18240, 14),
+    mkTruck('Camion benne 31377-B-6', 'Bouaanfir', 'Volvo FMX', 15780, 14),
+    mkTruck('Camion benne 28815-A-6', 'Nfifa', 'Mercedes Arocs', 21090, 12),
+    mkTruck('Camion citerne 40962-B-6', 'Nfifa', 'Renault Kerax', 12310, 0),
+    mkTruck('Camionnette 12740-D-6', 'Usine Agglos', 'Toyota Hilux', 9650, 0)
   ];
   var curM = null, mTab = 'resume';
   var machById = function (id) { return MACH.filter(function (m) { return m.id === +id; })[0]; };
@@ -3764,7 +3790,7 @@ body.pos-full header.top { display: none !important; }
     var act = MACH.filter(function (m) { return m.actif; }), soon = 0;
     act.forEach(function (m) { m.plans.forEach(function (p) { if (planSt(m, p).cls === 'warn') soon += 1; }); });
     var late = lateCount(), rc = recurCount(), c90 = machCost(null, dAgo(90), TODAY);
-    $('mach-kpis').innerHTML = '<div class="kpi"><div class="lab">Machines actives</div><div class="pill num">' + act.length + '</div><div class="cap">' + act.filter(function (m) { return m.site === 'Usine Agglos'; }).length + ' à l’usine · ' + act.filter(function (m) { return m.site !== 'Usine Agglos'; }).length + ' en carrière</div></div>' +
+    $('mach-kpis').innerHTML = '<div class="kpi"><div class="lab">Équipements actifs</div><div class="pill num">' + act.length + '</div><div class="cap">' + act.filter(function (m) { return m.site === 'Usine Agglos'; }).length + ' à l’usine · ' + act.filter(function (m) { return m.site !== 'Usine Agglos'; }).length + ' en carrière</div></div>' +
       '<div class="kpi' + (late ? ' near' : '') + '"><div class="lab">Maintenances en retard</div><div class="pill num">' + late + '</div><div class="cap">' + (late ? 'À planifier sans attendre' : 'Rien en retard') + '</div></div>' +
       '<div class="kpi' + (soon ? ' near' : '') + '"><div class="lab">Maintenances proches</div><div class="pill num">' + soon + '</div><div class="cap">Bientôt dues</div></div>' +
       '<div class="kpi' + (rc ? ' near' : '') + '"><div class="lab">Pièces à remplacement répété</div><div class="pill num">' + rc + '</div><div class="cap">3 changements ou plus en 6 mois</div></div>' +
@@ -3830,15 +3856,17 @@ body.pos-full header.top { display: none !important; }
     openModal('<h2>' + (edit ? 'Modifier la machine' : 'Nouvelle machine') + '</h2><p class="m">' + (edit ? esc(m.nom) : 'Engin de carrière ou machine de l’usine.') + '</p>' +
       '<div class="row2"><div class="f"><label for="mm-n">Nom *</label><input class="in" id="mm-n" value="' + esc(m.nom) + '"></div><div class="f"><label for="mm-m">Marque et modèle</label><input class="in" id="mm-m" value="' + esc(m.marque) + '"></div></div>' +
       '<div class="row2"><div class="f"><label for="mm-t">Type</label>' + sel('mm-t', MTYPES, m.type) + '</div><div class="f"><label for="mm-s">Site</label>' + sel('mm-s', MSITES, m.site) + '</div></div>' +
+      '<div class="f" id="mm-cap-wrap"' + (m.type === 'Camion' ? '' : ' hidden') + '><label for="mm-cap">Capacité du camion (m³)</label><input class="in" id="mm-cap" inputmode="decimal" value="' + (m.cap ? String(m.cap).replace('.', ',') : '') + '" placeholder="0 si ce n’est pas un camion benne"></div>' +
       '<div class="row2"><div class="f"><label for="mm-ser">Numéro de série</label><input class="in" id="mm-ser" value="' + esc(m.serie) + '"></div>' + (edit ? '<div class="f"><label><input type="checkbox" id="mm-act"' + (m.actif ? ' checked' : '') + '> Machine en service</label></div>' : '<div class="f"><label for="mm-h">Compteur actuel (heures)</label><input class="in" id="mm-h" inputmode="decimal" value="0"></div>') + '</div>' +
       '<p class="err" id="mm-err" hidden></p><div class="mact"><button type="button" class="btn" id="mm-cancel">Annuler</button><button type="button" class="btn primary" id="mm-save">Enregistrer</button></div>');
+    $('mm-t').addEventListener('change', function () { $('mm-cap-wrap').hidden = $('mm-t').value !== 'Camion'; });
     $('mm-cancel').addEventListener('click', closeModal);
     $('mm-save').addEventListener('click', function () {
       var err = function (t) { $('mm-err').textContent = t; $('mm-err').hidden = false; }, n = $('mm-n').value.trim();
       if (!n) return err('Saisissez le nom de la machine.');
       var h = edit ? m.h : num($('mm-h').value); if (!(h >= 0)) return err('Le compteur doit être un nombre positif.');
       var o = edit ? m : { id: newId(), releves: [{ d: TODAY, h: h }], plans: [], ints: [], h: h };
-      o.nom = n; o.marque = $('mm-m').value.trim(); o.type = $('mm-t').value; o.site = $('mm-s').value; o.serie = $('mm-ser').value.trim(); o.actif = edit ? $('mm-act').checked : true;
+      o.nom = n; o.marque = $('mm-m').value.trim(); o.type = $('mm-t').value; o.site = $('mm-s').value; o.serie = $('mm-ser').value.trim(); o.cap = o.type === 'Camion' ? (num($('mm-cap').value) > 0 ? num($('mm-cap').value) : 0) : 0; o.actif = edit ? $('mm-act').checked : true;
       if (!edit) { MACH.push(o); audit('Machine ajoutée', n, o.site); } else audit('Machine modifiée', n, '');
       closeModal(); if (edit) { curM = o; afterMach(); } else renderMachines(); toast(edit ? 'Machine mise à jour.' : 'Machine ajoutée.');
     });
@@ -4112,7 +4140,7 @@ body.pos-full header.top { display: none !important; }
     $('sp-kpis').innerHTML = kpiH('Produits suivis en stock', uk.length, 'Produits de l’usine') + kpiH('Stock prêt à vendre', fm(rd) + ' mille', 'Briques, hourdis, pavés…') + kpiH('En séchage', fm(dr) + ' mille', FC.sech + ' jours de séchage') + kpiH('Matières', MATK.map(function (m) { return nf0.format(stockMat(m, TODAY)); }).join(' · ') + ' t', 'Sable · gravette · ciment', low);
     var body = all.map(function (k) {
       var p = P[k], us = p.site === 'Usine Agglos';
-      if (!us) return '<tr><td><b style="font-weight:600">' + esc(p.n) + '</b></td><td><span class="site"><i class="' + siteClass[p.site] + '"></i>' + esc(p.site) + '</span></td><td colspan="3" style="color:var(--ink-2)">Produit de carrière, vendu à la demande : stock non suivi.</td><td class="num">' + (p.px > 0 ? nf2.format(p.px) + ' / t' : '—') + '</td></tr>';
+      if (!us) return '<tr><td><b style="font-weight:600">' + esc(p.n) + '</b></td><td><span class="site"><i class="' + siteClass[p.site] + '"></i>' + esc(p.site) + '</span></td><td colspan="3" style="color:var(--ink-2)">Stock illimité : produit de carrière, vendu à la demande.</td><td class="num">' + (p.px > 0 ? nf2.format(p.px) + ' / t' : '—') + '</td></tr>';
       var r = readyOf(k, TODAY), d = dryingOf(k, TODAY);
       return '<tr class="' + (r < 0 ? 'rs-bad' : '') + '"><td><b style="font-weight:600">' + esc(p.n) + '</b></td><td><span class="site"><i class="bri"></i>Usine Agglos</span></td><td class="num">' + nf0.format(r) + '<small>' + fm(r) + ' mille</small></td><td class="num">' + nf0.format(d) + '</td><td class="num">' + nf0.format(r + d) + '</td><td class="num">' + (p.px > 0 ? nf2.format(p.px) + ' / mille' : '<span class="st warn">À renseigner</span>') + '</td></tr>';
     }).join('');
@@ -4125,8 +4153,8 @@ body.pos-full header.top { display: none !important; }
   /* ===== Utilisateurs : postes, droits, À saisir, À contrôler ===== */
   var ROLES = {
     dg: { n: 'Poste 1', nom: 'Direction', user: 'DG', ini: 'DG', home: ['dashboard', null], menu: null, voit: 'Tout', regles: ['Contrôle total', 'Seul à voir les salaires, les marges et les coûts de l’usine', 'Seul à fixer les prix, les plafonds de crédit et les blocages'] },
-    ctrl: { n: 'Poste 2', nom: 'Contrôle', user: 'Contrôleur', ini: 'CO', home: ['controle', null], menu: { dashboard: 1, controle: 1, pdv: ['Stock produits'], stock: ['Gasoil', 'Huiles et graisses'] }, voit: 'À contrôler · Dashboard · Stock produits · Gasoil · Huiles', regles: ['Marque chaque élément comme « Vu »', 'Approuve la journée', 'Ne modifie aucune donnée', 'Voit les prix du gasoil et des huiles'] },
-    compta: { n: 'Poste 3', nom: 'Comptabilité et saisie', user: 'Comptable', ini: 'CP', home: ['asaisir', null], menu: { asaisir: 1, clients: 1, fournisseurs: 1, banque: 1, pdv: ['Stock produits'], stock: 1 }, voit: 'À saisir · Clients · Fournisseurs · Banque · Magasin · Stock produits', regles: ['Clients complets, sans toucher au plafond ni au blocage', 'Fournisseurs : ajoute les factures, ne voit aucun montant', 'Voit les prix du gasoil, des huiles et des pièces ; ni salaires, ni marges'] },
+    ctrl: { n: 'Poste 2', nom: 'Contrôle', user: 'Contrôleur', ini: 'CO', home: ['controle', null], menu: { dashboard: 1, controle: 1, pdv: ['Stock produits'], oued: 1, carriere: 1, stock: ['Gasoil', 'Huiles et graisses'] }, voit: 'À contrôler · Dashboard · Stock produits · Oued · Carrière · Gasoil · Huiles', regles: ['Marque chaque élément comme « Vu »', 'Approuve la journée', 'Ne modifie aucune donnée', 'Voit Oued, Carrière et les prix du gasoil et des huiles'] },
+    compta: { n: 'Poste 3', nom: 'Comptabilité et saisie', user: 'Comptable', ini: 'CP', home: ['asaisir', null], menu: { asaisir: 1, clients: 1, fournisseurs: 1, banque: 1, pdv: ['Stock produits'], oued: 1, carriere: 1, stock: 1 }, voit: 'À saisir · Clients · Fournisseurs · Banque · Oued · Carrière · Magasin · Stock produits', regles: ['Clients complets, sans toucher au plafond ni au blocage', 'Fournisseurs : ajoute les factures, ne voit aucun montant', 'Saisit Oued, Carrière et le Magasin ; voit les coûts de ces sections ; ni salaires, ni marges'] },
     pdv: { n: 'Poste 4', nom: 'Point de vente', user: 'Caisse', ini: 'PV', home: ['pdv', 'Caisse'], menu: { dashboard: 1, pdv: ['Caisse', 'Stock produits'], depense: 1, asaisir: 1 }, voit: 'Dashboard · Caisse · Stock produits · Dépense · À saisir', regles: ['Émet les BL', 'Ne modifie ni les prix ni les plafonds', 'Un client bloqué : seul le DG peut débloquer'] }
   };
   var ROLE = 'dg';
@@ -4230,7 +4258,7 @@ body.pos-full header.top { display: none !important; }
     var af = AFF[key] ? Object.keys(AFF[key]).map(function (id) { return { id: 'aff:' + key + ':' + id, t: empById(id).nom, s: 'Affecté : ' + AFF[key][id], v: '' }; }) : (workDay(d) ? [{ id: 'aff0:' + key, t: 'Affectations habituelles', s: 'Aucun changement', v: '' }] : []);
     sec.push({ nom: 'Personnel', it: af });
     var mi = []; MACH.forEach(function (m) { m.ints.forEach(function (x) { if (+x.d === +d) mi.push({ id: 'int:' + x.id, t: m.nom, s: x.type + ' · ' + x.desc, v: nf2.format(intCost(x)) }); }); });
-    sec.push({ nom: 'Machines', it: mi });
+    sec.push({ nom: 'Parc', it: mi });
     var cl = ['compta', 'pdv'].map(function (r) { var c = CLOSE[r + '|' + key]; return { id: 'cl:' + r + ':' + key, t: 'Clôture · ' + ROLES[r].nom, s: c ? 'Clôturée à ' + hhmm(c.at) : (+d === +TODAY ? 'Pas encore clôturée' : 'Non clôturée'), v: '', miss: !c && +d !== +TODAY }; });
     sec.push({ nom: 'Clôtures des postes', it: cl });
     return sec.filter(function (s) { return s.it.length; });
@@ -4532,9 +4560,8 @@ body.pos-full header.top { display: none !important; }
   function stockLeft(k) {
     var p = P[k]; if (!p) return null;
     if (p.site === 'Usine Agglos') { var n = readyOf(k, TODAY); return { n: n, txt: nf0.format(n) + ' briques' }; }
-    if (p.stock0 == null) return null; var n2 = p.stock0 - soldAmt(k); return { n: n2, txt: nf0.format(Math.round(n2)) + ' t' };
+    return { n: Infinity, txt: 'Stock illimité', unl: true };
   }
-  ['tv', 'gr', 'g8', 'g15', 'sa'].forEach(function (k) { P[k].stock0 = Math.ceil(soldAmt(k) * 1.25 / 1000) * 1000; });
 
 
   /* ===== Magasin : Gasoil et Huiles/graisses (entrées, consommation, reste, coût moyen) ===== */
@@ -4546,14 +4573,13 @@ body.pos-full header.top { display: none !important; }
     { id: 4, k: 'oil', nom: 'Huile hydraulique HV46', unit: 'L', cap: 0, min: 200, open: 330, px0: 42, byMach: true },
     { id: 5, k: 'oil', nom: 'Graisse industrielle', unit: 'kg', cap: 0, min: 40, open: 90, px0: 28, byMach: false }
   ];
-  var PARCV = [{ nom: 'Camion benne 31204-B-6', site: 'Bouaanfir' }, { nom: 'Camion benne 31377-B-6', site: 'Bouaanfir' }, { nom: 'Camion benne 28815-A-6', site: 'Nfifa' }, { nom: 'Camion citerne 40962-B-6', site: 'Nfifa' }, { nom: 'Camionnette 12740-D-6', site: 'Usine Agglos' }];
   var MAGM = [], magSeq = 0, magFiche = null, magFTab = 'mv', magTab = 'stock', magPer = 'month', magKind = 'fuel', magMore = 60;
   var MAGU = ['L', 'kg', 'Fût', 'Bidon', 'Unité'];
   var magCanWrite = function () { return ROLE === 'dg' || ROLE === 'compta'; };
   var magItem = function (id) { return MAGI.filter(function (x) { return x.id === +id; })[0]; };
   (function () {
     var r = mkRng(9031), sup = { fuel: ['Sud Carburants SARL', 'Station Diesel Al Amal'], oil: ['Pièces Poids Lourds du Souss', 'Auto Pièces Al Massira'] };
-    var ms = MACH.filter(function (m) { return m.actif; }), tr = PARCV;
+    var ms = MACH.filter(function (m) { return m.actif && m.type !== 'Camion'; }), tr = MACH.filter(function (m) { return m.actif && m.type === 'Camion'; });
     function add(k, item, d, type, o) { magSeq += 1; var x = { id: magSeq, k: k, item: item.id, d: d, type: type, q: o.q, px: o.px || 0, sup: o.sup || '', ref: o.ref || '', mach: o.mach || '', h: o.h || null, who: o.who || '', cost: 0 }; MAGM.push(x); return x; }
     function qtyAt(item) { var q = item.open; MAGM.forEach(function (x) { if (x.item === item.id) q += x.type === 'in' ? x.q : -x.q; }); return q; }
     for (var i = 120; i >= 0; i--) {
@@ -4676,7 +4702,7 @@ body.pos-full header.top { display: none !important; }
       audit('Fiche modifiée', n, old + ' → seuil ' + nf2.format(mi)); closeModal(); renderMag(); toast('Modifications enregistrées.');
     });
   }
-  function magSources() { return MACH.filter(function (m) { return m.actif; }).map(function (m) { return { nom: m.nom, tag: 'Machine', site: m.site }; }).concat(PARCV.map(function (v) { return { nom: v.nom, tag: 'Camion (Parc)', site: v.site }; })); }
+  function magSources() { return MACH.filter(function (m) { return m.actif; }).map(function (m) { return { nom: m.nom, tag: m.type === 'Camion' ? 'Camion (Parc)' : 'Machine', site: m.site }; }); }
   function magDay() {
     var oil = magKind === 'oil', src = magSources(), tanks = MAGI.filter(function (x) { return x.k === 'fuel'; }), tab = 'Bouaanfir', gq = '', gw = '';
     src.forEach(function (x) { x.tab = x.site === 'Nfifa' ? 'Nfifa' : 'Bouaanfir'; x.tk = tanks.filter(function (t) { return t.site === x.tab; })[0]; x.q = ''; x.h = ''; });
@@ -4750,6 +4776,221 @@ body.pos-full header.top { display: none !important; }
     if (e.target.closest('[data-mgmore]')) { magMore += 60; return renderMag(); }
     if (!magCanWrite()) return;
     if (e.target.closest('[data-mgin]')) return magIn(magFiche); if (e.target.closest('[data-mgday]')) return magDay(); if (e.target.closest('[data-mginv]')) return magInv(magFiche); if (e.target.closest('[data-mgedit]')) return magEdit(magItem(magFiche)); if (e.target.closest('[data-mgnew]')) return magNew();
+  });
+
+
+  /* ===== Oued (extraction de Tout-venant) et Carrière (lignes de concassage) ===== */
+  var perRange = function (per) { var y = TODAY.getFullYear(), m = TODAY.getMonth(); if (per === 'month') return { from: new Date(y, m, 1), to: TODAY, lab: 'Ce mois' }; if (per === 'prev') return { from: new Date(y, m - 1, 1), to: new Date(y, m, 0), lab: 'Mois précédent' }; return { from: new Date(2000, 0, 1), to: TODAY, lab: 'Tout' }; };
+  var perTabs = function (sel, attr) { return '<span class="tabs" style="margin:0">' + [['month', 'Ce mois'], ['prev', 'Mois précédent'], ['all', 'Tout']].map(function (p) { return '<button type="button" ' + attr + '="' + p[0] + '" aria-selected="' + (sel === p[0]) + '">' + p[1] + '</button>'; }).join('') + '</span>'; };
+  var sum2 = function (l, f) { return l.reduce(function (t, x) { return t + f(x); }, 0); };
+  var DAYSLIST = function (from, to) { var l = [], d = new Date(from); while (d <= to) { l.push(new Date(d)); d = addDays(d, 1); } return l; };
+  var qSites = ['Bouaanfir', 'Nfifa'];
+  var quarryKeys = function (site) { return Object.keys(P).filter(function (k) { return P[k].site === site && P[k].actif !== false; }); };
+  /* m³ vendus par jour et par produit (lus dans les ventes de la Caisse) */
+  function soldIndex(from, to) {
+    var idx = {}; rows.forEach(function (r) { if (r.mille || r.date < from || r.date > to) return; var k = Object.keys(P).filter(function (x) { return P[x] === r.prod; })[0]; if (!k) return; var m3 = r.mu === 'm3' ? r.qty : r.qty / (DENS[k] || 1.5), key = iso(r.date) + '|' + k; idx[key] = (idx[key] || 0) + m3; });
+    return idx;
+  }
+
+  /* ---- Oued : voyages des camions et heures des engins ---- */
+  var OUED_LAB = { 'Bouaanfir': 'Bouaanfir (Saaidate)', 'Nfifa': 'Nfifa' };
+  var RENT = [ /* [A] valeurs d'exemple, en attendant la conception de Location */
+    { key: 'r1', nom: 'Chargeuse Caterpillar 966 (louée)', kind: 'engin', site: 'Bouaanfir', owner: 'Ets Ouazzani Location', rate: 450 },
+    { key: 'r2', nom: 'Camion benne 26 t (loué)', kind: 'truck', site: 'Bouaanfir', owner: 'Transports Haddou', rate: 320, cap: 14 },
+    { key: 'r3', nom: 'Pelle Hitachi ZX210 (louée)', kind: 'engin', site: 'Nfifa', owner: 'Ets Ouazzani Location', rate: 400 },
+    { key: 'r4', nom: 'Camion benne 20 t (loué)', kind: 'truck', site: 'Nfifa', owner: 'Transports Haddou', rate: 300, cap: 12 }
+  ];
+  function oudSources(site) {
+    var own = MACH.filter(function (m) { return m.actif && m.site === site && ((m.type === 'Camion' && m.cap > 0) || m.type === 'Engin'); }).map(function (m) { return { key: 'm' + m.id, nom: m.nom, kind: m.type === 'Camion' ? 'truck' : 'engin', site: site, own: true, cap: m.cap || 0, mid: m.id }; });
+    return own.concat(RENT.filter(function (r) { return r.site === site; }).map(function (r) { return { key: r.key, nom: r.nom, kind: r.kind, site: site, own: false, cap: r.cap || 0, owner: r.owner, rate: r.rate }; }));
+  }
+  var OUD = {}; /* clé : yyyy-mm-dd|site|source → { trips, h } */
+  var oudKey = function (d, site, key) { return iso(d) + '|' + site + '|' + key; };
+  (function () {
+    var r = mkRng(4417);
+    qSites.forEach(function (site) { var src = oudSources(site); for (var i = 75; i >= 0; i--) { var d = addDays(TODAY, -i); if (!workDay(d)) continue; src.forEach(function (s) {
+      if (s.kind === 'truck') { if (r() < 0.85) { var t = 3 + Math.floor(r() * 7); OUD[oudKey(d, site, s.key)] = { trips: t, h: s.own ? 0 : Math.round(t * 0.8 * 2) / 2 }; } }
+      else if (r() < 0.9) OUD[oudKey(d, site, s.key)] = { trips: 0, h: 5 + Math.floor(r() * 5) };
+    }); } });
+  })();
+  var ouSite = 'Bouaanfir', ouTab = 'jr', ouPer = 'month';
+  function oudRecs(site, from, to) { var l = []; Object.keys(OUD).forEach(function (k) { var p = k.split('|'); if (p[1] !== site) return; var d = parseIso(p[0]); if (d >= from && d <= to) l.push({ d: d, key: p[2], trips: OUD[k].trips || 0, h: OUD[k].h || 0 }); }); return l; }
+  var fuelOf = function (nom, from, to) { var q = 0, c = 0; MAGM.forEach(function (x) { if (x.k === 'fuel' && x.type === 'out' && x.mach === nom && x.d >= from && x.d <= to) { q += x.q; c += x.cost; } }); return { q: q, c: c }; };
+  var maintOf = function (mid, from, to) { var m = machById(mid); return m ? machCostOf(m, from, to) : 0; };
+  function oudCalc(site, rg) {
+    magCalc(); var src = oudSources(site), recs = oudRecs(site, rg.from, rg.to), by = {};
+    src.forEach(function (s) { by[s.key] = { s: s, trips: 0, m3: 0, h: 0, rent: 0, fq: 0, fc: 0, mc: 0 }; });
+    recs.forEach(function (x) { var b = by[x.key]; if (!b) return; b.trips += x.trips; b.m3 += x.trips * b.s.cap; b.h += x.h; if (!b.s.own) b.rent += x.h * b.s.rate; });
+    src.forEach(function (s) { var b = by[s.key]; if (s.own) { var f = fuelOf(s.nom, rg.from, rg.to); b.fq = f.q; b.fc = f.c; b.mc = maintOf(s.mid, rg.from, rg.to); } });
+    var list = src.map(function (s) { return by[s.key]; }), tot = { trips: sum2(list, function (b) { return b.trips; }), m3: sum2(list, function (b) { return b.m3; }), h: sum2(list, function (b) { return b.h; }), rent: sum2(list, function (b) { return b.rent; }), fq: sum2(list, function (b) { return b.fq; }), fc: sum2(list, function (b) { return b.fc; }), mc: sum2(list, function (b) { return b.mc; }) };
+    tot.cost = tot.rent + tot.fc + tot.mc; return { list: list, tot: tot, recs: recs, src: src };
+  }
+  function renderOued(sub) {
+    if (sub && OUED_LAB[sub]) { ouSite = sub; ouTab = 'jr'; }
+    var site = ouSite, rg = perRange(ouPer), c = oudCalc(site, rg), t = c.tot, w = magCanWrite(), by = {}; c.list.forEach(function (b) { by[b.s.key] = b; });
+    $('ou-t').textContent = 'Oued · ' + OUED_LAB[site]; $('ou-s').textContent = 'Extraction de Tout-venant et transport vers la carrière';
+    $('ou-a').innerHTML = w ? '<button type="button" class="btn primary" data-ousaisie>+ Saisie du jour</button>' : '';
+    $('ou-per').innerHTML = perTabs(ouPer, 'data-ouper');
+    $('ou-kpis').innerHTML = kpiH('Voyages · ' + rg.lab, nf0.format(t.trips), 'Camions de l’oued vers la carrière') + kpiH('Tout-venant extrait', nf2.format(t.m3) + ' m³', 'Voyages × capacité des camions') + kpiH('Heures de marche', nf2.format(t.h) + ' h', 'Engins et camions loués') + kpiH('Coût par m³', t.m3 > 0 ? nf2.format(t.cost / t.m3) : '—', 'Coût total : ' + nf2.format(t.cost));
+    var tabs = [['jr', 'Journal'], ['ca', 'Camions'], ['en', 'Engins'], ['co', 'Coûts']];
+    $('ou-tabs').innerHTML = tabs.map(function (x) { return '<button type="button" role="tab" data-outab="' + x[0] + '" aria-selected="' + (ouTab === x[0]) + '">' + x[1] + '</button>'; }).join('');
+    var h = '', own = function (s) { return s.own ? 'Parc' : 'Loué · ' + esc(s.owner); };
+    if (ouTab === 'jr') {
+      var days = {}; c.recs.forEach(function (x) { var k = iso(x.d), b = by[x.key]; if (!b) return; var o = days[k] = days[k] || { d: x.d, trips: 0, m3: 0, h: 0, rent: 0, fuel: 0 }; o.trips += x.trips; o.m3 += x.trips * b.s.cap; o.h += x.h; if (!b.s.own) o.rent += x.h * b.s.rate; });
+      MAGM.forEach(function (x) { if (x.k === 'fuel' && x.type === 'out' && x.d >= rg.from && x.d <= rg.to && by[Object.keys(by).filter(function (k) { return by[k].s.nom === x.mach; })[0]]) { var o = days[iso(x.d)]; if (o) o.fuel += x.cost; } });
+      var dl = Object.keys(days).sort().reverse().map(function (k) { return days[k]; });
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Voyages</th><th>Tout-venant (m³)</th><th>Heures</th><th>Location</th><th>Gasoil</th></tr></thead><tbody>' + (dl.length ? dl.slice(0, 60).map(function (o) { return '<tr><td>' + dfmt.format(o.d) + '</td><td class="num">' + o.trips + '</td><td class="num">' + nf2.format(o.m3) + '</td><td class="num">' + nf2.format(o.h) + '</td><td class="num">' + nf2.format(o.rent) + '</td><td class="num">' + nf2.format(o.fuel) + '</td></tr>'; }).join('') : '<tr><td colspan="6" style="color:var(--ink-2)">Aucune saisie sur cette période.</td></tr>') + '</tbody><tfoot><tr class="tot"><td>Total · ' + dl.length + ' jour' + (dl.length > 1 ? 's' : '') + '</td><td class="num">' + t.trips + '</td><td class="num">' + nf2.format(t.m3) + '</td><td class="num">' + nf2.format(t.h) + '</td><td class="num">' + nf2.format(t.rent) + '</td><td class="num">' + nf2.format(t.fc) + '</td></tr></tfoot></table></div>' + (dl.length > 60 ? '<div class="foot"><span>60 derniers jours affichés sur ' + dl.length + '.</span></div>' : '');
+    } else if (ouTab === 'ca') {
+      var tr = c.list.filter(function (b) { return b.s.kind === 'truck'; });
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Camion</th><th>Propriété</th><th>Capacité</th><th>Voyages</th><th>Tout-venant (m³)</th><th>Heures</th><th>Gasoil (L)</th><th>Location</th></tr></thead><tbody>' + tr.map(function (b) { return '<tr><td><b style="font-weight:600">' + esc(b.s.nom) + '</b></td><td>' + own(b.s) + '</td><td class="num">' + nf2.format(b.s.cap) + ' m³</td><td class="num">' + b.trips + '</td><td class="num">' + nf2.format(b.m3) + '</td><td class="num">' + (b.s.own ? '—' : nf2.format(b.h)) + '</td><td class="num">' + (b.s.own ? nf2.format(b.fq) : '—') + '</td><td class="num">' + (b.s.own ? '—' : nf2.format(b.rent)) + '</td></tr>'; }).join('') + '</tbody><tfoot><tr class="tot"><td colspan="3">Total</td><td class="num">' + sum2(tr, function (b) { return b.trips; }) + '</td><td class="num">' + nf2.format(sum2(tr, function (b) { return b.m3; })) + '</td><td class="num">' + nf2.format(sum2(tr, function (b) { return b.s.own ? 0 : b.h; })) + '</td><td class="num">' + nf2.format(sum2(tr, function (b) { return b.fq; })) + '</td><td class="num">' + nf2.format(sum2(tr, function (b) { return b.rent; })) + '</td></tr></tfoot></table></div><div class="foot"><span>Les capacités des camions du Parc se règlent dans Parc.</span></div>';
+    } else if (ouTab === 'en') {
+      var en = c.list.filter(function (b) { return b.s.kind === 'engin'; });
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Engin</th><th>Propriété</th><th>Heures</th><th>Gasoil (L)</th><th>Prix de l’heure</th><th>Coût</th></tr></thead><tbody>' + en.map(function (b) { return '<tr><td><b style="font-weight:600">' + esc(b.s.nom) + '</b></td><td>' + own(b.s) + '</td><td class="num">' + nf2.format(b.h) + '</td><td class="num">' + (b.s.own ? nf2.format(b.fq) : '—') + '</td><td class="num">' + (b.s.own ? '—' : nf2.format(b.s.rate)) + '</td><td class="num">' + nf2.format(b.s.own ? b.fc + b.mc : b.rent) + '</td></tr>'; }).join('') + '</tbody><tfoot><tr class="tot"><td colspan="2">Total</td><td class="num">' + nf2.format(sum2(en, function (b) { return b.h; })) + '</td><td class="num">' + nf2.format(sum2(en, function (b) { return b.fq; })) + '</td><td></td><td class="num">' + nf2.format(sum2(en, function (b) { return b.s.own ? b.fc + b.mc : b.rent; })) + '</td></tr></tfoot></table></div>';
+    } else {
+      var ow = {}; c.list.forEach(function (b) { if (b.s.own || !b.h) return; var o = ow[b.s.owner] = ow[b.s.owner] || { n: b.s.owner, h: 0, a: 0 }; o.h += b.h; o.a += b.rent; });
+      var ol = Object.keys(ow).map(function (k) { return ow[k]; });
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Poste de coût</th><th>Détail</th><th>Montant</th></tr></thead><tbody><tr><td><b style="font-weight:600">Gasoil</b></td><td>' + nf2.format(t.fq) + ' L des engins et camions du Parc</td><td class="num">' + nf2.format(t.fc) + '</td></tr><tr><td><b style="font-weight:600">Location</b></td><td>' + nf2.format(sum2(ol, function (o) { return o.h; })) + ' h louées</td><td class="num">' + nf2.format(t.rent) + '</td></tr><tr><td><b style="font-weight:600">Entretien</b></td><td>Interventions sur les engins et camions du Parc</td><td class="num">' + nf2.format(t.mc) + '</td></tr></tbody><tfoot><tr class="tot"><td>Total</td><td>' + (t.m3 > 0 ? nf2.format(t.cost / t.m3) + ' par m³' : '') + '</td><td class="num">' + nf2.format(t.cost) + '</td></tr></tfoot></table></div>' +
+        '<h3 class="sech">Location par propriétaire<span>à régler en fin de mois ou à la demande</span></h3><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Propriétaire</th><th>Heures</th><th>Montant à payer</th></tr></thead><tbody>' + (ol.length ? ol.map(function (o) { return '<tr><td><b style="font-weight:600">' + esc(o.n) + '</b></td><td class="num">' + nf2.format(o.h) + '</td><td class="num">' + nf2.format(o.a) + '</td></tr>'; }).join('') : '<tr><td colspan="3" style="color:var(--ink-2)">Aucune location sur cette période.</td></tr>') + '</tbody><tfoot><tr class="tot"><td>Total</td><td class="num">' + nf2.format(sum2(ol, function (o) { return o.h; })) + '</td><td class="num">' + nf2.format(t.rent) + '</td></tr></tfoot></table></div><div class="foot"><span>Le suivi complet des locations viendra dans la section Location. Salaires des chauffeurs non inclus.</span></div>';
+    }
+    $('ou-main').innerHTML = h;
+  }
+  VIEWHOOKS['view-oued'] = renderOued;
+  function ouSaisie() {
+    var site = ouSite, src = oudSources(site), vals = {}, date = TODAY;
+    var load = function (d) { vals = {}; src.forEach(function (s) { var o = OUD[oudKey(d, site, s.key)]; vals[s.key] = { t: o && o.trips ? String(o.trips) : '', h: o && o.h ? String(o.h).replace('.', ',') : '' }; }); };
+    load(date);
+    openModal('<h2>Saisie du jour · Oued ' + esc(OUED_LAB[site]) + '</h2><p class="m">Recopiez la feuille du chef de site. Laissez vide ce qui n’a pas travaillé.</p><div class="f" style="max-width:260px"><label for="os-d">Date</label><input class="in" id="os-d" type="date" value="' + iso(TODAY) + '" max="' + iso(TODAY) + '"></div><div id="os-body"></div><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Enregistrer tout</button></div>', 'big');
+    function tot() { var m3 = 0, tr = 0; src.forEach(function (s) { var t = num(vals[s.key].t); if (t > 0 && s.kind === 'truck') { tr += t; m3 += t * s.cap; } }); $('os-tot').innerHTML = 'Total : <b>' + tr + ' voyage' + (tr > 1 ? 's' : '') + '</b> · <b>' + nf2.format(m3) + ' m³</b> de Tout-venant'; }
+    function draw() {
+      $('os-body').innerHTML = '<div class="md-wrap"><table class="tbl-lite md-tb"><thead><tr><th>Camion ou engin</th><th>Voyages</th><th>Heures</th></tr></thead><tbody>' + src.map(function (s) { var v = vals[s.key]; return '<tr><td><b style="font-weight:600">' + esc(s.nom) + '</b><small>' + (s.own ? 'Parc' : 'Loué · ' + esc(s.owner) + ' · ' + nf2.format(s.rate) + ' / h') + (s.kind === 'truck' ? ' · ' + nf2.format(s.cap) + ' m³' : '') + '</small></td><td>' + (s.kind === 'truck' ? '<input class="in md-q" data-k="' + s.key + '" data-f="t" inputmode="numeric" value="' + esc(v.t) + '" aria-label="Voyages ' + esc(s.nom) + '">' : '<span style="color:var(--ink-2)">—</span>') + '</td><td>' + (s.kind === 'engin' || !s.own ? '<input class="in md-h" data-k="' + s.key + '" data-f="h" inputmode="decimal" value="' + esc(v.h) + '" aria-label="Heures ' + esc(s.nom) + '">' : '<span style="color:var(--ink-2)">—</span>') + '</td></tr>'; }).join('') + '</tbody></table></div><p class="m" id="os-tot"></p>'; tot();
+    }
+    draw();
+    $('os-d').addEventListener('change', function (e) { var d = parseIso(e.target.value); if (d && d <= TODAY) { date = d; load(d); draw(); } });
+    $('os-body').addEventListener('input', function (e) { var k = e.target.dataset.k; if (!k) return; vals[k][e.target.dataset.f] = e.target.value; tot(); });
+    $('os-body').addEventListener('keydown', function (e) { if (e.key !== 'Enter' || !e.target.matches('.md-q, .md-h')) return; e.preventDefault(); var l = Array.prototype.slice.call($('os-body').querySelectorAll('.md-q, .md-h')), n = l[l.indexOf(e.target) + 1]; if (n) n.focus(); });
+    $('mg-cancel').addEventListener('click', closeModal);
+    $('mg-save').addEventListener('click', function () {
+      var up = []; for (var i = 0; i < src.length; i++) { var s = src[i], v = vals[s.key], t = v.t.trim() ? num(v.t) : 0, h = v.h.trim() ? num(v.h) : 0; if (!(t >= 0) || !(h >= 0) || (t && t !== Math.round(t))) return magErr('Voyages et heures doivent être des nombres positifs (voyages entiers).'); if (h > 24) return magErr('Un engin ne peut pas travailler plus de 24 h par jour.'); up.push({ s: s, t: t, h: h }); }
+      var n = 0, m3 = 0; up.forEach(function (u) { var k = oudKey(date, site, u.s.key); if (u.t || u.h) { OUD[k] = { trips: u.t, h: u.h }; n += 1; m3 += u.t * u.s.cap; } else delete OUD[k]; });
+      audit('Saisie du jour Oued', OUED_LAB[site] + ' · ' + dfmt.format(date), n + ' ligne' + (n > 1 ? 's' : '') + ' · ' + nf2.format(m3) + ' m³'); closeModal(); renderOued(); toast('Saisie enregistrée.');
+    });
+  }
+  $('view-oued').addEventListener('click', function (e) {
+    var b; if ((b = e.target.closest('[data-outab]'))) { ouTab = b.dataset.outab; return renderOued(); } if ((b = e.target.closest('[data-ouper]'))) { ouPer = b.dataset.ouper; return renderOued(); }
+    if (e.target.closest('[data-ousaisie]') && magCanWrite()) return ouSaisie();
+  });
+
+  /* ---- Carrière : lignes de concassage ---- */
+  var LINES = [
+    { id: 'ancien', nom: 'Ancien Machine', site: 'Bouaanfir', eq: ['Concasseur Ancien Machine', 'Crible Ancien Machine'] },
+    { id: 'nouveau', nom: 'Nouveau Machine', site: 'Bouaanfir', eq: ['Concasseur Nouveau Machine', 'Crible Nouveau Machine'] },
+    { id: 'nfifa', nom: 'Machine Nfifa', site: 'Nfifa', eq: ['Concasseur primaire à mâchoires', 'Concasseur secondaire à cône', 'Crible vibrant 3 étages'] }
+  ];
+  var STOPS = ['Panne', 'Maintenance', 'Manque de matière', 'Météo', 'Autre'];
+  var lineBy = function (id) { return LINES.filter(function (l) { return l.id === id; })[0]; };
+  var CARRD = {}, CSPL = {}; /* CARRD[iso|ligne] = { h, tv, prods, stops[] } ; CSPL[iso|produit] = m³ attribués à Nouveau Machine */
+  (function () {
+    var r = mkRng(8123), idx = soldIndex(addDays(TODAY, -75), TODAY);
+    for (var i = 75; i >= 0; i--) {
+      var d = addDays(TODAY, -i), key = iso(d); if (!workDay(d)) continue;
+      LINES.forEach(function (l) {
+        var p = l.id === 'ancien' ? 0.92 : (l.id === 'nouveau' ? 0.8 : 0.9); if (r() > p) return;
+        var h = Math.round((5 + r() * 4) * 2) / 2, ks = quarryKeys(l.site).filter(function (k) { return k !== 'tv'; }), pr = []; if (ks.length) { pr.push(ks[Math.floor(r() * ks.length)]); if (r() < 0.4) { var o = ks[Math.floor(r() * ks.length)]; if (pr.indexOf(o) < 0) pr.push(o); } }
+        CARRD[key + '|' + l.id] = { h: h, tv: Math.round(h * (34 + r() * 18)), prods: pr, stops: r() < 0.15 ? [{ cause: STOPS[Math.floor(r() * 4)], min: 15 * (1 + Math.floor(r() * 6)) }] : [] };
+      });
+      if (CARRD[key + '|ancien'] && CARRD[key + '|nouveau']) quarryKeys('Bouaanfir').forEach(function (k) { var m3 = idx[key + '|' + k]; if (m3 > 0 && r() < 0.5) CSPL[key + '|' + k] = Math.round(m3 * (0.3 + r() * 0.4)); });
+    }
+  })();
+  /* ventes d'une ligne : tout au seul groupe en marche, sinon répartition saisie, sinon au prorata des heures */
+  function lineSales(line, from, to, idx) {
+    var by = {};
+    DAYSLIST(from, to).forEach(function (d) {
+      var key = iso(d); quarryKeys(line.site).forEach(function (k) {
+        var m3 = idx[key + '|' + k]; if (!(m3 > 0)) return; var share = 0;
+        if (line.site === 'Nfifa') share = m3;
+        else {
+          var A = CARRD[key + '|ancien'], N = CARRD[key + '|nouveau'], hA = A ? A.h : 0, hN = N ? N.h : 0, sp = CSPL[key + '|' + k];
+          if (hA > 0 && hN > 0) { var nv = sp != null ? Math.min(sp, m3) : m3 * hN / (hA + hN); share = line.id === 'nouveau' ? nv : m3 - nv; }
+          else if (hA > 0) share = line.id === 'ancien' ? m3 : 0; else if (hN > 0) share = line.id === 'nouveau' ? m3 : 0;
+          else share = (P[k].line === line.nom || (!P[k].line && line.id === 'ancien')) ? m3 : 0;
+        }
+        if (share > 0) by[k] = (by[k] || 0) + share;
+      });
+    });
+    return by;
+  }
+  var caLine = 'ancien', caTab = 'jr', caPer = 'month';
+  function renderCarr(sub) {
+    if (sub) { var l0 = LINES.filter(function (l) { return l.nom === sub; })[0]; if (l0) { caLine = l0.id; caTab = 'jr'; } }
+    magCalc(); var line = lineBy(caLine), rg = perRange(caPer), w = magCanWrite(), idx = soldIndex(rg.from, rg.to), sales = lineSales(line, rg.from, rg.to, idx);
+    var recs = DAYSLIST(rg.from, rg.to).map(function (d) { return { d: d, r: CARRD[iso(d) + '|' + line.id] }; }).filter(function (x) { return x.r; });
+    var hrs = sum2(recs, function (x) { return x.r.h; }), tv = sum2(recs, function (x) { return x.r.tv; }), stopMin = sum2(recs, function (x) { return sum2(x.r.stops, function (s) { return s.min; }); });
+    var sold = Object.keys(sales).filter(function (k) { return k !== 'tv'; }).reduce(function (t, k) { return t + sales[k]; }, 0);
+    var soldRec = sum2(recs, function (x) { var s2 = lineSales(line, x.d, x.d, idx), t2 = 0; Object.keys(s2).forEach(function (k) { if (k !== 'tv') t2 += s2[k]; }); return t2; });
+    var eqs = line.eq.map(function (n) { return MACH.filter(function (m) { return m.nom === n; })[0]; }).filter(Boolean);
+    var cost = sum2(eqs, function (m) { return machCostOf(m, rg.from, rg.to) + fuelOf(m.nom, rg.from, rg.to).c; });
+    $('ca-t').textContent = 'Carrière · ' + line.nom; $('ca-s').textContent = line.site + ' · ' + line.eq.join(', ');
+    $('ca-a').innerHTML = w ? '<button type="button" class="btn primary" data-casaisie>+ Saisie du jour</button>' : '';
+    $('ca-per').innerHTML = perTabs(caPer, 'data-caper');
+    $('ca-kpis').innerHTML = kpiH('Heures de marche · ' + rg.lab, nf2.format(hrs) + ' h', recs.length + ' jour' + (recs.length > 1 ? 's' : '') + ' de travail') + kpiH('Tout-venant consommé', nf2.format(tv) + ' m³', 'Reçu de l’oued') + kpiH('Ventes de la ligne', nf2.format(sold) + ' m³', 'Produits concassés, lus dans la Caisse') + kpiH('Ventes ÷ Tout-venant', tv > 0 ? Math.round(soldRec / tv * 100) + ' %' : '—', 'Jours de marche seulement. Indicatif : une partie part avec le lavage et la terre') ;
+    var tabs = [['jr', 'Journal'], ['ve', 'Ventes'], ['ar', 'Arrêts'], ['eq', 'Équipements']];
+    $('ca-tabs').innerHTML = tabs.map(function (x) { return '<button type="button" role="tab" data-catab="' + x[0] + '" aria-selected="' + (caTab === x[0]) + '">' + x[1] + '</button>'; }).join('');
+    var h = '';
+    if (caTab === 'jr') {
+      var lst = recs.slice().reverse(), dsold = function (d) { var s = lineSales(line, d, d, idx), t = 0; Object.keys(s).forEach(function (k) { if (k !== 'tv') t += s[k]; }); return t; };
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Heures</th><th>Tout-venant (m³)</th><th>Produits en cours</th><th>Ventes (m³)</th><th>Arrêts (min)</th></tr></thead><tbody>' + (lst.length ? lst.slice(0, 60).map(function (x) { return '<tr><td>' + dfmt.format(x.d) + '</td><td class="num">' + nf2.format(x.r.h) + '</td><td class="num">' + nf0.format(x.r.tv) + '</td><td>' + (x.r.prods.length ? x.r.prods.map(function (k) { return esc(P[k].n); }).join(' + ') : '—') + '</td><td class="num">' + nf2.format(dsold(x.d)) + '</td><td class="num">' + (sum2(x.r.stops, function (s) { return s.min; }) || '—') + '</td></tr>'; }).join('') : '<tr><td colspan="6" style="color:var(--ink-2)">Aucune saisie sur cette période.</td></tr>') + '</tbody><tfoot><tr class="tot"><td>Total · ' + lst.length + ' jour' + (lst.length > 1 ? 's' : '') + '</td><td class="num">' + nf2.format(hrs) + '</td><td class="num">' + nf0.format(tv) + '</td><td></td><td class="num">' + nf2.format(sold) + '</td><td class="num">' + nf0.format(stopMin) + '</td></tr></tfoot></table></div>' + (lst.length > 60 ? '<div class="foot"><span>60 derniers jours affichés sur ' + lst.length + '.</span></div>' : '');
+    } else if (caTab === 've') {
+      var ks = Object.keys(sales).sort(function (a, b) { return sales[b] - sales[a]; }), totm = sum2(ks, function (k) { return sales[k]; });
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Produit</th><th>Ventes (m³)</th><th>Ventes (t)</th><th>Part</th></tr></thead><tbody>' + (ks.length ? ks.map(function (k) { return '<tr><td><b style="font-weight:600">' + esc(P[k].n) + '</b></td><td class="num">' + nf2.format(sales[k]) + '</td><td class="num">' + nf2.format(sales[k] * (DENS[k] || 1.5)) + '</td><td class="num">' + Math.round(sales[k] / totm * 100) + ' %</td></tr>'; }).join('') : '<tr><td colspan="4" style="color:var(--ink-2)">Aucune vente sur cette période.</td></tr>') + '</tbody><tfoot><tr class="tot"><td>Total</td><td class="num">' + nf2.format(totm) + '</td><td class="num">' + nf2.format(sum2(ks, function (k) { return sales[k] * (DENS[k] || 1.5); })) + '</td><td class="num">' + (ks.length ? '100 %' : '') + '</td></tr></tfoot></table></div><div class="foot"><span>' + (line.site === 'Nfifa' ? 'Toutes les ventes de Nfifa reviennent à cette ligne.' : 'Si les deux lignes marchent le même jour, la répartition vient de la saisie du jour, sinon des heures de marche.') + '</span></div>';
+    } else if (caTab === 'ar') {
+      var st = []; recs.forEach(function (x) { x.r.stops.forEach(function (s) { st.push({ d: x.d, cause: s.cause, min: s.min }); }); }); st.reverse();
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Cause</th><th>Durée</th></tr></thead><tbody>' + (st.length ? st.map(function (s) { return '<tr><td>' + dfmt.format(s.d) + '</td><td><span class="st ' + (s.cause === 'Panne' ? 'bad' : 'warn') + '">' + esc(s.cause) + '</span></td><td class="num">' + s.min + ' min</td></tr>'; }).join('') : '<tr><td colspan="3" style="color:var(--ink-2)">Aucun arrêt sur cette période.</td></tr>') + '</tbody><tfoot><tr class="tot"><td colspan="2">Total · ' + st.length + ' arrêt' + (st.length > 1 ? 's' : '') + '</td><td class="num">' + nf0.format(stopMin) + ' min</td></tr></tfoot></table></div>';
+    } else {
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Équipement</th><th>Type</th><th>Compteur</th><th>Prochaine maintenance</th><th>État</th><th>Coût (gasoil + entretien)</th></tr></thead><tbody>' + eqs.map(function (m) { var np = nextPlan(m); return '<tr><td><b style="font-weight:600">' + esc(m.nom) + '</b><small>' + esc(m.marque) + '</small></td><td>' + esc(m.type) + '</td><td class="num">' + nf0.format(m.h) + ' h</td><td>' + (np ? esc(np.p.nom) + '<small>' + np.s.due + '</small>' : '—') + '</td><td>' + (np ? '<span class="st ' + np.s.cls + '">' + np.s.txt + '</span>' : '—') + '</td><td class="num">' + nf2.format(machCostOf(m, rg.from, rg.to) + fuelOf(m.nom, rg.from, rg.to).c) + '</td></tr>'; }).join('') + '</tbody><tfoot><tr class="tot"><td colspan="5">Total</td><td class="num">' + nf2.format(cost) + '</td></tr></tfoot></table></div><div class="foot"><span>Les compteurs, la maintenance et les pièces se gèrent dans Parc.</span></div>';
+    }
+    $('ca-main').innerHTML = h;
+  }
+  VIEWHOOKS['view-carr'] = renderCarr;
+  function caSaisie() {
+    var line0 = lineBy(caLine), site = line0.site, lines = LINES.filter(function (l) { return l.site === site; }), cur = line0.id, date = TODAY, st = {}, spl = {}, idx = null;
+    var load = function (d) { st = {}; spl = {}; var key = iso(d); lines.forEach(function (l) { var o = CARRD[key + '|' + l.id]; st[l.id] = o ? { h: o.h ? String(o.h).replace('.', ',') : '', tv: o.tv ? String(o.tv) : '', prods: o.prods.slice(), cause: o.stops[0] ? o.stops[0].cause : '', min: o.stops[0] ? String(o.stops[0].min) : '' } : { h: '', tv: '', prods: [], cause: '', min: '' }; }); quarryKeys(site).forEach(function (k) { if (CSPL[key + '|' + k] != null) spl[k] = String(Math.round(CSPL[key + '|' + k] * 100) / 100).replace('.', ','); }); idx = soldIndex(d, d); };
+    load(date); var qk = quarryKeys(site);
+    openModal('<h2>Saisie du jour · Carrière ' + esc(site) + '</h2><p class="m">Recopiez la feuille du responsable de la ligne. Laissez vide ce qui n’a pas marché.</p><div class="f" style="max-width:260px"><label for="cs-d">Date</label><input class="in" id="cs-d" type="date" value="' + iso(TODAY) + '" max="' + iso(TODAY) + '"></div><div class="tabs" id="cs-tabs" style="margin:14px 0 0"></div><div id="cs-body"></div><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Enregistrer tout</button></div>', 'big');
+    var bothRun = function () { return site === 'Bouaanfir' && num(st.ancien.h) > 0 && num(st.nouveau.h) > 0; };
+    function draw() {
+      var s = st[cur], l = lineBy(cur);
+      $('cs-tabs').hidden = lines.length < 2; $('cs-tabs').innerHTML = lines.map(function (x) { var f = st[x.id].h.trim() ? '<span class="bdg">✓</span>' : ''; return '<button type="button" role="tab" data-cstab="' + x.id + '" aria-selected="' + (cur === x.id) + '">' + esc(x.nom) + f + '</button>'; }).join('');
+      var h = '<div class="row3" style="margin-top:12px"><div class="f"><label for="cs-h">Heures de marche</label><input class="in" id="cs-h" inputmode="decimal" value="' + esc(s.h) + '"></div><div class="f"><label for="cs-tv">Tout-venant consommé (m³)</label><input class="in" id="cs-tv" inputmode="decimal" value="' + esc(s.tv) + '"></div></div>' +
+        '<div class="f"><label>Produits en cours</label><div class="modes" id="cs-prods">' + qk.filter(function (k) { return k !== 'tv'; }).map(function (k) { return '<button type="button" data-csp="' + k + '" aria-pressed="' + (s.prods.indexOf(k) >= 0) + '">' + esc(P[k].n) + '</button>'; }).join('') + '</div></div>' +
+        '<div class="row2"><div class="f"><label for="cs-c">Arrêt (facultatif)</label><select class="in" id="cs-c"><option value="">Aucun</option>' + STOPS.map(function (x) { return '<option' + (s.cause === x ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></div><div class="f"><label for="cs-m">Durée (minutes)</label><input class="in" id="cs-m" inputmode="numeric" value="' + esc(s.min) + '"></div></div>';
+      if (site === 'Bouaanfir') {
+        var sk = qk.filter(function (k) { return idx[iso(date) + '|' + k] > 0; });
+        h += '<hr class="sep"><h3 class="sech">Répartition des ventes du jour<span>seulement si les deux lignes ont marché</span></h3>' + (bothRun() ? (sk.length ? '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Produit</th><th>Vendu (m³)</th><th>Dont Nouveau Machine (m³)</th></tr></thead><tbody>' + sk.map(function (k) { return '<tr><td><b style="font-weight:600">' + esc(P[k].n) + '</b></td><td class="num">' + nf2.format(idx[iso(date) + '|' + k]) + '</td><td><input class="in" data-csk="' + k + '" inputmode="decimal" placeholder="Au prorata des heures" value="' + esc(spl[k] || '') + '"></td></tr>'; }).join('') + '</tbody></table></div>' : '<p class="m">Aucune vente de produit de Bouaanfir ce jour-là.</p>') : '<p class="m">Une seule ligne en marche (ou aucune) : toutes les ventes lui sont attribuées. Saisissez les heures des deux lignes pour répartir.</p>');
+      }
+      $('cs-body').innerHTML = h;
+    }
+    var grab = function () { var s = st[cur]; if (!$('cs-h')) return; s.h = $('cs-h').value; s.tv = $('cs-tv').value; s.cause = $('cs-c').value; s.min = $('cs-m').value; $('cs-body').querySelectorAll('[data-csk]').forEach(function (i) { spl[i.dataset.csk] = i.value; }); };
+    draw();
+    $('cs-tabs').addEventListener('click', function (e) { var b = e.target.closest('[data-cstab]'); if (b) { grab(); cur = b.dataset.cstab; draw(); } });
+    $('cs-body').addEventListener('click', function (e) { var b = e.target.closest('[data-csp]'); if (!b) return; var p = st[cur].prods, i = p.indexOf(b.dataset.csp); if (i >= 0) p.splice(i, 1); else p.push(b.dataset.csp); b.setAttribute('aria-pressed', i < 0 ? 'true' : 'false'); });
+    $('cs-body').addEventListener('input', function (e) { if (e.target.id === 'cs-h' && site === 'Bouaanfir') { var was = bothRun(); grab(); if (was !== bothRun()) { var f = document.activeElement.id, pos = e.target.selectionStart; draw(); var el = $(f); if (el) { el.focus(); el.setSelectionRange(pos, pos); } } } });
+    $('cs-d').addEventListener('change', function (e) { var d = parseIso(e.target.value); if (d && d <= TODAY) { date = d; load(d); draw(); } });
+    $('mg-cancel').addEventListener('click', closeModal);
+    $('mg-save').addEventListener('click', function () {
+      grab(); var key = iso(date), out = {};
+      for (var i = 0; i < lines.length; i++) { var l = lines[i], s = st[l.id], h = s.h.trim() ? num(s.h) : 0, tv = s.tv.trim() ? num(s.tv) : 0, mn = s.min.trim() ? num(s.min) : 0;
+        if (!(h >= 0) || !(tv >= 0) || !(mn >= 0)) return magErr('« ' + l.nom + ' » : heures, Tout-venant et durée doivent être des nombres positifs.'); if (h > 24) return magErr('« ' + l.nom + ' » : une ligne ne peut pas marcher plus de 24 h par jour.');
+        if (s.cause && !(mn > 0)) return magErr('« ' + l.nom + ' » : indiquez la durée de l’arrêt.'); if (!s.cause && mn > 0) return magErr('« ' + l.nom + ' » : indiquez la cause de l’arrêt.');
+        out[l.id] = (h || tv || s.prods.length || s.cause) ? { h: h, tv: tv, prods: s.prods.slice(), stops: s.cause ? [{ cause: s.cause, min: mn }] : [] } : null; }
+      var sp = {}; if (bothRun()) for (var k in spl) { if (!String(spl[k]).trim()) continue; var v = num(spl[k]), tot = idx[key + '|' + k] || 0; if (!(v >= 0)) return magErr('Répartition : nombre invalide pour « ' + P[k].n + ' ».'); if (v > tot + 0.005) return magErr('Répartition : « ' + P[k].n + ' » dépasse la quantité vendue (' + nf2.format(tot) + ' m³).'); sp[k] = v; }
+      lines.forEach(function (l) { if (out[l.id]) CARRD[key + '|' + l.id] = out[l.id]; else delete CARRD[key + '|' + l.id]; });
+      qk.forEach(function (k) { if (sp[k] != null) CSPL[key + '|' + k] = sp[k]; else delete CSPL[key + '|' + k]; });
+      audit('Saisie du jour Carrière', site + ' · ' + dfmt.format(date), lines.map(function (l) { return l.nom + ' ' + (out[l.id] ? nf2.format(out[l.id].h) + ' h' : '—'); }).join(' · ')); closeModal(); renderCarr(); toast('Saisie enregistrée.');
+    });
+  }
+  $('view-carr').addEventListener('click', function (e) {
+    var b; if ((b = e.target.closest('[data-catab]'))) { caTab = b.dataset.catab; return renderCarr(); } if ((b = e.target.closest('[data-caper]'))) { caPer = b.dataset.caper; return renderCarr(); }
+    if (e.target.closest('[data-casaisie]') && magCanWrite()) return caSaisie();
   });
 
   /* --- Audit --- */

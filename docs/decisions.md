@@ -14,8 +14,8 @@ Prototype status: **v34** (merged in `main`). Phase: **design** (no Django code 
 | Poste | Name | Menu (in order) | Rules |
 |---|---|---|---|
 | 1 | Direction (DG) | everything (incl. À contrôler, Dépense, Historique opérations, Utilisateurs, Audit) | sees salaries, margins, cost prices; sets prices, ceilings, blocks; unblocks once (audited); reprints BL as COPIE |
-| 2 | Contrôle | À contrôler, Dashboard, Point de vente › Stock produits, Magasin › Gasoil / Huiles et graisses | read-only; marks items "Vu"; approves the day |
-| 3 | Comptabilité et saisie | À saisir, Clients, Fournisseurs, Banque, Magasin (records Gasoil/Huiles), Point de vente › Stock produits | Clients full except ceiling/blocking/prices; Fournisseurs: add invoices only, **no supplier amounts**; sees Banque amounts [A] |
+| 2 | Contrôle | À contrôler, Dashboard, Point de vente › Stock produits, Oued, Carrière, Magasin › Gasoil / Huiles et graisses | read-only; marks items "Vu"; approves the day |
+| 3 | Comptabilité et saisie | À saisir, Clients, Fournisseurs, Banque, Oued and Carrière (records them), Magasin (records Gasoil/Huiles), Point de vente › Stock produits | Clients full except ceiling/blocking/prices; Fournisseurs: add invoices only, **no supplier amounts**; sees Banque amounts [A] |
 | 4 | Point de vente (Caisse) | Dashboard, À saisir, Point de vente (Caisse, Stock produits), Dépense | no prices/ceilings/unblocking; no invoices; BL printable **once**; can add expenses, cannot edit/delete [A] |
 | 5, 6 | Usine, Maintenance | later | to be defined |
 
@@ -116,12 +116,35 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] **Who records**: the accountant (Poste 3) records everything; the DG can too. Contrôle sees read-only. Caisse sees nothing here.
 - [D] **Prices**: Gasoil/Huiles prices and costs are visible to **DG, Contrôle and Comptabilité** (not Caisse). This is an exception to the earlier rule "accountant sees no cost prices"; it applies to fuel, oils and spare parts [A]. Salaries, margins and factory costs stay DG only.
 
-## 11. Machines
+## 11. Parc (formerly Machines)
 
 - [D] Quarry machines and factory machines, **hours meter**, maintenance **by hours or by days**, interventions, parts replaced, costs, failures.
 - [D] Recurring part alert: the same part replaced **3+ times within 180 days** → warning, with a "cause" field on each intervention.
 - Maintenance status: ok / soon / late (late if over the due hours/date). Cost per hour = total cost / hours metered.
 - Menu badge: count of late maintenances.
+
+- [D] The former **Machines** section is renamed **Parc**: machines **and trucks** (new type *Camion*, with a capacity in m³ for tipper trucks). Crushers and screens stay in Parc with their hours, maintenance and parts. The empty "Parc" menu entry is removed (merged). Rented machines/trucks will live in **Location** (later).
+
+## 11b. Oued (extraction of Tout-venant)
+
+- [D] Two sites: **Bouaanfir (Saaidate)** and **Nfifa**. Tout-venant is extracted by an engine and carried by trucks to the crushing site.
+- [D] **Saisie du jour** (one table, recorded by the accountant from the site manager's paper): per truck the **number of trips** (quantity = trips × truck capacity, **in m³**), per engine and per rented truck the **hours**. Rows: own engines/trucks from Parc + rented ones. One « Enregistrer tout »; re-saving a date replaces it.
+- [D] **Rented equipment** is paid **by the hour**, price per hour differs per owner, the total is paid **at month end or on request**. Oued shows hours × rate, and a "Location par propriétaire" statement. [A] Rented items are example values until **Location** is designed (a full section tracking everything about renting out and renting in trucks and machines).
+- [D] Tabs: Journal, Camions, Engins, Coûts. KPIs: trips, m³ extracted, hours, **cost per m³** (fuel from Magasin + rent + maintenance of own equipment) [A: drivers' wages not included].
+
+## 11c. Carrière (crushing and production lines)
+
+- [D] Section name **Carrière** (the owner calls a line "Machine"). Lines: **Bouaanfir · Ancien Machine**, **Bouaanfir · Nouveau Machine**, **Nfifa · Machine**. Each line is linked to its crusher(s) and screen from **Parc**.
+- [D] **Quantities are the sales** (m³ sold in the Caisse), not an estimate of production. No campaigns, no pile survey for now (owner decision: keep it simple).
+- [D] **Saisie du jour** per line: hours, Tout-venant consumed (m³), products in progress (tags, several allowed), optional stop (cause + minutes).
+- [D] **Sales per line in Bouaanfir without any extra Caisse step**: a product may come from both lines. Rule: if only one line ran that day, all its sales go to it; if both ran, the accountant may enter "dont Nouveau Machine (m³)" per product, otherwise it is split **pro rata of hours**; with no record, the product's **main line** (catalogue field *Ligne principale*). Nfifa: all sales to its single line.
+- [D] Tabs: Journal, Ventes, Arrêts, Équipements. KPIs: hours, Tout-venant consumed, sales of the line, sales ÷ Tout-venant (indicative: part of the material is lost with washing and soil).
+- [D] Costs of Oued/Carrière: visible to **DG, Contrôle and Comptabilité**, not to the Caisse (same rule as Gasoil). Accountant records, Contrôle read-only, Caisse sees neither section.
+
+## 11d. Stock illimité
+
+- [D] **Quarry products** (Tout-venant, Grave, Gravettes, Sable… everything not made by Usine Agglos) have an **unlimited stock**: the Caisse shows "Stock illimité" and never blocks a sale for lack of stock; only sold quantities are tracked. Bricks, hourdis, etc. keep their computed stock.
+- [D] Catalogue: quarry products no longer have an initial stock field; they have a **Ligne principale** (Ancien Machine / Nouveau Machine for Bouaanfir, Machine Nfifa). A product belongs to one site only (no sand at both sites). Placeholder data: Gravette 8/16 and 15/25 moved to Bouaanfir.
 
 ## 12. Credit, blocking and VAT rules
 
