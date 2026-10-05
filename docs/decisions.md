@@ -59,7 +59,7 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 
 ## 5. Dépense (cash expenses)
 
-- [D] Records every money outflow from the caisse.
+- [D] Records every money outflow from the caisse. **Dépense is now a sub-section of Point de vente** (Caisse · Produits · Stock produits · Dépense), no longer a top-level menu.
 - Fields: amount, category (Gasoil, Réparation, Pièces, Salaire / avance, Nourriture, Transport, Autre) [A], beneficiary, note; time and user automatic.
 - [D] Today's list with a blue total row; the caisse user can only add. [A] DG sees any day and can edit/delete (audited).
 - [D] Top cards on the page: Espèces encaissées, Dépenses, **Reste**.
@@ -97,6 +97,8 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] Cheque/effet printing: preview then print; the supplier is usually the beneficiary; **place = always CHICHAOUA**; a third button to fill a cheque **without a supplier**; a cheque amount can exceed the open balance (confirmed).
 - [D] Suivi chèque columns: Numéro · Fournisseur · Facture · Date facture · Montant · Échéance · Encaissement · Status · Action; KPI cards are clickable. Statuses: Disponible / Émis / Payé / Annulé / Perdu / Impayé.
 - [D] Sticky table headers everywhere.
+- [D] **Banque** has two sub-sections: **Chèques émis** (formerly *Suivi chèque*) and **Chèques reçus** (cheques received from customers or other third parties, tracked like the issued ones). Official accounting wording: *Chèques émis / Chèques reçus*.
+- [D] **Chèques reçus**: fields n°, bank, drawer (customer or other third party), amount, received date, due date (or "à vue"), invoice/BL reference. Life cycle: **En portefeuille → Remis en banque → Encaissé** or **Impayé** (reason: provision insuffisante, sans provision, signature, périmé, opposition…, can be re-presented) ; or **Endossé** to a supplier ; or **Annulé**. Each change is dated, noted and audited (history). KPIs: en portefeuille, à échéance sous 7 jours, remis en banque, encaissés, impayés. Accountant records, Contrôle reads.
 
 ## 10. Magasin (formerly Stock)
 
@@ -129,8 +131,8 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 
 - [D] Two sites: **Bouaanfir (Saaidate)** and **Nfifa**. Tout-venant is extracted by an engine and carried by trucks to the crushing site.
 - [D] **Saisie du jour** (one table, recorded by the accountant from the site manager's paper): per truck the **number of trips** (quantity = trips × truck capacity, **in m³**), per engine and per rented truck the **hours**. Rows: own engines/trucks from Parc + rented ones. One « Enregistrer tout »; re-saving a date replaces it.
-- [D] **Rented equipment** is paid **by the hour**, price per hour differs per owner, the total is paid **at month end or on request**. Oued shows hours × rate, and a "Location par propriétaire" statement. [A] Rented items are example values until **Location** is designed (a full section tracking everything about renting out and renting in trucks and machines).
-- [D] Tabs: Journal, Camions, Engins, Coûts. KPIs: trips, m³ extracted, hours, **cost per m³** (fuel from Magasin + rent + maintenance of own equipment) [A: drivers' wages not included].
+- [D] **Rented equipment** comes from the **Location** fleet (paid by the hour, price differs per owner, total paid at month end or on request). Oued shows hours × rate and a "Location par propriétaire" statement.
+- [D] Tabs: Journal, Camions, Engins, Coûts. KPIs: trips, m³ extracted, hours, **cost per m³** = fuel (Magasin) + rent (from Location fleet) + maintenance of own equipment + **labour of the employees and drivers assigned to the oued** (monthly salary ÷ 26 per day, from Personnel; shown to the DG only, others see the cost without labour).
 
 ## 11c. Carrière (crushing and production lines)
 
@@ -163,7 +165,14 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 
 ## 14. Personnel
 
-- [D] Company employees with contracts and **monthly salary**; **26 working days/month**; ~6 factory workers vary day to day. Daily **assignment** (Usine / Carrière / Bureau / Absent) with default site; salaries visible to the DG only. Labour cost to the factory feeds the cost per mille.
+- [D] Sub-sections: **Employés** (list + fiche), **Présences** (daily sheet), **Alertes**, **Statistiques**, **Paie** (DG only). 26 working days/month. Salaries and pay visible to the **DG only**; the accountant records everything else (new employee, presences, hours).
+- [D] **Fiche employé**: full name, CIN (+ expiry), birth date, phone, address, person to contact, family situation and children, CNSS n°, RIB, position, usual assignment (Usine Agglos / Carrière / Oued / Bureau) and site (Bouaanfir / Nfifa / Usine / Siège), **contract** (CDI, CDD, ANAPEC, Saisonnier, Journalier; start, end; end of trial period), driving licence expiry, next medical visit, active/left. Tabs: Profil, Contrat et documents, Absences, Heures supplémentaires.
+- [D] **Alertes**: automatic reminders (contract end 30 d, trial end 15 d, CIN 60 d, licence 60 d, medical visit 30 d) + **personal reminders with a date set by the owner** (title, date, days before, optional employee). Count shown as a badge on Personnel.
+- [D] **Présences** (daily, one save): assignment of the day, status (Présent / Absence non justifiée / Absence justifiée / Maladie avec certificat / Accident de travail / Congé payé / Congé sans solde), lateness (minutes), **overtime hours ×125 % and ×150 %**, supporting document (type, received yes/no). Sunday = rest day, only hours worked are entered.
+- [D] **Overtime hour rate = monthly salary × 12 ÷ (52 × 44)**, i.e. salary divided by 44 weekly hours; the multipliers 125 % (working days) and 150 % (Sunday, holidays, night) are **example values to confirm** (editable by the DG in Paie).
+- [D] **Statistiques** (Aujourd'hui / Ce mois / Mois précédent / Tout): attendance rate, absences by type, non-justified, lateness, overtime, absenteeism per month, per-employee table with an assiduity bar; DG sees the cost of unpaid absences and overtime value.
+- [D] **Paie** (estimate): base salary − unpaid days (salary ÷ 26) + overtime = net estimate; excludes CNSS, AMO and IR [A].
+- [D] **Links**: the daily assignment feeds the cost of Usine Agglos (cost per mille) and of **Oued** (salary ÷ 26 per day worked by the employees/drivers assigned to the oued, per site). Even though employees are paid monthly, labour cost is split automatically per day. Absent employees are not counted.
 
 ## 15. À saisir / À contrôler / Clôture
 
@@ -179,12 +188,43 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - Cost per mille, margin, drying and stock: see section 13.
 - Totals row under every summable table; blue header and total rows; sticky headers.
 
-## 17. Open questions
+## 18. Interface rules (v40)
+
+- [D] **Buttons**: no more black. Primary buttons, selected tabs and selected chips use a vivid blue (`--act`).
+- [D] **Key card**: in every statistics page the most important figure is shown in a colour card (blue gradient); alerts use the yellow card.
+- [D] **Periods**: every statistics page offers **Aujourd'hui · Ce mois · Mois précédent · Tout** (the older pages keep the global Période bar).
+- [D] **Print button under every page of statistics** ("Imprimer cette page"). The printout is organised: SOCOBO header, section title, subtitle with the tab and the period, date and user of printing, indicators, then the tables with their totals.
+
+## 19. Location (renting trucks and engines from owners)
+
+- [D] A **loueur** is also a **supplier** (category *Location*): created from Location, appears in Fournisseurs, and the account is shared (validated statements = invoices, payments = règlements).
+- [D] Sub-sections: **Loueurs** (list + fiche), **Décomptes** (monthly statements for all loueurs), **Rendement**.
+- [D] **Fleet of a loueur**: unit (truck with capacity m³, or engine), **price per hour** (differs per owner), **who pays fuel** (us / the loueur), **who pays repairs** (us / the loueur), usual site. Add a unit in a few clicks.
+- [D] **Hours** come from Oued › Saisie du jour (and a manual "heures hors oued" for other uses). Gross = hours × price.
+- [D] **Deductions**: fuel we supply (taken from Magasin › Gasoil; rented units whose fuel is ours appear in the fuel Saisie du jour) and **repairs done in our garage / spare parts we give him** when they are his responsibility. Net HT = gross − deductions; TVA per loueur; TTC.
+- [D] **Décompte** per month: provisional until the month ends, then **validated** (creates the invoice in the supplier account). **Règlements** (virement, espèces, chèque) are allocated to the oldest invoices; balance = billed − paid. Paid "at month end or on request".
+- [D] **Rendement per unit**: hours, utilisation (hours ÷ working days × 8 h), trips and m³ for trucks, cost per hour and per m³.
+- [A] Spare parts link to Magasin › Pièces de rechange when that section is designed.
+
+## 20. Charges (general company expenses)
+
+- [D] New top-level section **Charges**: everything the company spends **outside** cash expenses (Dépense), fuel and oils (Magasin), rent of machines (Location), maintenance of the Parc and salaries.
+- [D] Sub-sections: **Tableau de bord**, **Journal**, **Récurrentes**, **Budgets**, **Coûts globaux**.
+- [D] **Charge**: date, **13 categories with sub-categories** (loyers, énergie et eau, télécoms, assurances, honoraires, impôts et taxes, frais bancaires, bureau et entretien, déplacements, publicité, personnel hors salaires, sécurité et environnement, divers), beneficiary (linked to the supplier list), n° of the piece, **HT, TVA (20/14/10/7/0) and TTC**, **cost centre** (Siège, Bouaanfir, Nfifa, Usine Agglos, Parc, Général), payment mode, status Payé / À payer with due date. Edit by DG and accountant, delete by DG, audited.
+- [D] **Dashboard**: total TTC (key card, with change vs previous period), HT, recoverable VAT, amount to pay (overdue highlighted), 6-month trend, next due dates, split by category, by cost centre and top beneficiaries, budget alerts.
+- [D] **Récurrentes**: monthly / quarterly / annual charges (rent, electricity, insurance, accountant, guarding, CNSS part patronale, professional tax…); equivalent monthly and yearly fixed charges; "Générer ce mois" creates the due charge; pause/resume.
+- [D] **Budgets**: monthly budget per category (set by the DG), actual vs budget, % consumed, statuses (dans le budget / attention ≥ 90 % / dépassé) and an alert on the dashboard.
+- [D] **Coûts globaux**: one page with all costs of the company by nature (charges, fuel, oils, rental, Parc maintenance, caisse expenses, labour [DG only]) and their share.
+- [A] Amounts are examples. Not included: purchases of factory materials, depreciation.
+
+## 21. Open questions
 
 1. Legal name on bank documents.
 2. Tariffs and recipes (section 13).
 3. Which À saisir tasks are mandatory.
-4. Magasin › Pièces de rechange design.
+4. Magasin › Pièces de rechange design (link with Location repairs).
+8. Overtime multipliers (125 % / 150 %) and what the CNSS/AMO/IR payroll must include.
+9. Real budgets per charge category, real rented fleet and prices per hour.
 5. Opening cash balance for the caisse (assumed none).
 6. Real company details (address, ICE, RC, IF).
 7. DG dashboard content.
