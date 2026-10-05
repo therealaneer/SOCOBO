@@ -223,8 +223,8 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 2. Tariffs and recipes (section 13).
 3. Which À saisir tasks are mandatory.
 4. Magasin › Pièces de rechange design (link with Location repairs).
-8. Overtime multipliers (125 % / 150 %) and what the CNSS/AMO/IR payroll must include.
-9. Real budgets per charge category, real rented fleet and prices per hour.
 5. Opening cash balance for the caisse (assumed none).
 6. Real company details (address, ICE, RC, IF).
 7. DG dashboard content.
+8. Overtime multipliers (125 % / 150 %) and what the CNSS/AMO/IR payroll must include.
+9. Real budgets per charge category, real rented fleet and prices per hour.
