@@ -23,6 +23,9 @@ Prototype status: **v34** (merged in `main`). Phase: **design** (no Django code 
 - [D] À saisir is kept in the Caisse menu even though not listed in the owner's last list [A].
 - [D] The top bar (poste chip, bell, avatar) is hidden on the Caisse screen (full-screen POS).
 - [D] Permissions enforced on the server, not only hidden in the UI.
+- [D] **Deployment scope (owner decision)**: internal use only at the start — 4 PCs on the company LAN, all connected to the server (the NAS). No access from the internet.
+- [D] **Client form**: a full-screen installed app (PWA: icon on the desktop, window without tabs or address bar), not a tab in a normal browser. An Electron/Tauri desktop wrapper is not needed [A].
+- [D] Remote access is deferred; if needed later, via a VPN (e.g. Tailscale/WireGuard), never by opening a router port. Nothing is changed on the NAS until the owner approves.
 
 ## 2. Branding
 
