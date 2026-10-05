@@ -126,6 +126,11 @@ button { cursor: pointer; }
 .back { border: 0; background: transparent; padding: 6px 0; color: var(--ink-2); font-weight: 500; margin: 20px 0 -16px; display: inline-flex; gap: 6px; }
 .back:hover { color: var(--ink); }
 .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.md-wrap { max-height: 50vh; overflow: auto; border: 1px solid var(--line); border-radius: 14px; margin: 12px 0 8px; }
+.md-tb { margin: 0; min-width: 0; }
+.md-tb thead th { position: sticky; top: 0; z-index: 1; }
+.md-tb td { padding-top: 6px; padding-bottom: 6px; }
+.md-tb .in { height: 38px; padding: 4px 10px; min-width: 90px; }
 .tabs { display: flex; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
 .tabs button { border: 0; background: transparent; padding: 8px 14px; border-radius: 999px; font-weight: 500; color: var(--ink-2); }
 .tabs button[aria-selected="true"] { background: var(--ink); color: var(--page); }
@@ -4533,19 +4538,20 @@ body.pos-full header.top { display: none !important; }
   /* ===== Magasin : Gasoil et Huiles/graisses (entrées, consommation, reste, coût moyen) ===== */
   var MAGK = { fuel: { sub: 'Gasoil', t: 'Gasoil', s: 'Citernes Bouaanfir et Nfifa : entrées, consommation, reste et coût', one: 'citerne' }, oil: { sub: 'Huiles et graisses', t: 'Huiles et graisses', s: 'Huiles, graisses et lubrifiants : entrées, consommation, reste et coût', one: 'produit' } };
   var MAGI = [
-    { id: 1, k: 'fuel', nom: 'Citerne Bouaanfir', unit: 'L', cap: 20000, min: 3000, open: 9000, px0: 10.4, site: 'Bouaanfir' },
-    { id: 2, k: 'fuel', nom: 'Citerne Nfifa', unit: 'L', cap: 15000, min: 2500, open: 6000, px0: 10.4, site: 'Nfifa' },
-    { id: 3, k: 'oil', nom: 'Huile moteur 15W40', unit: 'L', cap: 0, min: 200, open: 420, px0: 38 },
-    { id: 4, k: 'oil', nom: 'Huile hydraulique HV46', unit: 'L', cap: 0, min: 200, open: 330, px0: 42 },
-    { id: 5, k: 'oil', nom: 'Graisse industrielle', unit: 'kg', cap: 0, min: 40, open: 90, px0: 28 }
+    { id: 1, k: 'fuel', nom: 'Citerne Bouaanfir', unit: 'L', cap: 20000, min: 3000, open: 9000, px0: 10.4, site: 'Bouaanfir', byMach: true },
+    { id: 2, k: 'fuel', nom: 'Citerne Nfifa', unit: 'L', cap: 15000, min: 2500, open: 6000, px0: 10.4, site: 'Nfifa', byMach: true },
+    { id: 3, k: 'oil', nom: 'Huile moteur 15W40', unit: 'L', cap: 0, min: 200, open: 420, px0: 38, byMach: true },
+    { id: 4, k: 'oil', nom: 'Huile hydraulique HV46', unit: 'L', cap: 0, min: 200, open: 330, px0: 42, byMach: true },
+    { id: 5, k: 'oil', nom: 'Graisse industrielle', unit: 'kg', cap: 0, min: 40, open: 90, px0: 28, byMach: false }
   ];
+  var PARCV = [{ nom: 'Camion benne 31204-B-6', site: 'Bouaanfir' }, { nom: 'Camion benne 31377-B-6', site: 'Bouaanfir' }, { nom: 'Camion benne 28815-A-6', site: 'Nfifa' }, { nom: 'Camion citerne 40962-B-6', site: 'Nfifa' }, { nom: 'Camionnette 12740-D-6', site: 'Usine Agglos' }];
   var MAGM = [], magSeq = 0, magTab = 'stock', magPer = 'month', magKind = 'fuel', magMore = 60;
   var MAGU = ['L', 'kg', 'Fût', 'Bidon', 'Unité'];
   var magCanWrite = function () { return ROLE === 'dg' || ROLE === 'compta'; };
   var magItem = function (id) { return MAGI.filter(function (x) { return x.id === +id; })[0]; };
   (function () {
     var r = mkRng(9031), sup = { fuel: ['Sud Carburants SARL', 'Station Diesel Al Amal'], oil: ['Pièces Poids Lourds du Souss', 'Auto Pièces Al Massira'] };
-    var ms = MACH.filter(function (m) { return m.actif; });
+    var ms = MACH.filter(function (m) { return m.actif; }), tr = PARCV;
     function add(k, item, d, type, o) { magSeq += 1; var x = { id: magSeq, k: k, item: item.id, d: d, type: type, q: o.q, px: o.px || 0, sup: o.sup || '', ref: o.ref || '', mach: o.mach || '', h: o.h || null, who: o.who || '', cost: 0 }; MAGM.push(x); return x; }
     function qtyAt(item) { var q = item.open; MAGM.forEach(function (x) { if (x.item === item.id) q += x.type === 'in' ? x.q : -x.q; }); return q; }
     for (var i = 120; i >= 0; i--) {
@@ -4555,12 +4561,13 @@ body.pos-full header.top { display: none !important; }
         if (it.k === 'fuel' ? qn < it.cap * 0.3 : qn < it.min * 1.4) { var q = it.k === 'fuel' ? Math.round((it.cap * 0.9 - qn) / 100) * 100 : Math.round(it.min * 2.2); add(it.k, it, d, 'in', { q: q, px: it.k === 'fuel' ? Math.round((10.1 + r() * 0.9) * 100) / 100 : Math.round(it.px0 * (0.95 + r() * 0.12) * 100) / 100, sup: sup[it.k][Math.floor(r() * 2)], ref: 'BL-' + (4100 + Math.floor(r() * 800)) }); }
       });
       if (!workDay(d)) continue;
+      tr.forEach(function (v) { var tank = MAGI.filter(function (t) { return t.k === 'fuel' && t.site === (v.site === 'Bouaanfir' ? 'Bouaanfir' : 'Nfifa'); })[0], q = Math.round((40 + r() * 90) / 5) * 5; if (r() < 0.6 && qtyAt(tank) - q > 400) add('fuel', tank, d, 'out', { q: q, mach: v.nom, who: 'Chauffeur' }); });
       ms.forEach(function (m) {
         var tank = MAGI.filter(function (t) { return t.k === 'fuel' && t.site === (m.site === 'Bouaanfir' ? 'Bouaanfir' : 'Nfifa'); })[0];
         if (m.type === 'Engin' || m.type === 'Concasseur' || m.type === 'Chariot') {
           if (r() < 0.55) { var q = Math.round((m.type === 'Concasseur' ? 160 + r() * 220 : 70 + r() * 150) / 5) * 5; if (qtyAt(tank) - q > 400) add('fuel', tank, d, 'out', { q: q, mach: m.nom, h: Math.round(m.h - i * 5), who: 'Chef de site' }); }
         }
-        if (r() < 0.035) { var oil = MAGI.filter(function (t) { return t.k === 'oil'; })[Math.floor(r() * 3)], q2 = oil.unit === 'kg' ? 4 + Math.floor(r() * 6) : 10 + Math.floor(r() * 30); if (qtyAt(oil) - q2 > 10) add('oil', oil, d, 'out', { q: q2, mach: m.nom, who: 'Mécanicien' }); }
+        if (r() < 0.035) { var oil = MAGI.filter(function (t) { return t.k === 'oil'; })[Math.floor(r() * 3)], q2 = oil.unit === 'kg' ? 4 + Math.floor(r() * 6) : 10 + Math.floor(r() * 30); if (qtyAt(oil) - q2 > 10) add('oil', oil, d, 'out', { q: q2, mach: oil.byMach ? m.nom : '', who: 'Mécanicien' }); }
       });
     }
   })();
@@ -4584,7 +4591,7 @@ body.pos-full header.top { display: none !important; }
     var sum = function (l, f) { return l.reduce(function (t, x) { return t + f(x); }, 0); }, un = items.every(function (x) { return x.unit === items[0].unit; }) ? items[0].unit : '';
     var qTot = sum(items, function (x) { return st[x.id].q; }), vTot = sum(items, function (x) { return st[x.id].val; }), low = items.filter(function (x) { return st[x.id].q < x.min; }).length;
     $('mag-t').textContent = 'Magasin · ' + K.t; $('mag-s').textContent = K.s;
-    $('mag-a').innerHTML = w ? '<button type="button" class="btn" data-mgin>+ Entrée</button><button type="button" class="btn" data-mgout>+ Sortie</button><button type="button" class="btn" data-mginv>Inventaire</button>' + (kind === 'oil' ? '<button type="button" class="btn primary" data-mgnew>+ Nouveau produit</button>' : '') : '';
+    $('mag-a').innerHTML = w ? '<button type="button" class="btn" data-mgin>+ Entrée</button><button type="button" class="btn primary" data-mgday>+ Saisie du jour</button><button type="button" class="btn" data-mginv>Inventaire</button>' + (kind === 'oil' ? '<button type="button" class="btn" data-mgnew>+ Nouveau produit</button>' : '') : '';
     $('mag-per').innerHTML = '<span class="tabs" style="margin:0">' + [['month', 'Ce mois'], ['prev', 'Mois précédent'], ['all', 'Tout']].map(function (p) { return '<button type="button" data-mgper="' + p[0] + '" aria-selected="' + (magPer === p[0]) + '">' + p[1] + '</button>'; }).join('') + '</span>';
     $('mag-kpis').innerHTML = kpiH('Stock actuel', un ? magQ(qTot, un) : items.length + ' produits', kind === 'fuel' ? 'Bouaanfir : ' + magQ(st[1].q, 'L') + ' · Nfifa : ' + magQ(st[2].q, 'L') : (low ? low + ' sous le seuil' : 'Tous au-dessus du seuil'), low) +
       kpiH('Entrées · ' + rg.lab, un ? magQ(sum(ins, function (x) { return x.q; }), un) : nf2.format(sum(ins, function (x) { return x.cost; })), 'Montant : ' + nf2.format(sum(ins, function (x) { return x.cost; }))) +
@@ -4604,7 +4611,7 @@ body.pos-full header.top { display: none !important; }
       h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Désignation</th><th>Machine</th><th>Compteur</th><th>Remis à</th><th>Quantité</th><th>Coût</th></tr></thead><tbody>' + (outs.length ? outs.slice(0, magMore).map(function (x) { var it = magItem(x.item); return '<tr><td>' + dfmt.format(x.d) + '</td><td>' + esc(it.nom) + '</td><td>' + esc(x.mach || '—') + '</td><td class="num">' + (x.h ? nf0.format(x.h) + ' h' : '—') + '</td><td>' + esc(x.who || '—') + '</td><td class="num">' + nf2.format(x.q) + ' ' + esc(it.unit) + '</td><td class="num">' + nf2.format(x.cost) + '</td></tr>'; }).join('') : '<tr><td colspan="7" style="color:var(--ink-2)">Aucune sortie sur cette période.</td></tr>') +
         '</tbody><tfoot><tr class="tot"><td colspan="5">Total · ' + outs.length + ' sortie' + (outs.length > 1 ? 's' : '') + '</td><td class="num">' + (un ? nf2.format(sum(outs, function (x) { return x.q; })) + ' ' + esc(un) : '') + '</td><td class="num">' + nf2.format(sum(outs, function (x) { return x.cost; })) + '</td></tr></tfoot></table></div>' + more(outs);
     } else {
-      var g = {}; outs.forEach(function (x) { var k = x.mach || 'Hors machine'; (g[k] = g[k] || []).push(x); });
+      var g = {}; outs.forEach(function (x) { var k = x.mach || 'Sans machine'; (g[k] = g[k] || []).push(x); });
       var rows2 = Object.keys(g).map(function (k) { var l = g[k], hs = l.filter(function (x) { return x.h; }).map(function (x) { return x.h; }), dh = hs.length > 1 ? Math.max.apply(null, hs) - Math.min.apply(null, hs) : 0; return { k: k, n: l.length, q: sum(l, function (x) { return x.q; }), c: sum(l, function (x) { return x.cost; }), dh: dh }; }).sort(function (a, b) { return b.c - a.c; });
       h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Machine</th><th>Sorties</th><th>Quantité</th><th>Coût</th>' + (kind === 'fuel' ? '<th>Heures</th><th>Litres par heure</th>' : '') + '</tr></thead><tbody>' + (rows2.length ? rows2.map(function (x) { return '<tr><td><b style="font-weight:600">' + esc(x.k) + '</b></td><td class="num">' + x.n + '</td><td class="num">' + (un ? nf2.format(x.q) + ' ' + esc(un) : '—') + '</td><td class="num">' + nf2.format(x.c) + '</td>' + (kind === 'fuel' ? '<td class="num">' + (x.dh > 0 ? nf0.format(x.dh) + ' h' : '—') + '</td><td class="num">' + (x.dh > 0 ? nf2.format(x.q / x.dh) : '—') + '</td>' : '') + '</tr>'; }).join('') : '<tr><td colspan="6" style="color:var(--ink-2)">Aucune consommation sur cette période.</td></tr>') +
         '</tbody><tfoot><tr class="tot"><td>Total</td><td class="num">' + outs.length + '</td><td class="num">' + (un ? nf2.format(sum(outs, function (x) { return x.q; })) + ' ' + esc(un) : '') + '</td><td class="num">' + nf2.format(sum(outs, function (x) { return x.cost; })) + '</td>' + (kind === 'fuel' ? '<td></td><td></td>' : '') + '</tr></tfoot></table></div><div class="foot"><span>Le coût de chaque sortie est calculé au coût moyen du moment ; il alimente les coûts de la machine.</span></div>';
@@ -4628,15 +4635,39 @@ body.pos-full header.top { display: none !important; }
       magSave(it, { type: 'in', d: d, q: q, px: p, sup: s, ref: $('mg-r').value.trim() }); audit('Entrée ' + (it.k === 'fuel' ? 'gasoil' : 'huile'), it.nom, nf2.format(q) + ' ' + it.unit + ' · ' + nf2.format(q * p)); closeModal(); renderMag(); toast('Entrée enregistrée.');
     });
   }
-  function magOut() {
-    openModal('<h2>Sortie de ' + (magKind === 'fuel' ? 'gasoil' : 'produit') + '</h2><p class="m">Consommation par une machine.</p><div class="row2"><div class="f"><label for="mg-d">Date</label><input class="in" id="mg-d" type="date" value="' + iso(TODAY) + '" max="' + iso(TODAY) + '"></div><div class="f"><label for="mg-i">' + (magKind === 'fuel' ? 'Citerne' : 'Produit') + '</label><select class="in" id="mg-i">' + magOpts() + '</select></div></div>' +
-      '<div class="row2"><div class="f"><label for="mg-m">Machine</label><select class="in" id="mg-m">' + magMachOpts() + '</select></div><div class="f"><label for="mg-q">Quantité</label><input class="in" id="mg-q" inputmode="decimal"></div></div><div class="row2"><div class="f"><label for="mg-h">Compteur (heures), facultatif</label><input class="in" id="mg-h" inputmode="decimal"></div><div class="f"><label for="mg-w">Remis à</label><input class="in" id="mg-w" placeholder="Nom de la personne"></div></div><p class="m" id="mg-rest"></p><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Enregistrer</button></div>');
-    var upd = function () { var it = magItem($('mg-i').value); $('mg-rest').textContent = 'Reste disponible : ' + magQ(magCalc()[it.id].q, it.unit); }; upd(); $('mg-i').addEventListener('change', upd); $('mg-cancel').addEventListener('click', closeModal);
+  function magSources() { return MACH.filter(function (m) { return m.actif; }).map(function (m) { return { nom: m.nom, tag: 'Machine', site: m.site }; }).concat(PARCV.map(function (v) { return { nom: v.nom, tag: 'Camion (Parc)', site: v.site }; })); }
+  function magDay() {
+    var oil = magKind === 'oil', src = magSources(), tanks = MAGI.filter(function (x) { return x.k === 'fuel'; }), tankOf = function (site) { return (tanks.filter(function (t) { return t.site === site; })[0] || tanks[1]).id; };
+    openModal('<h2>Saisie du jour</h2><p class="m">Recopiez la feuille de l’atelier. Laissez vide ce qui n’a rien consommé.</p><div class="row2"><div class="f"><label for="md-d">Date</label><input class="in" id="md-d" type="date" value="' + iso(TODAY) + '" max="' + iso(TODAY) + '"></div>' + (oil ? '<div class="f"><label for="md-i">Produit</label><select class="in" id="md-i">' + magOpts() + '</select></div>' : '') + '</div><div id="md-body"></div><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Enregistrer tout</button></div>', 'big');
+    var cur = function () { return oil ? magItem($('md-i').value) : null; };
+    function draw() {
+      var it = cur(), st = magCalc();
+      if (it && !it.byMach) { $('md-body').innerHTML = '<div class="row2" style="margin-top:12px"><div class="f"><label for="md-q1">Quantité consommée (' + esc(it.unit) + ')</label><input class="in md-q" id="md-q1" inputmode="decimal"></div><div class="f"><label for="md-w">Remis à</label><input class="in" id="md-w" placeholder="Nom de la personne"></div></div><p class="m">Ce produit est suivi par quantité seulement, sans machine. Stock : ' + magQ(st[it.id].q, it.unit) + '</p>'; return; }
+      $('md-body').innerHTML = '<div class="md-wrap"><table class="tbl-lite md-tb"><thead><tr><th>Machine ou camion</th><th>Quantité' + (it ? ' (' + esc(it.unit) + ')' : ' (L)') + '</th>' + (oil ? '' : '<th>Compteur (h)</th><th>Citerne</th>') + '</tr></thead><tbody>' + src.map(function (x, i) {
+        return '<tr><td><b style="font-weight:600">' + esc(x.nom) + '</b><small>' + x.tag + ' · ' + esc(x.site) + '</small></td><td><input class="in md-q" data-r="' + i + '" inputmode="decimal" aria-label="Quantité ' + esc(x.nom) + '"></td>' + (oil ? '' : '<td><input class="in md-h" data-r="' + i + '" inputmode="decimal" aria-label="Compteur ' + esc(x.nom) + '"></td><td><select class="in md-t" data-r="' + i + '">' + tanks.map(function (t) { return '<option value="' + t.id + '"' + (t.id === tankOf(x.site) ? ' selected' : '') + '>' + esc(t.nom.replace('Citerne ', '')) + '</option>'; }).join('') + '</select></td>') + '</tr>';
+      }).join('') + '</tbody></table></div><p class="m" id="md-tot"></p>'; tot();
+    }
+    function sums() { var by = {}; $('md-body').querySelectorAll('.md-q').forEach(function (inp) { var q = num(inp.value); if (!(q > 0)) return; var r = inp.dataset.r, id = oil ? +$('md-i').value : +$('md-body').querySelector('.md-t[data-r="' + r + '"]').value; by[id] = (by[id] || 0) + q; }); return by; }
+    function tot() {
+      var el = $('md-tot'); if (!el) return; var by = sums(), st = magCalc(), ids = oil ? [+$('md-i').value] : tanks.map(function (t) { return t.id; }), all = 0;
+      el.innerHTML = ids.map(function (id) { var it = magItem(id), q = by[id] || 0; all += q; var rest = st[id].q - q; return '<span' + (rest < 0 ? ' style="color:var(--bad-fg)"' : '') + '>' + esc(it.nom.replace('Citerne ', '')) + ' : ' + nf2.format(q) + ' ' + it.unit + ' → reste ' + nf2.format(rest) + '</span>'; }).join(' &nbsp;·&nbsp; ') + ' &nbsp;·&nbsp; <b>Total du jour : ' + nf2.format(all) + '</b>';
+    }
+    $('md-body').addEventListener('input', function (e) { if (e.target.matches('.md-q, .md-t')) tot(); });
+    $('md-body').addEventListener('change', function (e) { if (e.target.matches('.md-t')) tot(); });
+    $('md-body').addEventListener('keydown', function (e) { if (e.key !== 'Enter' || !e.target.matches('.md-q')) return; e.preventDefault(); var l = Array.prototype.slice.call($('md-body').querySelectorAll('.md-q')), n = l[l.indexOf(e.target) + 1]; if (n) n.focus(); });
+    if (oil) $('md-i').addEventListener('change', draw); draw(); $('mg-cancel').addEventListener('click', closeModal);
     $('mg-save').addEventListener('click', function () {
-      var d = parseIso($('mg-d').value), q = num($('mg-q').value), it = magItem($('mg-i').value), h = $('mg-h').value.trim() ? num($('mg-h').value) : null;
-      if (!d || d > TODAY) return magErr('Choisissez une date valide, pas dans le futur.'); if (!(q > 0)) return magErr('Saisissez une quantité supérieure à zéro.'); if (h !== null && !(h >= 0)) return magErr('Le compteur doit être un nombre positif.');
-      if (q > magCalc()[it.id].q) return magErr('Stock insuffisant : il reste ' + magQ(magCalc()[it.id].q, it.unit) + '.');
-      magSave(it, { type: 'out', d: d, q: q, mach: $('mg-m').value, h: h, who: $('mg-w').value.trim() }); audit('Sortie ' + (it.k === 'fuel' ? 'gasoil' : 'huile'), it.nom, nf2.format(q) + ' ' + it.unit + ($('mg-m').value ? ' · ' + $('mg-m').value : '')); closeModal(); renderMag(); toast('Sortie enregistrée.');
+      var d = parseIso($('md-d').value), it = cur(), st = magCalc(), out = [];
+      if (!d || d > TODAY) return magErr('Choisissez une date valide, pas dans le futur.');
+      if (it && !it.byMach) { var q1 = num($('md-q1').value); if (!(q1 > 0)) return magErr('Saisissez une quantité supérieure à zéro.'); out.push({ item: it, q: q1, mach: '', h: null, who: $('md-w').value.trim() }); }
+      else {
+        var bad = false; $('md-body').querySelectorAll('.md-q').forEach(function (inp) { if (!inp.value.trim()) return; var q = num(inp.value); if (!(q > 0)) { bad = true; return; } var r = +inp.dataset.r, h = oil ? '' : $('md-body').querySelector('.md-h[data-r="' + r + '"]').value.trim(); if (h && !(num(h) >= 0)) { bad = true; return; } out.push({ item: oil ? it : magItem($('md-body').querySelector('.md-t[data-r="' + r + '"]').value), q: q, mach: src[r].nom, h: h ? num(h) : null, who: '' }); });
+        if (bad) return magErr('Une quantité ou un compteur n’est pas un nombre valide.'); if (!out.length) return magErr('Saisissez au moins une quantité.');
+      }
+      var need = {}; out.forEach(function (o) { need[o.item.id] = (need[o.item.id] || 0) + o.q; });
+      for (var id in need) if (need[id] > st[id].q) return magErr('Stock insuffisant pour « ' + magItem(id).nom + ' » : il reste ' + magQ(st[id].q, magItem(id).unit) + '.');
+      out.forEach(function (o) { magSave(o.item, { type: 'out', d: d, q: o.q, mach: o.mach, h: o.h, who: o.who }); });
+      audit('Saisie du jour ' + (magKind === 'fuel' ? 'gasoil' : 'huile'), out.length + ' ligne' + (out.length > 1 ? 's' : ''), nf2.format(out.reduce(function (t, o) { return t + o.q; }, 0)) + ' ' + out[0].item.unit); closeModal(); renderMag(); toast(out.length + ' sortie' + (out.length > 1 ? 's enregistrées' : ' enregistrée') + '.');
     });
   }
   function magInv() {
@@ -4650,13 +4681,13 @@ body.pos-full header.top { display: none !important; }
     });
   }
   function magNew() {
-    openModal('<h2>Nouveau produit</h2><p class="m">Ajoutez un type d’huile, de graisse ou de lubrifiant.</p><div class="f"><label for="mn-n">Désignation</label><input class="in" id="mn-n" placeholder="Ex. : Huile de boîte 80W90"></div><div class="row3"><div class="f"><label for="mn-u">Unité</label><select class="in" id="mn-u">' + MAGU.map(function (u) { return '<option>' + u + '</option>'; }).join('') + '</select></div><div class="f"><label for="mn-m">Seuil mini</label><input class="in" id="mn-m" inputmode="decimal" value="0"></div><div class="f"><label for="mn-q">Stock initial</label><input class="in" id="mn-q" inputmode="decimal" value="0"></div></div><div class="f"><label for="mn-p">Prix unitaire initial HT</label><input class="in" id="mn-p" inputmode="decimal" value="0"></div><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Ajouter</button></div>');
+    openModal('<h2>Nouveau produit</h2><p class="m">Ajoutez un type d’huile, de graisse ou de lubrifiant.</p><div class="f"><label for="mn-n">Désignation</label><input class="in" id="mn-n" placeholder="Ex. : Huile de boîte 80W90"></div><div class="row3"><div class="f"><label for="mn-u">Unité</label><select class="in" id="mn-u">' + MAGU.map(function (u) { return '<option>' + u + '</option>'; }).join('') + '</select></div><div class="f"><label for="mn-m">Seuil mini</label><input class="in" id="mn-m" inputmode="decimal" value="0"></div><div class="f"><label for="mn-q">Stock initial</label><input class="in" id="mn-q" inputmode="decimal" value="0"></div></div><div class="row2"><div class="f"><label for="mn-p">Prix unitaire initial HT</label><input class="in" id="mn-p" inputmode="decimal" value="0"></div><div class="f"><label for="mn-b">Suivi par machine</label><select class="in" id="mn-b"><option value="1">Oui (huiles)</option><option value="0">Non, quantité seulement (graisses)</option></select></div></div><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Ajouter</button></div>');
     $('mg-cancel').addEventListener('click', closeModal);
     $('mg-save').addEventListener('click', function () {
       var n = $('mn-n').value.trim(), mi = num($('mn-m').value), q = num($('mn-q').value), p = num($('mn-p').value);
       if (!n) return magErr('Saisissez la désignation.'); if (MAGI.some(function (x) { return x.k === 'oil' && x.nom.toLowerCase() === n.toLowerCase(); })) return magErr('Ce produit existe déjà.');
       if (!(mi >= 0) || !(q >= 0) || !(p >= 0)) return magErr('Seuil, stock et prix doivent être des nombres positifs.');
-      var id = MAGI.reduce(function (t, x) { return Math.max(t, x.id); }, 0) + 1; MAGI.push({ id: id, k: 'oil', nom: n, unit: $('mn-u').value, cap: 0, min: mi, open: q, px0: p });
+      var id = MAGI.reduce(function (t, x) { return Math.max(t, x.id); }, 0) + 1; MAGI.push({ id: id, k: 'oil', nom: n, unit: $('mn-u').value, cap: 0, min: mi, open: q, px0: p, byMach: $('mn-b').value === '1' });
       audit('Produit ajouté', 'Huiles et graisses', n); closeModal(); renderMag(); toast('Produit ajouté.');
     });
   }
@@ -4666,7 +4697,7 @@ body.pos-full header.top { display: none !important; }
     if ((b = e.target.closest('[data-mgper]'))) { magPer = b.dataset.mgper; magMore = 60; return renderMag(); }
     if (e.target.closest('[data-mgmore]')) { magMore += 60; return renderMag(); }
     if (!magCanWrite()) return;
-    if (e.target.closest('[data-mgin]')) return magIn(); if (e.target.closest('[data-mgout]')) return magOut(); if (e.target.closest('[data-mginv]')) return magInv(); if (e.target.closest('[data-mgnew]')) return magNew();
+    if (e.target.closest('[data-mgin]')) return magIn(); if (e.target.closest('[data-mgday]')) return magDay(); if (e.target.closest('[data-mginv]')) return magInv(); if (e.target.closest('[data-mgnew]')) return magNew();
   });
 
   /* --- Audit --- */
