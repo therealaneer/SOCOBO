@@ -29,6 +29,7 @@ Prototype status: **v34** (merged in `main`). Phase: **design** (no Django code 
 - [D] Name **SOCOBO** (text only, no logo/icon anywhere). Sidebar: collapsed = empty at the top; expanded = wordmark "SOCOBO" (letter-spaced, bold, "BO" lighter).
 - [D] Company details printed on the BL are editable in **Utilisateurs › Entreprise** (adresse, ville, téléphone, ICE, RC, IF). Current values are random placeholders.
 - [?] Legal company name on cheques/effets (still "SOCOBO" as drawer).
+- [D] **Visual comfort (v35)**: neutral page background, no coloured gradient. Light: page `#F3F4F6`, cards/sheets `#FFFFFF`, text `#1F2937`. Dark: page `#161A1F`, sheets `#1E2329`, text `#E5E7EB` (no pure white/black). Brand blue only for sidebar, buttons, headers and accents. Text/background contrast must stay ≥ 4.5:1 (WCAG).
 
 ## 3. Caisse (Point de vente)
 

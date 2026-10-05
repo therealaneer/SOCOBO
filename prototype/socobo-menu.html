@@ -4,11 +4,11 @@
 <style>
 /* Layout: a single rounded app frame (soft blue glow, top right) holding a pill nav, a light title, KPI pills, and one white sheet of content. Two views: Tableau de bord and Pesées. */
 :root {
-  --page: #dde0e8;
-  --frame: #dde0e8;
-  --glow: #bcc7ef;
-  --sheet: #eceef4;
-  --ink: #0d0d0d;
+  --page: #f3f4f6;
+  --frame: #f3f4f6;
+  --glow: transparent;
+  --sheet: #ffffff;
+  --ink: #1f2937;
   --ink-2: #5a5e70;
   --line: #c6cad8;
   --grid: #b2b8ca;
@@ -36,8 +36,8 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --page: #0d0d0d; --frame: #0d0d0d; --glow: #18207a; --sheet: #17181d;
-    --ink: #fafafa; --ink-2: #a3a7bb; --line: #2b2e3b; --grid: #3a3f55; --paidbg: #3a3412; --edge: #8a94f0; --field: rgba(138, 148, 240, 0.55);
+    --page: #161a1f; --frame: #161a1f; --glow: transparent; --sheet: #1e2329;
+    --ink: #e5e7eb; --ink-2: #a3a7bb; --line: #2b2e3b; --grid: #3a3f55; --paidbg: #3a3412; --edge: #8a94f0; --field: rgba(138, 148, 240, 0.55);
     --bold: #8a94f0; --accent: #1b22a7; --series1: #9aa3f4; --series2: #5560d6; --ring: rgba(138, 148, 240, 0.3); --accent-ink: #ffffff;
     --glass: rgba(255, 255, 255, 0.07); --chip: #22242c;
     --nav-on: #fafafa; --nav-on-fg: #0d0d0d;
@@ -49,8 +49,8 @@
   }
 }
 :root[data-theme="dark"] {
-  --page: #0d0d0d; --frame: #0d0d0d; --glow: #18207a; --sheet: #17181d;
-  --ink: #fafafa; --ink-2: #a3a7bb; --line: #2b2e3b; --grid: #3a3f55; --paidbg: #3a3412; --edge: #8a94f0; --field: rgba(138, 148, 240, 0.55);
+  --page: #161a1f; --frame: #161a1f; --glow: transparent; --sheet: #1e2329;
+  --ink: #e5e7eb; --ink-2: #a3a7bb; --line: #2b2e3b; --grid: #3a3f55; --paidbg: #3a3412; --edge: #8a94f0; --field: rgba(138, 148, 240, 0.55);
   --bold: #8a94f0; --accent: #1b22a7; --series1: #9aa3f4; --series2: #5560d6; --ring: rgba(138, 148, 240, 0.3); --accent-ink: #ffffff;
   --glass: rgba(255, 255, 255, 0.07); --chip: #22242c;
   --nav-on: #fafafa; --nav-on-fg: #0d0d0d;
