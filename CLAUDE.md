@@ -32,7 +32,7 @@ This file is the source of truth for context. Read it fully before writing any c
 
 ## 4. Source of truth for screens: `prototype/`
 
-- `prototype/socobo-menu.html` is a **single-file interactive mockup (no database, no real auth, data resets on reload)**.
+- `prototype/socobo-menu.html` is a **single-file interactive mockup (no database, no real auth, data resets on reload)**. Design decisions are recorded in **`docs/decisions.md`**, which is the build reference.
 - It is the **reference for screens, flows, wording and business rules ONLY. It is NOT production code** — never copy its JavaScript architecture; re-implement properly.
 - When the prototype and the owner's latest instructions differ, the owner's latest instructions win. Ask when unsure.
 
@@ -102,3 +102,12 @@ Permissions must be **enforced on the server**, never only hidden in the UI. Lat
 - **NEVER update DSM (or any NAS system package, Container Manager included) without (a) a complete verified backup of the database and the application data AND (b) the explicit approval of the owner.** The system is probably XPEnology: an update can render it unbootable and take the file server and SOCOBO down together.
 - Do not change storage, network, users, shared folders or scheduled tasks on the NAS beyond what the approved deployment plan lists. Prepare everything as files in this repository (compose file, backup scripts, written procedures) and let the owner apply them.
 - Until the owner explicitly says otherwise, treat the NAS as **read-only for us**: development and testing happen elsewhere.
+
+## 11. Current phase: DESIGN (decided by the owner)
+
+We are **still in the design phase**. We keep refining the prototype (published as a Claude Artifact for preview) and we **do not start any Django code** until the owner states explicitly that the design is finished.
+
+- **Deferred until the owner says the design is finished**: Phase 0 (project skeleton, Docker, database, authentication, audit, backups) and the preview environment (GitHub Codespaces). Do not prepare them in the meantime.
+- **After every accepted change to the prototype**: publish the preview, then upload the new version of `prototype/socobo-menu.html` to GitHub on a **branch + Pull Request** (never directly on `main`), and record the change in `docs/decisions.md` in the same PR.
+- **`docs/decisions.md`** is updated with every design decision (sections, fields, roles, calculation rules): add, change or remove the matching line; never leave it stale.
+- **End of every session**: commit and push all pending work, and report the state of the open Pull Requests.
