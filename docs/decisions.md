@@ -14,9 +14,9 @@ Prototype status: **v34** (merged in `main`). Phase: **design** (no Django code 
 | Poste | Name | Menu (in order) | Rules |
 |---|---|---|---|
 | 1 | Direction (DG) | everything (incl. À contrôler, Dépense, Historique opérations, Utilisateurs, Audit) | sees salaries, margins, cost prices; sets prices, ceilings, blocks; unblocks once (audited); reprints BL as COPIE |
-| 2 | Contrôle | À contrôler, Dashboard | read-only; marks items "Vu"; approves the day |
-| 3 | Comptabilité et saisie | À saisir, Clients, Fournisseurs, Banque, Magasin | Clients full except ceiling/blocking/prices; Fournisseurs: add invoices only, **no supplier amounts**; sees Banque amounts [A] |
-| 4 | Point de vente (Caisse) | Dashboard, À saisir, Caisse, Dépense, Magasin | no prices/ceilings/unblocking; no invoices; BL printable **once**; can add expenses, cannot edit/delete [A] |
+| 2 | Contrôle | À contrôler, Dashboard, Point de vente › Stock produits, Magasin › Gasoil / Huiles et graisses | read-only; marks items "Vu"; approves the day |
+| 3 | Comptabilité et saisie | À saisir, Clients, Fournisseurs, Banque, Magasin (records Gasoil/Huiles), Point de vente › Stock produits | Clients full except ceiling/blocking/prices; Fournisseurs: add invoices only, **no supplier amounts**; sees Banque amounts [A] |
+| 4 | Point de vente (Caisse) | Dashboard, À saisir, Point de vente (Caisse, Stock produits), Dépense | no prices/ceilings/unblocking; no invoices; BL printable **once**; can add expenses, cannot edit/delete [A] |
 | 5, 6 | Usine, Maintenance | later | to be defined |
 
 - [D] One workstation = one PC on the LAN; the prototype's "Changer de poste" button is a simulation only.
@@ -100,8 +100,15 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 
 ## 10. Magasin (formerly Stock)
 
-- [D] Menu renamed **Magasin**. For the Caisse poste it shows only **products and the available quantity** (no price, no drying).
-- [D] For the DG/accounting: Magasin › Pièces de rechange (spare parts, oils, fuel) — **to be designed**; Magasin › Produits (stock of finished products).
+- [D] Menu **Magasin** has 3 sub-sections: **Pièces de rechange** (to be designed), **Gasoil**, **Huiles et graisses**. Hidden from the Caisse poste.
+- [D] **Produits** (stock of finished products) moved out of Magasin: it is now **Point de vente › Stock produits**, visible to **all 4 postes**. Caisse sees quantities only; the others also see the sale price.
+- [D] Gasoil and Huiles share the same screen: KPI cards (stock, entrées, consommation, coût), tabs **Stock / Entrées / Consommation / Par machine**, period filter (Ce mois / Mois précédent / Tout), totals row under every table.
+- [D] **Gasoil**: 2 tanks, **Citerne Bouaanfir** (capacity 20 000 L [A]) and **Citerne Nfifa** (15 000 L [A]); per-tank stock, minimum threshold alert, tank-overflow check on entry, "% plein". "Par machine" shows litres, cost, hours and **litres per hour**.
+- [D] **Huiles et graisses**: list of products (Huile moteur 15W40, Huile hydraulique HV46, Graisse industrielle…) each with a unit (L, kg, Fût, Bidon, Unité), minimum threshold and unit price; **« + Nouveau produit »** adds any other oil, grease or lubricant.
+- [D] Movements: **Entrée** (date, tank/product, supplier, bon/facture n°, quantity, unit price HT) and **Sortie** (date, tank/product, machine, quantity, counter hours optional, "Remis à"). A sortie larger than the stock is refused. **Inventaire**: enter the measured quantity; the gap is recorded as an entrée/sortie with reason "Inventaire" (audited).
+- [D] Valuation: **weighted average cost (CMUP)** per tank/product; every sortie is valued at the average cost of the moment; the cost is meant to feed the machine costs [A: link to Machines costs not yet built].
+- [D] **Who records**: the accountant (Poste 3) records everything; the DG can too. Contrôle sees read-only. Caisse sees nothing here.
+- [D] **Prices**: Gasoil/Huiles prices and costs are visible to **DG, Contrôle and Comptabilité** (not Caisse). This is an exception to the earlier rule "accountant sees no cost prices"; it applies to fuel, oils and spare parts [A]. Salaries, margins and factory costs stay DG only.
 
 ## 11. Machines
 

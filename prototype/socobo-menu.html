@@ -402,6 +402,7 @@ td .mono, .mono { font-size: 14px; }
 .it { color: rgba(255, 255, 255, 0.9); }
 .it:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
 .it.on { background: #fff; color: #1b22a7; }
+.side:hover .grp.open > .it.on, .side:has(:focus-visible) .grp.open > .it.on { color: #1b22a7; box-shadow: none; }
 .subs { border-left-color: rgba(255, 255, 255, 0.4); }
 .sbtn { color: #fff; }
 .sbtn:hover { background: rgba(255, 255, 255, 0.16); }
@@ -1116,9 +1117,17 @@ body.pos-full header.top { display: none !important; }
 
     <!-- Stock : Produits -->
     <section id="view-stockp" hidden>
-      <div class="head"><div><h1>Magasin · Produits</h1><p class="sub">Quantités en stock, issues du catalogue et de l’usine</p></div></div>
+      <div class="head"><div><h1>Point de vente · Stock produits</h1><p class="sub">Quantités en stock, issues du catalogue et de l’usine</p></div></div>
       <div class="kpis" id="sp-kpis"></div>
       <div class="sheet" id="sp-body"></div>
+    </section>
+
+    <!-- Magasin : Gasoil / Huiles et graisses -->
+    <section id="view-mag" hidden>
+      <div class="head"><div><h1 id="mag-t"></h1><p class="sub" id="mag-s"></p></div><div class="hbtns" id="mag-a"></div></div>
+      <div class="tools-row" id="mag-per"></div>
+      <div class="kpis" id="mag-kpis"></div>
+      <div class="sheet"><section class="box"><div class="tabs" role="tablist" id="mag-tabs"></div><div id="mag-main"></div></section></div>
     </section>
 
     <section id="view-asaisir" hidden>
@@ -1224,7 +1233,7 @@ body.pos-full header.top { display: none !important; }
     { k: 'chat', l: 'Chat', i: 'chat' },
     { k: 'clients', l: 'Clients', i: 'users' },
     { k: 'fournisseurs', l: 'Fournisseurs', i: 'truck' },
-    { k: 'pdv', l: 'Point de vente', i: 'cart', sub: ['Caisse', 'Produits'] },
+    { k: 'pdv', l: 'Point de vente', i: 'cart', sub: ['Caisse', 'Produits', 'Stock produits'] },
     { k: 'depense', l: 'Dépense', i: 'cash' },
     { k: 'historique', l: 'Historique opérations', i: 'layers' },
     { k: 'documents', l: 'Documents', i: 'file' },
@@ -1234,7 +1243,7 @@ body.pos-full header.top { display: none !important; }
     { k: 'machines', l: 'Machines', i: 'wrench' },
     { k: 'parc', l: 'Parc', i: 'car' },
     { k: 'location', l: 'Location', i: 'key' },
-    { k: 'stock', l: 'Magasin', i: 'box', sub: ['Pièces de rechange', 'Produits'] },
+    { k: 'stock', l: 'Magasin', i: 'box', sub: ['Pièces de rechange', 'Gasoil', 'Huiles et graisses'] },
     { k: 'etablissement', l: 'Établissement', i: 'landmark' },
     { k: 'assurances', l: 'Assurances', i: 'shield' },
     { k: 'personnel', l: 'Personnel', i: 'user', sub: ['Employés', 'Affectations'] },
@@ -1271,7 +1280,7 @@ body.pos-full header.top { display: none !important; }
     }).join('');
   }
   var SOON_HTML = '';
-  var ALLV = ['view-dashboard', 'view-pesees', 'view-produits', 'view-fournisseurs', 'view-clients', 'view-fiche', 'view-cheques', 'view-machines', 'view-machine', 'view-usine', 'view-personnel', 'view-stockp', 'view-asaisir', 'view-controle', 'view-users', 'view-fsaisie', 'view-pdvdash', 'view-hist', 'view-depense', 'view-soon'];
+  var ALLV = ['view-dashboard', 'view-pesees', 'view-produits', 'view-fournisseurs', 'view-clients', 'view-fiche', 'view-cheques', 'view-machines', 'view-machine', 'view-usine', 'view-personnel', 'view-stockp', 'view-mag', 'view-asaisir', 'view-controle', 'view-users', 'view-fsaisie', 'view-pdvdash', 'view-hist', 'view-depense', 'view-soon'];
   var VIEWHOOKS = {};
   function go(k, sub) {
     if (typeof closeDrawer === 'function') closeDrawer();
@@ -1283,7 +1292,8 @@ body.pos-full header.top { display: none !important; }
     if (k === 'dashboard' && typeof ROLE !== 'undefined' && ROLE === 'pdv') target = 'view-pdvdash';
     if (k === 'banque' && sub === 'Suivi chèque') target = 'view-cheques';
     if (k === 'pdv' && sub === 'Produits') target = 'view-produits';
-    if (k === 'stock' && (sub === 'Produits' || (typeof ROLE !== 'undefined' && ROLE === 'pdv'))) target = 'view-stockp';
+    if (k === 'pdv' && sub === 'Stock produits') target = 'view-stockp';
+    if (k === 'stock' && (sub === 'Gasoil' || sub === 'Huiles et graisses')) target = 'view-mag';
     ALLV.forEach(function (id) { $(id).hidden = id !== target; });
     document.body.classList.toggle('pos-full', target === 'view-pesees');
     if ($('print-view')) $('print-view').hidden = target === 'view-pesees';
@@ -4107,10 +4117,10 @@ body.pos-full header.top { display: none !important; }
 
   /* ===== Utilisateurs : postes, droits, À saisir, À contrôler ===== */
   var ROLES = {
-    dg: { n: 'Poste 1', nom: 'Direction', user: 'DG', ini: 'DG', home: ['dashboard', null], menu: null, voit: 'Tout', regles: ['Contrôle total', 'Seul à voir les salaires, les marges et les prix de revient', 'Seul à fixer les prix, les plafonds de crédit et les blocages'] },
-    ctrl: { n: 'Poste 2', nom: 'Contrôle', user: 'Contrôleur', ini: 'CO', home: ['controle', null], menu: { dashboard: 1, controle: 1 }, voit: 'À contrôler · Dashboard', regles: ['Marque chaque élément comme « Vu »', 'Approuve la journée', 'Ne modifie aucune donnée'] },
-    compta: { n: 'Poste 3', nom: 'Comptabilité et saisie', user: 'Comptable', ini: 'CP', home: ['asaisir', null], menu: { asaisir: 1, clients: 1, fournisseurs: 1, banque: 1, stock: 1 }, voit: 'À saisir · Clients · Fournisseurs · Banque · Stock', regles: ['Clients complets, sans toucher au plafond ni au blocage', 'Fournisseurs : ajoute les factures, ne voit aucun montant', 'Ne voit ni salaires, ni marges, ni prix de revient'] },
-    pdv: { n: 'Poste 4', nom: 'Point de vente', user: 'Caisse', ini: 'PV', home: ['pdv', 'Caisse'], menu: { dashboard: 1, pdv: 1, depense: 1, stock: 1, asaisir: 1 }, voit: 'Dashboard · Caisse · Dépense · Magasin · À saisir', regles: ['Émet les BL', 'Ne modifie ni les prix ni les plafonds', 'Un client bloqué : seul le DG peut débloquer'] }
+    dg: { n: 'Poste 1', nom: 'Direction', user: 'DG', ini: 'DG', home: ['dashboard', null], menu: null, voit: 'Tout', regles: ['Contrôle total', 'Seul à voir les salaires, les marges et les coûts de l’usine', 'Seul à fixer les prix, les plafonds de crédit et les blocages'] },
+    ctrl: { n: 'Poste 2', nom: 'Contrôle', user: 'Contrôleur', ini: 'CO', home: ['controle', null], menu: { dashboard: 1, controle: 1, pdv: ['Stock produits'], stock: ['Gasoil', 'Huiles et graisses'] }, voit: 'À contrôler · Dashboard · Stock produits · Gasoil · Huiles', regles: ['Marque chaque élément comme « Vu »', 'Approuve la journée', 'Ne modifie aucune donnée', 'Voit les prix du gasoil et des huiles'] },
+    compta: { n: 'Poste 3', nom: 'Comptabilité et saisie', user: 'Comptable', ini: 'CP', home: ['asaisir', null], menu: { asaisir: 1, clients: 1, fournisseurs: 1, banque: 1, pdv: ['Stock produits'], stock: 1 }, voit: 'À saisir · Clients · Fournisseurs · Banque · Magasin · Stock produits', regles: ['Clients complets, sans toucher au plafond ni au blocage', 'Fournisseurs : ajoute les factures, ne voit aucun montant', 'Voit les prix du gasoil, des huiles et des pièces ; ni salaires, ni marges'] },
+    pdv: { n: 'Poste 4', nom: 'Point de vente', user: 'Caisse', ini: 'PV', home: ['pdv', 'Caisse'], menu: { dashboard: 1, pdv: ['Caisse', 'Stock produits'], depense: 1, asaisir: 1 }, voit: 'Dashboard · Caisse · Stock produits · Dépense · À saisir', regles: ['Émet les BL', 'Ne modifie ni les prix ni les plafonds', 'Un client bloqué : seul le DG peut débloquer'] }
   };
   var ROLE = 'dg';
   var visibleMenu = function () {
@@ -4118,7 +4128,7 @@ body.pos-full header.top { display: none !important; }
       if (m.k === 'utilisateurs') return ROLE === 'dg';
       if (m.k === 'asaisir' && ROLE === 'dg') return false; if (m.k === 'controle' && ROLE !== 'ctrl' && ROLE !== 'dg') return false;
       return !r.menu || !!r.menu[m.k];
-    }).map(function (m) { var a = r.menu && r.menu[m.k]; if (ROLE === 'pdv' && (m.k === 'pdv' || m.k === 'stock')) { var c2 = {}; Object.keys(m).forEach(function (x) { c2[x] = m[x]; }); delete c2.sub; c2.l = m.k === 'pdv' ? 'Caisse' : 'Magasin'; return c2; } if (Array.isArray(a)) { var c = {}; Object.keys(m).forEach(function (x) { c[x] = m[x]; }); c.sub = a; return c; } return m; });
+    }).map(function (m) { var a = r.menu && r.menu[m.k]; if (Array.isArray(a)) { var c = {}; Object.keys(m).forEach(function (x) { c[x] = m[x]; }); c.sub = a; return c; } return m; });
   };
   function roleAllows(k, sub) { if (ROLE === 'dg') return true; var r = ROLES[ROLE]; if (k === 'utilisateurs') return false; if (!r.menu || !r.menu[k]) return false; if (Array.isArray(r.menu[k]) && sub && r.menu[k].indexOf(sub) < 0) return false; return true; }
   var hhmm = function (d) { return pad2(d.getHours()) + ':' + pad2(d.getMinutes()); };
@@ -4518,6 +4528,146 @@ body.pos-full header.top { display: none !important; }
     if (p.stock0 == null) return null; var n2 = p.stock0 - soldAmt(k); return { n: n2, txt: nf0.format(Math.round(n2)) + ' t' };
   }
   ['tv', 'gr', 'g8', 'g15', 'sa'].forEach(function (k) { P[k].stock0 = Math.ceil(soldAmt(k) * 1.25 / 1000) * 1000; });
+
+
+  /* ===== Magasin : Gasoil et Huiles/graisses (entrées, consommation, reste, coût moyen) ===== */
+  var MAGK = { fuel: { sub: 'Gasoil', t: 'Gasoil', s: 'Citernes Bouaanfir et Nfifa : entrées, consommation, reste et coût', one: 'citerne' }, oil: { sub: 'Huiles et graisses', t: 'Huiles et graisses', s: 'Huiles, graisses et lubrifiants : entrées, consommation, reste et coût', one: 'produit' } };
+  var MAGI = [
+    { id: 1, k: 'fuel', nom: 'Citerne Bouaanfir', unit: 'L', cap: 20000, min: 3000, open: 9000, px0: 10.4, site: 'Bouaanfir' },
+    { id: 2, k: 'fuel', nom: 'Citerne Nfifa', unit: 'L', cap: 15000, min: 2500, open: 6000, px0: 10.4, site: 'Nfifa' },
+    { id: 3, k: 'oil', nom: 'Huile moteur 15W40', unit: 'L', cap: 0, min: 200, open: 420, px0: 38 },
+    { id: 4, k: 'oil', nom: 'Huile hydraulique HV46', unit: 'L', cap: 0, min: 200, open: 330, px0: 42 },
+    { id: 5, k: 'oil', nom: 'Graisse industrielle', unit: 'kg', cap: 0, min: 40, open: 90, px0: 28 }
+  ];
+  var MAGM = [], magSeq = 0, magTab = 'stock', magPer = 'month', magKind = 'fuel', magMore = 60;
+  var MAGU = ['L', 'kg', 'Fût', 'Bidon', 'Unité'];
+  var magCanWrite = function () { return ROLE === 'dg' || ROLE === 'compta'; };
+  var magItem = function (id) { return MAGI.filter(function (x) { return x.id === +id; })[0]; };
+  (function () {
+    var r = mkRng(9031), sup = { fuel: ['Sud Carburants SARL', 'Station Diesel Al Amal'], oil: ['Pièces Poids Lourds du Souss', 'Auto Pièces Al Massira'] };
+    var ms = MACH.filter(function (m) { return m.actif; });
+    function add(k, item, d, type, o) { magSeq += 1; var x = { id: magSeq, k: k, item: item.id, d: d, type: type, q: o.q, px: o.px || 0, sup: o.sup || '', ref: o.ref || '', mach: o.mach || '', h: o.h || null, who: o.who || '', cost: 0 }; MAGM.push(x); return x; }
+    function qtyAt(item) { var q = item.open; MAGM.forEach(function (x) { if (x.item === item.id) q += x.type === 'in' ? x.q : -x.q; }); return q; }
+    for (var i = 120; i >= 0; i--) {
+      var d = addDays(TODAY, -i);
+      MAGI.forEach(function (it) {
+        var qn = qtyAt(it);
+        if (it.k === 'fuel' ? qn < it.cap * 0.3 : qn < it.min * 1.4) { var q = it.k === 'fuel' ? Math.round((it.cap * 0.9 - qn) / 100) * 100 : Math.round(it.min * 2.2); add(it.k, it, d, 'in', { q: q, px: it.k === 'fuel' ? Math.round((10.1 + r() * 0.9) * 100) / 100 : Math.round(it.px0 * (0.95 + r() * 0.12) * 100) / 100, sup: sup[it.k][Math.floor(r() * 2)], ref: 'BL-' + (4100 + Math.floor(r() * 800)) }); }
+      });
+      if (!workDay(d)) continue;
+      ms.forEach(function (m) {
+        var tank = MAGI.filter(function (t) { return t.k === 'fuel' && t.site === (m.site === 'Bouaanfir' ? 'Bouaanfir' : 'Nfifa'); })[0];
+        if (m.type === 'Engin' || m.type === 'Concasseur' || m.type === 'Chariot') {
+          if (r() < 0.55) { var q = Math.round((m.type === 'Concasseur' ? 160 + r() * 220 : 70 + r() * 150) / 5) * 5; if (qtyAt(tank) - q > 400) add('fuel', tank, d, 'out', { q: q, mach: m.nom, h: Math.round(m.h - i * 5), who: 'Chef de site' }); }
+        }
+        if (r() < 0.035) { var oil = MAGI.filter(function (t) { return t.k === 'oil'; })[Math.floor(r() * 3)], q2 = oil.unit === 'kg' ? 4 + Math.floor(r() * 6) : 10 + Math.floor(r() * 30); if (qtyAt(oil) - q2 > 10) add('oil', oil, d, 'out', { q: q2, mach: m.nom, who: 'Mécanicien' }); }
+      });
+    }
+  })();
+  /* coût moyen pondéré : chaque sortie est valorisée au coût moyen du moment */
+  function magCalc() {
+    var res = {};
+    MAGI.forEach(function (it) {
+      var q = it.open, avg = it.px0, ms = MAGM.filter(function (x) { return x.item === it.id; }).sort(function (a, b) { return a.d - b.d || a.id - b.id; });
+      ms.forEach(function (x) { if (x.type === 'in') { avg = (q * avg + x.q * x.px) / (q + x.q || 1); q += x.q; x.cost = x.q * x.px; } else { x.cost = x.q * avg; q -= x.q; } });
+      res[it.id] = { q: q, avg: avg, val: q * avg };
+    });
+    return res;
+  }
+  function magRange() { var y = TODAY.getFullYear(), m = TODAY.getMonth(); if (magPer === 'month') return { from: new Date(y, m, 1), to: TODAY, lab: 'Ce mois' }; if (magPer === 'prev') return { from: new Date(y, m - 1, 1), to: new Date(y, m, 0), lab: 'Mois précédent' }; return { from: new Date(2000, 0, 1), to: TODAY, lab: 'Tout' }; }
+  var magQ = function (v, u) { return nf2.format(v) + ' ' + u; };
+  function renderMag(sub) {
+    var kind = sub === 'Huiles et graisses' ? 'oil' : (sub === 'Gasoil' ? 'fuel' : magKind); if (kind !== magKind) { magKind = kind; magTab = 'stock'; magMore = 60; }
+    var K = MAGK[kind], items = MAGI.filter(function (x) { return x.k === kind; }), ids = items.map(function (x) { return x.id; }), st = magCalc(), rg = magRange(), w = magCanWrite();
+    var mv = MAGM.filter(function (x) { return x.k === kind && x.d >= rg.from && x.d <= rg.to; }).sort(function (a, b) { return b.d - a.d || b.id - a.id; });
+    var ins = mv.filter(function (x) { return x.type === 'in'; }), outs = mv.filter(function (x) { return x.type === 'out'; });
+    var sum = function (l, f) { return l.reduce(function (t, x) { return t + f(x); }, 0); }, un = items.every(function (x) { return x.unit === items[0].unit; }) ? items[0].unit : '';
+    var qTot = sum(items, function (x) { return st[x.id].q; }), vTot = sum(items, function (x) { return st[x.id].val; }), low = items.filter(function (x) { return st[x.id].q < x.min; }).length;
+    $('mag-t').textContent = 'Magasin · ' + K.t; $('mag-s').textContent = K.s;
+    $('mag-a').innerHTML = w ? '<button type="button" class="btn" data-mgin>+ Entrée</button><button type="button" class="btn" data-mgout>+ Sortie</button><button type="button" class="btn" data-mginv>Inventaire</button>' + (kind === 'oil' ? '<button type="button" class="btn primary" data-mgnew>+ Nouveau produit</button>' : '') : '';
+    $('mag-per').innerHTML = '<span class="tabs" style="margin:0">' + [['month', 'Ce mois'], ['prev', 'Mois précédent'], ['all', 'Tout']].map(function (p) { return '<button type="button" data-mgper="' + p[0] + '" aria-selected="' + (magPer === p[0]) + '">' + p[1] + '</button>'; }).join('') + '</span>';
+    $('mag-kpis').innerHTML = kpiH('Stock actuel', un ? magQ(qTot, un) : items.length + ' produits', kind === 'fuel' ? 'Bouaanfir : ' + magQ(st[1].q, 'L') + ' · Nfifa : ' + magQ(st[2].q, 'L') : (low ? low + ' sous le seuil' : 'Tous au-dessus du seuil'), low) +
+      kpiH('Entrées · ' + rg.lab, un ? magQ(sum(ins, function (x) { return x.q; }), un) : nf2.format(sum(ins, function (x) { return x.cost; })), 'Montant : ' + nf2.format(sum(ins, function (x) { return x.cost; }))) +
+      kpiH('Consommation · ' + rg.lab, un ? magQ(sum(outs, function (x) { return x.q; }), un) : nf2.format(sum(outs, function (x) { return x.cost; })), 'Coût : ' + nf2.format(sum(outs, function (x) { return x.cost; }))) +
+      kpiH(kind === 'fuel' ? 'Coût moyen par litre' : 'Valeur du stock', kind === 'fuel' ? nf2.format(qTot > 0 ? vTot / qTot : 0) : nf2.format(vTot), kind === 'fuel' ? 'Valeur du stock : ' + nf2.format(vTot) : 'Au coût moyen');
+    var tabs = [['stock', 'Stock'], ['in', 'Entrées'], ['out', 'Consommation'], ['mach', 'Par machine']];
+    $('mag-tabs').innerHTML = tabs.map(function (t) { return '<button type="button" role="tab" data-mgtab="' + t[0] + '" aria-selected="' + (magTab === t[0]) + '">' + t[1] + '</button>'; }).join('');
+    var h = '', more = function (l) { return l.length > magMore ? '<div class="foot"><span>' + magMore + ' lignes affichées sur ' + l.length + '</span><button type="button" class="btn" data-mgmore>Afficher plus</button></div>' : ''; };
+    if (magTab === 'stock') {
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Désignation</th><th>Unité</th><th>Stock</th>' + (kind === 'fuel' ? '<th>Capacité</th>' : '') + '<th>Seuil mini</th><th>Coût moyen</th><th>Valeur</th><th>État</th></tr></thead><tbody>' + items.map(function (x) {
+        var s = st[x.id], lw = s.q < x.min; return '<tr class="' + (lw ? 'rs-warn' : '') + '"><td><b style="font-weight:600">' + esc(x.nom) + '</b></td><td>' + esc(x.unit) + '</td><td class="num">' + nf2.format(s.q) + '</td>' + (kind === 'fuel' ? '<td class="num">' + nf0.format(x.cap) + '<small>' + Math.round(s.q / x.cap * 100) + ' % plein</small></td>' : '') + '<td class="num">' + nf2.format(x.min) + '</td><td class="num">' + nf2.format(s.avg) + '</td><td class="num">' + nf2.format(s.val) + '</td><td><span class="st ' + (lw ? 'warn' : 'ok') + '">' + (lw ? 'Sous le seuil' : 'Correct') + '</span></td></tr>';
+      }).join('') + '</tbody><tfoot><tr class="tot"><td>Total</td><td>' + esc(un) + '</td><td class="num">' + (un ? nf2.format(qTot) : '') + '</td>' + (kind === 'fuel' ? '<td></td>' : '') + '<td></td><td></td><td class="num">' + nf2.format(vTot) + '</td><td></td></tr></tfoot></table></div>';
+    } else if (magTab === 'in') {
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Désignation</th><th>Fournisseur</th><th>Référence</th><th>Quantité</th><th>Prix unitaire</th><th>Montant</th></tr></thead><tbody>' + (ins.length ? ins.slice(0, magMore).map(function (x) { var it = magItem(x.item); return '<tr><td>' + dfmt.format(x.d) + '</td><td>' + esc(it.nom) + '</td><td>' + esc(x.sup || '—') + '</td><td>' + esc(x.ref || '—') + '</td><td class="num">' + nf2.format(x.q) + ' ' + esc(it.unit) + '</td><td class="num">' + nf2.format(x.px) + '</td><td class="num">' + nf2.format(x.cost) + '</td></tr>'; }).join('') : '<tr><td colspan="7" style="color:var(--ink-2)">Aucune entrée sur cette période.</td></tr>') +
+        '</tbody><tfoot><tr class="tot"><td colspan="4">Total · ' + ins.length + ' entrée' + (ins.length > 1 ? 's' : '') + '</td><td class="num">' + (un ? nf2.format(sum(ins, function (x) { return x.q; })) + ' ' + esc(un) : '') + '</td><td></td><td class="num">' + nf2.format(sum(ins, function (x) { return x.cost; })) + '</td></tr></tfoot></table></div>' + more(ins);
+    } else if (magTab === 'out') {
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Désignation</th><th>Machine</th><th>Compteur</th><th>Remis à</th><th>Quantité</th><th>Coût</th></tr></thead><tbody>' + (outs.length ? outs.slice(0, magMore).map(function (x) { var it = magItem(x.item); return '<tr><td>' + dfmt.format(x.d) + '</td><td>' + esc(it.nom) + '</td><td>' + esc(x.mach || '—') + '</td><td class="num">' + (x.h ? nf0.format(x.h) + ' h' : '—') + '</td><td>' + esc(x.who || '—') + '</td><td class="num">' + nf2.format(x.q) + ' ' + esc(it.unit) + '</td><td class="num">' + nf2.format(x.cost) + '</td></tr>'; }).join('') : '<tr><td colspan="7" style="color:var(--ink-2)">Aucune sortie sur cette période.</td></tr>') +
+        '</tbody><tfoot><tr class="tot"><td colspan="5">Total · ' + outs.length + ' sortie' + (outs.length > 1 ? 's' : '') + '</td><td class="num">' + (un ? nf2.format(sum(outs, function (x) { return x.q; })) + ' ' + esc(un) : '') + '</td><td class="num">' + nf2.format(sum(outs, function (x) { return x.cost; })) + '</td></tr></tfoot></table></div>' + more(outs);
+    } else {
+      var g = {}; outs.forEach(function (x) { var k = x.mach || 'Hors machine'; (g[k] = g[k] || []).push(x); });
+      var rows2 = Object.keys(g).map(function (k) { var l = g[k], hs = l.filter(function (x) { return x.h; }).map(function (x) { return x.h; }), dh = hs.length > 1 ? Math.max.apply(null, hs) - Math.min.apply(null, hs) : 0; return { k: k, n: l.length, q: sum(l, function (x) { return x.q; }), c: sum(l, function (x) { return x.cost; }), dh: dh }; }).sort(function (a, b) { return b.c - a.c; });
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Machine</th><th>Sorties</th><th>Quantité</th><th>Coût</th>' + (kind === 'fuel' ? '<th>Heures</th><th>Litres par heure</th>' : '') + '</tr></thead><tbody>' + (rows2.length ? rows2.map(function (x) { return '<tr><td><b style="font-weight:600">' + esc(x.k) + '</b></td><td class="num">' + x.n + '</td><td class="num">' + (un ? nf2.format(x.q) + ' ' + esc(un) : '—') + '</td><td class="num">' + nf2.format(x.c) + '</td>' + (kind === 'fuel' ? '<td class="num">' + (x.dh > 0 ? nf0.format(x.dh) + ' h' : '—') + '</td><td class="num">' + (x.dh > 0 ? nf2.format(x.q / x.dh) : '—') + '</td>' : '') + '</tr>'; }).join('') : '<tr><td colspan="6" style="color:var(--ink-2)">Aucune consommation sur cette période.</td></tr>') +
+        '</tbody><tfoot><tr class="tot"><td>Total</td><td class="num">' + outs.length + '</td><td class="num">' + (un ? nf2.format(sum(outs, function (x) { return x.q; })) + ' ' + esc(un) : '') + '</td><td class="num">' + nf2.format(sum(outs, function (x) { return x.cost; })) + '</td>' + (kind === 'fuel' ? '<td></td><td></td>' : '') + '</tr></tfoot></table></div><div class="foot"><span>Le coût de chaque sortie est calculé au coût moyen du moment ; il alimente les coûts de la machine.</span></div>';
+    }
+    $('mag-main').innerHTML = h;
+  }
+  VIEWHOOKS['view-mag'] = renderMag;
+  var magOpts = function (sel) { return MAGI.filter(function (x) { return x.k === magKind; }).map(function (x) { return '<option value="' + x.id + '"' + (+sel === x.id ? ' selected' : '') + '>' + esc(x.nom) + '</option>'; }).join(''); };
+  var magMachOpts = function () { return '<option value="">Hors machine</option>' + MACH.filter(function (m) { return m.actif; }).map(function (m) { return '<option>' + esc(m.nom) + '</option>'; }).join(''); };
+  var magErr = function (t) { $('mg-err').textContent = t; $('mg-err').hidden = false; };
+  function magSave(item, o) { magSeq += 1; MAGM.push({ id: magSeq, k: item.k, item: item.id, d: o.d, type: o.type, q: o.q, px: o.px || 0, sup: o.sup || '', ref: o.ref || '', mach: o.mach || '', h: o.h || null, who: o.who || '', cost: 0 }); magCalc(); }
+  function magIn() {
+    openModal('<h2>Entrée de ' + (magKind === 'fuel' ? 'gasoil' : 'produit') + '</h2><p class="m">Livraison reçue du fournisseur.</p><div class="row2"><div class="f"><label for="mg-d">Date</label><input class="in" id="mg-d" type="date" value="' + iso(TODAY) + '" max="' + iso(TODAY) + '"></div><div class="f"><label for="mg-i">' + (magKind === 'fuel' ? 'Citerne' : 'Produit') + '</label><select class="in" id="mg-i">' + magOpts() + '</select></div></div>' +
+      '<div class="row2"><div class="f"><label for="mg-s">Fournisseur</label><input class="in" id="mg-s" placeholder="Nom du fournisseur"></div><div class="f"><label for="mg-r">N° du bon ou de la facture</label><input class="in" id="mg-r"></div></div><div class="row2"><div class="f"><label for="mg-q">Quantité</label><input class="in" id="mg-q" inputmode="decimal"></div><div class="f"><label for="mg-p">Prix unitaire HT</label><input class="in" id="mg-p" inputmode="decimal"></div></div><p class="m" id="mg-tot">Montant : 0,00</p><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Enregistrer</button></div>');
+    var upd = function () { var q = num($('mg-q').value), p = num($('mg-p').value); $('mg-tot').textContent = 'Montant : ' + nf2.format(q > 0 && p >= 0 ? q * p : 0); };
+    $('mg-q').addEventListener('input', upd); $('mg-p').addEventListener('input', upd); $('mg-cancel').addEventListener('click', closeModal);
+    $('mg-save').addEventListener('click', function () {
+      var d = parseIso($('mg-d').value), q = num($('mg-q').value), p = num($('mg-p').value), it = magItem($('mg-i').value), s = $('mg-s').value.trim();
+      if (!d || d > TODAY) return magErr('Choisissez une date valide, pas dans le futur.'); if (!s) return magErr('Indiquez le fournisseur.'); if (!(q > 0)) return magErr('Saisissez une quantité supérieure à zéro.'); if (!(p >= 0)) return magErr('Le prix doit être un nombre positif.');
+      if (it.cap && magCalc()[it.id].q + q > it.cap) return magErr('La citerne déborderait : capacité ' + nf0.format(it.cap) + ' L.');
+      magSave(it, { type: 'in', d: d, q: q, px: p, sup: s, ref: $('mg-r').value.trim() }); audit('Entrée ' + (it.k === 'fuel' ? 'gasoil' : 'huile'), it.nom, nf2.format(q) + ' ' + it.unit + ' · ' + nf2.format(q * p)); closeModal(); renderMag(); toast('Entrée enregistrée.');
+    });
+  }
+  function magOut() {
+    openModal('<h2>Sortie de ' + (magKind === 'fuel' ? 'gasoil' : 'produit') + '</h2><p class="m">Consommation par une machine.</p><div class="row2"><div class="f"><label for="mg-d">Date</label><input class="in" id="mg-d" type="date" value="' + iso(TODAY) + '" max="' + iso(TODAY) + '"></div><div class="f"><label for="mg-i">' + (magKind === 'fuel' ? 'Citerne' : 'Produit') + '</label><select class="in" id="mg-i">' + magOpts() + '</select></div></div>' +
+      '<div class="row2"><div class="f"><label for="mg-m">Machine</label><select class="in" id="mg-m">' + magMachOpts() + '</select></div><div class="f"><label for="mg-q">Quantité</label><input class="in" id="mg-q" inputmode="decimal"></div></div><div class="row2"><div class="f"><label for="mg-h">Compteur (heures), facultatif</label><input class="in" id="mg-h" inputmode="decimal"></div><div class="f"><label for="mg-w">Remis à</label><input class="in" id="mg-w" placeholder="Nom de la personne"></div></div><p class="m" id="mg-rest"></p><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Enregistrer</button></div>');
+    var upd = function () { var it = magItem($('mg-i').value); $('mg-rest').textContent = 'Reste disponible : ' + magQ(magCalc()[it.id].q, it.unit); }; upd(); $('mg-i').addEventListener('change', upd); $('mg-cancel').addEventListener('click', closeModal);
+    $('mg-save').addEventListener('click', function () {
+      var d = parseIso($('mg-d').value), q = num($('mg-q').value), it = magItem($('mg-i').value), h = $('mg-h').value.trim() ? num($('mg-h').value) : null;
+      if (!d || d > TODAY) return magErr('Choisissez une date valide, pas dans le futur.'); if (!(q > 0)) return magErr('Saisissez une quantité supérieure à zéro.'); if (h !== null && !(h >= 0)) return magErr('Le compteur doit être un nombre positif.');
+      if (q > magCalc()[it.id].q) return magErr('Stock insuffisant : il reste ' + magQ(magCalc()[it.id].q, it.unit) + '.');
+      magSave(it, { type: 'out', d: d, q: q, mach: $('mg-m').value, h: h, who: $('mg-w').value.trim() }); audit('Sortie ' + (it.k === 'fuel' ? 'gasoil' : 'huile'), it.nom, nf2.format(q) + ' ' + it.unit + ($('mg-m').value ? ' · ' + $('mg-m').value : '')); closeModal(); renderMag(); toast('Sortie enregistrée.');
+    });
+  }
+  function magInv() {
+    openModal('<h2>Inventaire</h2><p class="m">Saisissez la quantité mesurée. L’écart est enregistré comme entrée ou sortie, avec le motif « Inventaire ».</p><div class="row2"><div class="f"><label for="mg-i">' + (magKind === 'fuel' ? 'Citerne' : 'Produit') + '</label><select class="in" id="mg-i">' + magOpts() + '</select></div><div class="f"><label for="mg-q">Quantité mesurée</label><input class="in" id="mg-q" inputmode="decimal"></div></div><p class="m" id="mg-rest"></p><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Enregistrer</button></div>');
+    var upd = function () { var it = magItem($('mg-i').value); $('mg-rest').textContent = 'Stock théorique : ' + magQ(magCalc()[it.id].q, it.unit); }; upd(); $('mg-i').addEventListener('change', upd); $('mg-cancel').addEventListener('click', closeModal);
+    $('mg-save').addEventListener('click', function () {
+      var it = magItem($('mg-i').value), q = num($('mg-q').value); if (!(q >= 0)) return magErr('Saisissez la quantité mesurée.');
+      var s = magCalc()[it.id], diff = Math.round((q - s.q) * 100) / 100; if (diff === 0) { closeModal(); toast('Aucun écart : le stock est exact.'); return; }
+      if (it.cap && q > it.cap) return magErr('La quantité dépasse la capacité de la citerne (' + nf0.format(it.cap) + ' L).');
+      magSave(it, diff > 0 ? { type: 'in', d: TODAY, q: diff, px: s.avg, sup: 'Inventaire', ref: 'Écart' } : { type: 'out', d: TODAY, q: -diff, mach: '', who: 'Inventaire' }); audit('Inventaire', it.nom, 'Écart ' + (diff > 0 ? '+' : '') + nf2.format(diff) + ' ' + it.unit); closeModal(); renderMag(); toast('Inventaire enregistré (écart ' + (diff > 0 ? '+' : '') + nf2.format(diff) + ').');
+    });
+  }
+  function magNew() {
+    openModal('<h2>Nouveau produit</h2><p class="m">Ajoutez un type d’huile, de graisse ou de lubrifiant.</p><div class="f"><label for="mn-n">Désignation</label><input class="in" id="mn-n" placeholder="Ex. : Huile de boîte 80W90"></div><div class="row3"><div class="f"><label for="mn-u">Unité</label><select class="in" id="mn-u">' + MAGU.map(function (u) { return '<option>' + u + '</option>'; }).join('') + '</select></div><div class="f"><label for="mn-m">Seuil mini</label><input class="in" id="mn-m" inputmode="decimal" value="0"></div><div class="f"><label for="mn-q">Stock initial</label><input class="in" id="mn-q" inputmode="decimal" value="0"></div></div><div class="f"><label for="mn-p">Prix unitaire initial HT</label><input class="in" id="mn-p" inputmode="decimal" value="0"></div><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Ajouter</button></div>');
+    $('mg-cancel').addEventListener('click', closeModal);
+    $('mg-save').addEventListener('click', function () {
+      var n = $('mn-n').value.trim(), mi = num($('mn-m').value), q = num($('mn-q').value), p = num($('mn-p').value);
+      if (!n) return magErr('Saisissez la désignation.'); if (MAGI.some(function (x) { return x.k === 'oil' && x.nom.toLowerCase() === n.toLowerCase(); })) return magErr('Ce produit existe déjà.');
+      if (!(mi >= 0) || !(q >= 0) || !(p >= 0)) return magErr('Seuil, stock et prix doivent être des nombres positifs.');
+      var id = MAGI.reduce(function (t, x) { return Math.max(t, x.id); }, 0) + 1; MAGI.push({ id: id, k: 'oil', nom: n, unit: $('mn-u').value, cap: 0, min: mi, open: q, px0: p });
+      audit('Produit ajouté', 'Huiles et graisses', n); closeModal(); renderMag(); toast('Produit ajouté.');
+    });
+  }
+  $('view-mag').addEventListener('click', function (e) {
+    var b;
+    if ((b = e.target.closest('[data-mgtab]'))) { magTab = b.dataset.mgtab; magMore = 60; return renderMag(); }
+    if ((b = e.target.closest('[data-mgper]'))) { magPer = b.dataset.mgper; magMore = 60; return renderMag(); }
+    if (e.target.closest('[data-mgmore]')) { magMore += 60; return renderMag(); }
+    if (!magCanWrite()) return;
+    if (e.target.closest('[data-mgin]')) return magIn(); if (e.target.closest('[data-mgout]')) return magOut(); if (e.target.closest('[data-mginv]')) return magInv(); if (e.target.closest('[data-mgnew]')) return magNew();
+  });
 
   /* --- Audit --- */
   function auditHtml() {
