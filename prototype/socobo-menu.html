@@ -895,6 +895,25 @@ header.top .tools { margin-left: auto; }
 .paper tr.tot td.num, .paper tr.tot td.c, .paper tfoot td.num, .paper tfoot td.c, .paper tr.tot td { color: #111; }
 #view-clients .kpis > .kpi:nth-child(3), #view-fournisseurs .kpis > .kpi:nth-child(3) { background: linear-gradient(135deg, #2540e8, #6a4df0); border-color: transparent; color: #fff; box-shadow: 0 14px 28px -18px #2540e8; }
 #view-clients .kpis > .kpi:nth-child(3) :is(.lab, .cap, .pill), #view-fournisseurs .kpis > .kpi:nth-child(3) :is(.lab, .cap, .pill) { color: #fff; }
+.pertabs { display: inline-flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.custper { display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.custper .pf { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--ink-2); }
+.custper input[type=date] { border: 1.5px solid var(--line-2, var(--line)); border-radius: 10px; padding: 6px 8px; background: var(--card); color: var(--ink); font: inherit; }
+.custper .btn.sm { padding: 4px 12px; font-size: 18px; line-height: 1; }
+.ccard, .tcard { border: 2px solid var(--line); background: var(--sheet); box-shadow: 0 1px 0 rgba(20, 30, 120, 0.06); }
+.ccard:hover, .tcard:hover { border-color: var(--act); }
+.ccard.bad { background: var(--bad-bg); border-color: var(--bad-fg); }
+.tcard.on { border-color: var(--act); background: color-mix(in srgb, var(--act) 9%, var(--sheet)); box-shadow: 0 0 0 4px var(--ring); position: relative; }
+.tcard.on::after { content: '✓'; position: absolute; top: 8px; right: 12px; width: 22px; height: 22px; border-radius: 50%; background: var(--act); color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+.pcard { border-color: color-mix(in srgb, var(--tint) 55%, var(--line)); }
+.pcard.on { border-width: 3px; }
+.unitsw { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.unitsw > span { font-weight: 600; margin-right: 4px; }
+.unitsw button { border: 2px solid var(--line); background: var(--sheet); color: var(--ink); border-radius: 99px; padding: 8px 18px; font: inherit; font-weight: 600; cursor: pointer; }
+.unitsw button[aria-pressed="true"] { background: var(--act); border-color: var(--act); color: #fff; }
+.unitsw small { color: var(--ink-2); margin-left: 6px; }
+.pcard .price span.u-on { background: var(--act); color: #fff; }
+.unit-lab { display: inline-block; padding: 6px 14px; border-radius: 99px; background: color-mix(in srgb, var(--act) 12%, var(--sheet)); font-weight: 600; }
 </style>
 
 <div id="fit"><div id="stage"><div class="shell">
@@ -1193,6 +1212,15 @@ header.top .tools { margin-left: auto; }
       <div class="sheet"><section class="box"><div class="tabs" role="tablist" id="mag-tabs"></div><div id="mag-main"></div></section></div>
     </section>
 
+    <!-- Rentabilité -->
+    <section id="view-rent" hidden>
+      <div class="head"><div><h1 id="rt-t"></h1><p class="sub" id="rt-s"></p></div></div>
+      <div class="tools-row" id="rt-per"></div>
+      <div class="kpis" id="rt-kpis"></div>
+      <div class="tabs" role="tablist" id="rt-tabs"></div>
+      <div id="rt-body"></div>
+    </section>
+
     <!-- Paramètres -->
     <section id="view-params" hidden>
       <div class="head"><div><h1 id="pa2-t"></h1><p class="sub" id="pa2-s"></p></div><div class="hbtns" id="pa2-a"></div></div>
@@ -1339,12 +1367,13 @@ header.top .tools { margin-left: auto; }
     { k: 'carriere', l: 'Carrière', i: 'pit', sub: ['Ancien Machine', 'Nouveau Machine', 'Machine Nfifa'] },
     { k: 'agglos', l: 'Usine Agglos', i: 'factory', sub: ['Tableau de bord', 'Saisie du jour', 'Matières', 'Produits finis', 'Coûts et marge'] },
     { k: 'machines', l: 'Parc', i: 'wrench' },
+    { k: 'rentabilite', l: 'Rentabilité', i: 'trend' },
     { k: 'location', l: 'Location', i: 'key', sub: ['Loueurs', 'Décomptes', 'Rendement'] },
     { k: 'stock', l: 'Magasin', i: 'box', sub: ['Pièces de rechange', 'Gasoil', 'Huiles et graisses'] },
     { k: 'etablissement', l: 'Établissement', i: 'landmark' },
     { k: 'assurances', l: 'Assurances', i: 'shield' },
     { k: 'personnel', l: 'Personnel', i: 'user', sub: ['Employés', 'Présences', 'Alertes', 'Statistiques', 'Paie'] },
-    { k: 'parametres', l: 'Paramètres', i: 'sliders', sub: ['Entreprise', 'Prix et tarifs', 'Usine', 'Personnel', 'Magasin', 'Charges', 'Banque', 'Location', 'Listes'] },
+    { k: 'parametres', l: 'Paramètres', i: 'sliders', sub: ['Entreprise', 'Prix et tarifs', 'Usine', 'Personnel', 'Magasin', 'Charges', 'Rentabilité', 'Banque', 'Location', 'Listes'] },
     { k: 'utilisateurs', l: 'Utilisateurs', i: 'cog' },
     { k: 'audit', l: 'Audit', i: 'clip' }
   ];
@@ -1378,15 +1407,15 @@ header.top .tools { margin-left: auto; }
     }).join('');
   }
   var SOON_HTML = '';
-  var ALLV = ['view-dashboard', 'view-pesees', 'view-produits', 'view-fournisseurs', 'view-clients', 'view-fiche', 'view-cheques', 'view-machines', 'view-machine', 'view-usine', 'view-personnel', 'view-stockp', 'view-mag', 'view-params', 'view-charges', 'view-location', 'view-chrec', 'view-oued', 'view-carr', 'view-asaisir', 'view-controle', 'view-users', 'view-fsaisie', 'view-pdvdash', 'view-hist', 'view-depense', 'view-soon'];
+  var ALLV = ['view-dashboard', 'view-pesees', 'view-produits', 'view-fournisseurs', 'view-clients', 'view-fiche', 'view-cheques', 'view-machines', 'view-machine', 'view-usine', 'view-personnel', 'view-stockp', 'view-mag', 'view-params', 'view-rent', 'view-charges', 'view-location', 'view-chrec', 'view-oued', 'view-carr', 'view-asaisir', 'view-controle', 'view-users', 'view-fsaisie', 'view-pdvdash', 'view-hist', 'view-depense', 'view-soon'];
   var PERV = ['view-dashboard', 'view-hist', 'view-fournisseurs', 'view-fiche', 'view-fsaisie', 'view-clients'];
-  var VIEWHOOKS = {}, PRINTV = ['view-dashboard', 'view-pdvdash', 'view-clients', 'view-fournisseurs', 'view-produits', 'view-machines', 'view-usine', 'view-stockp', 'view-depense', 'view-cheques', 'view-hist', 'view-controle'];
+  var VIEWHOOKS = {}, PRINTV = ['view-dashboard', 'view-pdvdash', 'view-clients', 'view-fournisseurs', 'view-produits', 'view-machines', 'view-usine', 'view-stockp', 'view-depense', 'view-cheques', 'view-hist', 'view-controle', 'view-rent'];
   function go(k, sub) {
     if (typeof closeDrawer === 'function') closeDrawer();
     if (typeof ROLES !== 'undefined' && ROLES && !roleAllows(k, sub)) { var hm = ROLES[ROLE].home; k = hm[0]; sub = hm[1]; }
     cur = { k: k, sub: sub || null };
     var m = menu.filter(function (x) { return x.k === k; })[0];
-    var vm = { dashboard: 'view-dashboard', parametres: 'view-params', charges: 'view-charges', location: 'view-location', oued: 'view-oued', carriere: 'view-carr', pdv: 'view-pesees', fournisseurs: 'view-fournisseurs', clients: 'view-clients', machines: 'view-machines', agglos: 'view-usine', personnel: 'view-personnel', asaisir: 'view-asaisir', controle: 'view-controle', utilisateurs: 'view-users', historique: 'view-hist', depense: 'view-depense' }, target = vm[k] || 'view-soon';
+    var vm = { dashboard: 'view-dashboard', parametres: 'view-params', rentabilite: 'view-rent', charges: 'view-charges', location: 'view-location', oued: 'view-oued', carriere: 'view-carr', pdv: 'view-pesees', fournisseurs: 'view-fournisseurs', clients: 'view-clients', machines: 'view-machines', agglos: 'view-usine', personnel: 'view-personnel', asaisir: 'view-asaisir', controle: 'view-controle', utilisateurs: 'view-users', historique: 'view-hist', depense: 'view-depense' }, target = vm[k] || 'view-soon';
     if (k === 'fournisseurs' && typeof ROLE !== 'undefined' && ROLE === 'compta') target = 'view-fsaisie';
     if (k === 'dashboard' && typeof ROLE !== 'undefined' && ROLE === 'pdv') target = 'view-pdvdash';
     if (k === 'banque') target = sub === 'Chèques reçus' ? 'view-chrec' : 'view-cheques';
@@ -3353,7 +3382,7 @@ header.top .tools { margin-left: auto; }
 
   /* --- Point de vente (style caisse) : client, camion, marchandises, quantités, ticket --- */
   var DENS = { tv: 1.7, gr: 1.8, g8: 1.5, g15: 1.5, sa: 1.6 };
-  var pdvNew = function () { return { c: null, tr: '', free: { plate: '', chauf: '', cap: '' }, lines: [], cur: -1, field: '', pay: 'cash' }; };
+  var pdvNew = function () { return { c: null, tr: '', free: { plate: '', chauf: '', cap: '' }, lines: [], cur: -1, field: '', pay: 'cash', unit: 'm3' }; };
   var pdv = pdvNew();
   var CFREQ = (function () { var f = {}; rows.forEach(function (r) { f[r.client] = (f[r.client] || 0) + 1; }); return f; })();
   var SITECOL = { 'Bouaanfir': 'var(--series1)', 'Nfifa': 'var(--series2)', 'Usine Agglos': 'var(--ink)' };
@@ -3447,8 +3476,8 @@ header.top .tools { margin-left: auto; }
   }
   function pdvProdTiles() {
     var cnt = {}; pdv.lines.forEach(function (l) { cnt[l.key] = (cnt[l.key] || 0) + 1; });
-    return stepH(3, 'Choisissez la marchandise', pdv.lines.length > 0) + '<div class="tiles pt">' + pfreq().map(function (k) {
-      var p = P[k], ok = p.px > 0, pr = !ok ? '<span>Prix à renseigner</span>' : (p.u === 'mille' ? '<span>' + nf2.format(p.px) + ' / mille</span>' : '<span>' + nf2.format(p.px) + ' / t</span>' + (pm3(k) > 0 ? '<span>' + nf2.format(pm3(k)) + ' / m³</span>' : ''));
+    return stepH(3, 'Choisissez la marchandise', pdv.lines.length > 0) + '<div class="unitsw" role="group" aria-label="Unité de vente"><span>Vendre en :</span><button type="button" data-punit="m3" aria-pressed="' + (pdv.unit === 'm3') + '">Mètre cube (m³)</button><button type="button" data-punit="t" aria-pressed="' + (pdv.unit === 't') + '">Tonne (t)</button><small>Choix valable pour cette vente · le prix de l’unité choisie est en bleu</small></div><div class="tiles pt">' + pfreq().map(function (k) {
+      var p = P[k], ok = p.px > 0, pr = !ok ? '<span>Prix à renseigner</span>' : (p.u === 'mille' ? '<span>' + nf2.format(p.px) + ' / mille</span>' : '<span' + (pdv.unit === 't' ? ' class="u-on"' : '') + '>' + nf2.format(p.px) + ' / t</span>' + (pm3(k) > 0 ? '<span' + (pdv.unit === 'm3' ? ' class="u-on"' : '') + '>' + nf2.format(pm3(k)) + ' / m³</span>' : ''));
       return '<button type="button" class="pcard' + (cnt[k] ? ' on' : '') + '" ' + (ok ? '' : 'disabled ') + 'style="--tint:' + tintOf(k) + '" data-pprod="' + k + '"><span class="pi">' + ico2(p.u === 'mille' ? 'brick' : 'pile', 24) + '</span><b>' + esc(p.n) + '</b><small>' + esc(p.site) + '</small><span class="price">' + pr + '</span>' + (function () { var lf = stockLeft(k); return lf ? '<small class="rest' + (lf.n <= 0 ? ' out' : '') + '">' + (lf.unl ? '' : 'Reste : ') + lf.txt + '</small>' : ''; })() + (cnt[k] ? '<i class="qb">×' + cnt[k] + '</i>' : '') + '</button>';
     }).join('') + '</div>';
   }
@@ -3456,7 +3485,7 @@ header.top .tools { margin-left: auto; }
     var l = pdv.lines[pdv.cur]; if (!l) return '';
     var p = P[l.key], t = pdvTruck(), unit = p.u === 'mille', fld = pdv.field;
     var box = function (id, lab, val) { return '<div class="qbox' + (fld === id ? ' on' : '') + '" data-fld="' + id + '"><label for="pdv-f-' + id + '">' + lab + '</label><input class="qin" id="pdv-f-' + id + '" data-fld="' + id + '" inputmode="decimal" autocomplete="off" value="' + esc(val) + '"></div>'; };
-    var head = '<div class="qty-head"><div><b>' + esc(p.n) + '</b><small>' + esc(p.site) + '</small></div>' + (unit ? '' : '<div class="modes" id="pdv-mode">' + (pm3(l.key) > 0 ? '<button type="button" data-pm="m3" aria-pressed="' + (l.mode === 'm3') + '">Au volume (m³)</button>' : '') + '<button type="button" data-pm="t" aria-pressed="' + (l.mode === 't') + '">Au poids (t)</button></div>') + '</div>';
+    var head = '<div class="qty-head"><div><b>' + esc(p.n) + '</b><small>' + esc(p.site) + '</small></div>' + (unit ? '' : '<div class="modes" id="pdv-mode"><span class="unit-lab">' + (l.mode === 't' ? 'Vente au poids (t)' : 'Vente au volume (m³)') + '</span></div>') + '</div>';
     var fields, quick = '';
     if (l.mode === 't') fields = '<div class="qrow">' + box('tare', 'Tare (t)', l.tare) + box('brut', 'Brut (t)', l.brut) + '<div class="qbox net"><label>Net (t)</label><div class="qnet" id="pdv-net">—</div></div></div>';
     else if (l.mode === 'm3') { fields = '<div class="qrow">' + box('m3', 'Quantité (m³)', l.m3) + '<div class="qbox net"><label>Capacité du camion</label><div class="qnet">' + (t && t.cap ? nf2.format(t.cap) + ' m³' : '—') + '</div></div></div>'; quick = '<div class="quick-q"><button type="button" class="btn" data-padd="cap">Chargement complet</button><button type="button" class="btn" data-padd="1">+ 1 m³</button><button type="button" class="btn" data-padd="5">+ 5 m³</button></div>'; }
@@ -3514,7 +3543,7 @@ header.top .tools { margin-left: auto; }
     pdv.lines.forEach(function (x, k) { if (x.key === key) ex = k; });
     if (ex >= 0) { pdv.cur = ex; var q = pdv.lines[ex]; pdv.field = q.mode === 't' ? 'tare' : (q.mode === 'm3' ? 'm3' : 'n'); pdvRender(); return; }
     if (pdv.lines.length >= 6) { toast('Maximum 6 marchandises par BL.'); return; }
-    var vol = p.u !== 'mille' && pm3(key) > 0 && t && t.cap > 0;
+    var vol = p.u !== 'mille' && pdv.unit === 'm3' && pm3(key) > 0 && t && t.cap > 0;
     var l = { key: key, mode: p.u === 'mille' ? 'u' : (vol ? 'm3' : 't'), tare: '', brut: '', m3: '', n: '', auto: !!vol };
     pdv.lines.push(l);
     if (vol) { autoSplit(); pdv.cur = -1; pdv.field = ''; } else { pdv.cur = pdv.lines.length - 1; pdv.field = l.mode === 't' ? 'tare' : 'n'; }
@@ -3534,6 +3563,11 @@ header.top .tools { margin-left: auto; }
     if (e.target.closest('#pdv-clear') || e.target.closest('#pdv-reset')) { pdv = pdvNew(); $('pdv-q').value = ''; pdvRender(); return; }
     if ((b = e.target.closest('[data-ptr]'))) { var prev = (pdvTruck() || {}).cap; pdv.tr = b.dataset.ptr; setM3Defaults(prev || -1); pdvRender(); return; }
     if ((b = e.target.closest('[data-pprod]'))) { pdvAddLine(b.dataset.pprod); return; }
+    if ((b = e.target.closest('[data-punit]'))) {
+      pdv.unit = b.dataset.punit; var tk = pdvTruck();
+      pdv.lines.forEach(function (x) { var q = P[x.key]; if (q.u === 'mille') return; if (pdv.unit === 'm3' && pm3(x.key) > 0 && tk && tk.cap > 0) { x.mode = 'm3'; x.auto = true; x.m3 = ''; } else if (pdv.unit === 't') { x.mode = 't'; x.tare = ''; x.brut = ''; } });
+      autoSplit(); pdv.cur = -1; pdv.field = ''; if (pdv.unit === 't') pdv.lines.forEach(function (x, i) { if (pdv.cur < 0 && x.mode === 't') { pdv.cur = i; pdv.field = 'tare'; } }); pdvRender(); return;
+    }
     if ((b = e.target.closest('[data-pm]'))) { if (l) { l.mode = b.dataset.pm; pdv.field = l.mode === 't' ? 'tare' : 'm3'; if (l.mode === 'm3') { l.auto = true; autoSplit(); } pdvRender(); } return; }
     if ((b = e.target.closest('.qbox[data-fld]'))) { pdv.field = b.dataset.fld; pdvRender(); var inp = $('pdv-f-' + pdv.field); if (inp) inp.focus(); return; }
     if ((b = e.target.closest('[data-np]'))) {
@@ -4348,12 +4382,12 @@ header.top .tools { margin-left: auto; }
   var ROLE = 'dg';
   var visibleMenu = function () {
     var r = ROLES[ROLE]; return menu.filter(function (m) {
-      if (m.k === 'utilisateurs' || m.k === 'parametres') return ROLE === 'dg';
+      if (m.k === 'utilisateurs' || m.k === 'parametres' || m.k === 'rentabilite') return ROLE === 'dg';
       if (m.k === 'asaisir' && ROLE === 'dg') return false; if (m.k === 'controle' && ROLE !== 'ctrl' && ROLE !== 'dg') return false;
       return !r.menu || !!r.menu[m.k];
     }).map(function (m) { var a = r.menu && r.menu[m.k]; if (Array.isArray(a)) { var c = {}; Object.keys(m).forEach(function (x) { c[x] = m[x]; }); c.sub = a; return c; } return m; });
   };
-  function roleAllows(k, sub) { if (ROLE === 'dg') return true; var r = ROLES[ROLE]; if (k === 'utilisateurs' || k === 'parametres') return false; if (!r.menu || !r.menu[k]) return false; if (Array.isArray(r.menu[k]) && sub && r.menu[k].indexOf(sub) < 0) return false; return true; }
+  function roleAllows(k, sub) { if (ROLE === 'dg') return true; var r = ROLES[ROLE]; if (k === 'utilisateurs' || k === 'parametres' || k === 'rentabilite') return false; if (!r.menu || !r.menu[k]) return false; if (Array.isArray(r.menu[k]) && sub && r.menu[k].indexOf(sub) < 0) return false; return true; }
   var hhmm = function (d) { return pad2(d.getHours()) + ':' + pad2(d.getMinutes()); };
   /* --- Tâches à saisir --- */
   var FREQS = ['Jour', 'Semaine', 'Mois', 'Trimestre', 'Année'], LOOK = { 'Jour': 2, 'Semaine': 1, 'Mois': 1, 'Trimestre': 0, 'Année': 0 };
@@ -4914,16 +4948,37 @@ header.top .tools { margin-left: auto; }
   });
 
   /* ===== Outils communs : périodes, impression, cartes ===== */
-  var PERS = [['today', 'Aujourd’hui'], ['month', 'Ce mois'], ['prev', 'Mois précédent'], ['all', 'Tout']];
+  var PERS = [['today', 'Aujourd’hui'], ['month', 'Ce mois'], ['prev', 'Mois précédent'], ['all', 'Tout'], ['custom', 'Personnalisé']];
+  var CUST = { from: new Date(TODAY), to: new Date(TODAY) };
+  var isoD = function (d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
   var perRange = function (per) {
     var y = TODAY.getFullYear(), m = TODAY.getMonth();
+    if (per === 'custom') return { from: CUST.from, to: CUST.to, lab: +CUST.from === +CUST.to ? 'Jour' : 'Période', custom: true };
     if (per === 'today') return { from: TODAY, to: TODAY, lab: 'Aujourd’hui' };
     if (per === 'month') return { from: new Date(y, m, 1), to: TODAY, lab: 'Ce mois' };
     if (per === 'prev') return { from: new Date(y, m - 1, 1), to: new Date(y, m, 0), lab: 'Mois précédent' };
     return { from: new Date(2000, 0, 1), to: TODAY, lab: 'Tout' };
   };
-  var perTabs = function (sel, attr) { return '<span class="tabs" style="margin:0">' + PERS.map(function (p) { return '<button type="button" ' + attr + '="' + p[0] + '" aria-selected="' + (sel === p[0]) + '">' + p[1] + '</button>'; }).join('') + '</span>'; };
-  var perStr = function (rg) { return rg.lab === 'Tout' ? 'Toute la période' : rg.lab + ' · ' + (+rg.from === +rg.to ? dfmt.format(rg.from) : dfmt.format(rg.from) + ' au ' + dfmt.format(rg.to)); };
+  var perTabs = function (sel, attr) {
+    var t = '<span class="tabs" style="margin:0">' + PERS.map(function (p) { return '<button type="button" ' + attr + '="' + p[0] + '" aria-selected="' + (sel === p[0]) + '">' + p[1] + '</button>'; }).join('') + '</span>';
+    if (sel === 'custom') t += '<span class="custper"><button type="button" class="btn sm" data-custstep="-1" aria-label="Période précédente">‹</button><label class="pf">Du <input type="date" data-cust="from" value="' + isoD(CUST.from) + '" max="' + isoD(TODAY) + '"></label><label class="pf">Au <input type="date" data-cust="to" value="' + isoD(CUST.to) + '" max="' + isoD(TODAY) + '"></label><button type="button" class="btn sm" data-custstep="1" aria-label="Période suivante">›</button></span>';
+    return '<span class="pertabs">' + t + '</span>';
+  };
+  var custRefresh = function (el) { var b = el.closest('.pertabs').querySelector('[aria-selected="true"]'); if (b) b.click(); };
+  document.addEventListener('change', function (e) {
+    var i = e.target.closest && e.target.closest('[data-cust]'); if (!i || !i.value) return;
+    var d = new Date(i.value + 'T00:00:00'), f = i.dataset.cust === 'from' ? d : CUST.from, t = i.dataset.cust === 'to' ? d : CUST.to;
+    if (d > TODAY) { toast('La date ne peut pas être dans le futur.', 'bad'); return custRefresh(i); }
+    if (f > t) { if (i.dataset.cust === 'from') t = new Date(f); else { toast('« Au » doit être après « Du ».', 'bad'); return custRefresh(i); } }
+    CUST = { from: f, to: t }; custRefresh(i);
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-custstep]'); if (!b) return;
+    var n = Math.round((CUST.to - CUST.from) / 864e5) + 1, k = +b.dataset.custstep * n, f = addDays(CUST.from, k), t = addDays(CUST.to, k);
+    if (t > TODAY) { toast('Pas de période dans le futur.', 'bad'); return; }
+    CUST = { from: f, to: t }; custRefresh(b);
+  });
+  var perStr = function (rg) { if (rg.custom) return +rg.from === +rg.to ? 'Jour · ' + dfmt.format(rg.from) : 'Du ' + dfmt.format(rg.from) + ' au ' + dfmt.format(rg.to); return rg.lab === 'Tout' ? 'Toute la période' : rg.lab + ' · ' + (+rg.from === +rg.to ? dfmt.format(rg.from) : dfmt.format(rg.from) + ' au ' + dfmt.format(rg.to)); };
   var printBar = function () { return '<div class="printbar"><button type="button" class="btn" data-doprint>' + printerSvg + ' Imprimer cette page</button></div>'; };
   document.addEventListener('click', function (e) { if (e.target.closest('[data-doprint]')) printView(); });
   var sum2 = function (l, f) { return l.reduce(function (t, x) { return t + f(x); }, 0); };
@@ -4997,7 +5052,7 @@ header.top .tools { margin-left: auto; }
     if (fi) return renderMagFiche(fi, K, st, rg, w);
     $('mag-t').textContent = 'Magasin · ' + K.t; $('mag-s').textContent = K.s;
     $('mag-a').innerHTML = w ? '<button type="button" class="btn" data-mgin>+ Entrée</button><button type="button" class="btn primary" data-mgday>+ Saisie du jour</button><button type="button" class="btn" data-mginv>Inventaire</button>' + (kind === 'oil' ? '<button type="button" class="btn" data-mgnew>+ Nouveau produit</button>' : '') : '';
-    $('mag-per').innerHTML = '<span class="tabs" style="margin:0">' + PERS.map(function (p) { return '<button type="button" data-mgper="' + p[0] + '" aria-selected="' + (magPer === p[0]) + '">' + p[1] + '</button>'; }).join('') + '</span>';
+    $('mag-per').innerHTML = perTabs(magPer, 'data-mgper');
     $('mag-kpis').innerHTML = kpiH('Stock actuel', un ? magQ(qTot, un) : items.length + ' produits', kind === 'fuel' ? 'Bouaanfir : ' + magQ(st[1].q, 'L') + ' · Nfifa : ' + magQ(st[2].q, 'L') : (low ? low + ' sous le seuil' : 'Tous au-dessus du seuil'), low, true) +
       kpiH('Entrées · ' + rg.lab, un ? magQ(sum(ins, function (x) { return x.q; }), un) : nf2.format(sum(ins, function (x) { return x.cost; })), 'Montant : ' + nf2.format(sum(ins, function (x) { return x.cost; }))) +
       kpiH('Consommation · ' + rg.lab, un ? magQ(sum(outs, function (x) { return x.q; }), un) : nf2.format(sum(outs, function (x) { return x.cost; })), 'Coût : ' + nf2.format(sum(outs, function (x) { return x.cost; }))) +
@@ -5048,7 +5103,7 @@ header.top .tools { margin-left: auto; }
     var sum = function (l, f) { return l.reduce(function (t, x) { return t + f(x); }, 0); }, u = esc(it.unit), lw = s0.q < it.min;
     $('mag-t').textContent = 'Magasin · ' + K.t + ' · ' + it.nom; $('mag-s').textContent = it.k === 'fuel' ? 'Fiche de la citerne : mouvements, consommation et fournisseurs' : 'Fiche du produit : mouvements, consommation et fournisseurs';
     $('mag-a').innerHTML = w ? '<button type="button" class="btn" data-mgin>+ Entrée</button><button type="button" class="btn" data-mginv>Inventaire</button><button type="button" class="btn" data-mgedit>Réglages (Paramètres)</button>' : '';
-    $('mag-per').innerHTML = '<span class="tabs" style="margin:0">' + PERS.map(function (p) { return '<button type="button" data-mgper="' + p[0] + '" aria-selected="' + (magPer === p[0]) + '">' + p[1] + '</button>'; }).join('') + '</span>';
+    $('mag-per').innerHTML = perTabs(magPer, 'data-mgper');
     $('mag-kpis').innerHTML = kpiH('Stock actuel', magQ(s0.q, it.unit), 'Seuil mini : ' + magQ(it.min, it.unit) + (it.cap ? ' · capacité ' + nf0.format(it.cap) + ' L' : ''), lw, true) + kpiH('Valeur du stock', nf2.format(s0.val), 'Coût moyen : ' + nf2.format(s0.avg) + ' / ' + u) +
       kpiH('Entrées · ' + rg.lab, magQ(sum(ins, function (x) { return x.q; }), it.unit), 'Montant : ' + nf2.format(sum(ins, function (x) { return x.cost; }))) + kpiH('Consommation · ' + rg.lab, magQ(sum(outs, function (x) { return x.q; }), it.unit), 'Coût : ' + nf2.format(sum(outs, function (x) { return x.cost; })));
     var tabs = [['mv', 'Mouvements']].concat(it.byMach ? [['mach', 'Par machine']] : []).concat([['sup', 'Fournisseurs']]); if (!tabs.some(function (t) { return t[0] === magFTab; })) magFTab = 'mv';
@@ -5195,9 +5250,9 @@ header.top .tools { margin-left: auto; }
     var h = '', own = function (s) { return s.own ? 'Parc' : 'Loué · ' + esc(s.owner); };
     if (ouTab === 'jr') {
       var days = {}; c.recs.forEach(function (x) { var k = iso(x.d), b = by[x.key]; if (!b) return; var o = days[k] = days[k] || { d: x.d, trips: 0, m3: 0, h: 0, rent: 0, fuel: 0 }; o.trips += x.trips; o.m3 += x.trips * b.s.cap; o.h += x.h; if (!b.s.own) o.rent += x.h * b.s.rate; });
-      MAGM.forEach(function (x) { if (x.k === 'fuel' && x.type === 'out' && x.d >= rg.from && x.d <= rg.to && by[Object.keys(by).filter(function (k) { return by[k].s.nom === x.mach; })[0]]) { var o = days[iso(x.d)]; if (o) o.fuel += x.cost; } });
+      MAGM.forEach(function (x) { if (x.k === 'fuel' && x.type === 'out' && x.d >= rg.from && x.d <= rg.to && by[Object.keys(by).filter(function (k) { return by[k].s.nom === x.mach; })[0]]) { var o = days[iso(x.d)] = days[iso(x.d)] || { d: x.d, trips: 0, m3: 0, h: 0, rent: 0, fuel: 0 }; o.fuel += x.cost; } });
       var dl = Object.keys(days).sort().reverse().map(function (k) { return days[k]; });
-      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Voyages</th><th>Tout-venant (m³)</th><th>Heures</th><th>Location</th><th>Gasoil</th></tr></thead><tbody>' + (dl.length ? dl.slice(0, 60).map(function (o) { return '<tr><td>' + dfmt.format(o.d) + '</td><td class="num">' + o.trips + '</td><td class="num">' + nf2.format(o.m3) + '</td><td class="num">' + nf2.format(o.h) + '</td><td class="num">' + nf2.format(o.rent) + '</td><td class="num">' + nf2.format(o.fuel) + '</td></tr>'; }).join('') : '<tr><td colspan="6" style="color:var(--ink-2)">Aucune saisie sur cette période.</td></tr>') + '</tbody><tfoot><tr class="tot"><td>Total · ' + dl.length + ' jour' + (dl.length > 1 ? 's' : '') + '</td><td class="num">' + t.trips + '</td><td class="num">' + nf2.format(t.m3) + '</td><td class="num">' + nf2.format(t.h) + '</td><td class="num">' + nf2.format(t.rent) + '</td><td class="num">' + nf2.format(t.fc) + '</td></tr></tfoot></table></div>' + (dl.length > 60 ? '<div class="foot"><span>60 derniers jours affichés sur ' + dl.length + '.</span></div>' : '');
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Voyages</th><th>Tout-venant (m³)</th><th>Heures</th><th>Location</th><th>Gasoil</th></tr></thead><tbody>' + (dl.length ? dl.slice(0, 60).map(function (o) { return '<tr><td>' + dfmt.format(o.d) + '</td><td class="num">' + o.trips + '</td><td class="num">' + nf2.format(o.m3) + '</td><td class="num">' + nf2.format(o.h) + '</td><td class="num">' + nf2.format(o.rent) + '</td><td class="num">' + nf2.format(o.fuel) + '</td></tr>'; }).join('') : '<tr><td colspan="6" style="color:var(--ink-2)">Aucune saisie sur cette période.</td></tr>') + '</tbody><tfoot><tr class="tot"><td>Total · ' + dl.length + ' jour' + (dl.length > 1 ? 's' : '') + '</td><td class="num">' + t.trips + '</td><td class="num">' + nf2.format(t.m3) + '</td><td class="num">' + nf2.format(t.h) + '</td><td class="num">' + nf2.format(t.rent) + '</td><td class="num">' + nf2.format(sum2(dl, function (o) { return o.fuel; })) + '</td></tr></tfoot></table></div>' + (dl.length > 60 ? '<div class="foot"><span>60 derniers jours affichés sur ' + dl.length + '.</span></div>' : '');
     } else if (ouTab === 'ca') {
       var tr = c.list.filter(function (b) { return b.s.kind === 'truck'; });
       h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Camion</th><th>Propriété</th><th>Capacité</th><th>Voyages</th><th>Tout-venant (m³)</th><th>Heures</th><th>Gasoil (L)</th><th>Location</th></tr></thead><tbody>' + tr.map(function (b) { return '<tr><td><b style="font-weight:600">' + esc(b.s.nom) + '</b></td><td>' + own(b.s) + '</td><td class="num">' + nf2.format(b.s.cap) + ' m³</td><td class="num">' + b.trips + '</td><td class="num">' + nf2.format(b.m3) + '</td><td class="num">' + (b.s.own ? '—' : nf2.format(b.h)) + '</td><td class="num">' + (b.s.own ? nf2.format(b.fq) : '—') + '</td><td class="num">' + (b.s.own ? '—' : nf2.format(b.rent)) + '</td></tr>'; }).join('') + '</tbody><tfoot><tr class="tot"><td colspan="3">Total</td><td class="num">' + sum2(tr, function (b) { return b.trips; }) + '</td><td class="num">' + nf2.format(sum2(tr, function (b) { return b.m3; })) + '</td><td class="num">' + nf2.format(sum2(tr, function (b) { return b.s.own ? 0 : b.h; })) + '</td><td class="num">' + nf2.format(sum2(tr, function (b) { return b.fq; })) + '</td><td class="num">' + nf2.format(sum2(tr, function (b) { return b.rent; })) + '</td></tr></tfoot></table></div><div class="foot"><span>Les capacités des camions du Parc se règlent dans Parc.</span></div>';
@@ -5356,8 +5411,8 @@ header.top .tools { margin-left: auto; }
 
 
   /* ===== Paramètres : toutes les valeurs que l'on règle de temps en temps (direction seulement) ===== */
-  var PSUBS = ['Entreprise', 'Prix et tarifs', 'Usine', 'Personnel', 'Magasin', 'Charges', 'Banque', 'Location', 'Listes'], psub = 'Entreprise', SETLOG = {};
-  var PROV = { 'Entreprise': true, 'Prix et tarifs': true, 'Usine': true, 'Personnel': true, 'Magasin': true, 'Charges': true, 'Location': true };
+  var PSUBS = ['Entreprise', 'Prix et tarifs', 'Usine', 'Personnel', 'Magasin', 'Charges', 'Rentabilité', 'Banque', 'Location', 'Listes'], psub = 'Entreprise', SETLOG = {};
+  var PROV = { 'Entreprise': true, 'Prix et tarifs': true, 'Usine': true, 'Personnel': true, 'Magasin': true, 'Charges': true, 'Rentabilité': true, 'Location': true };
   var LISTREG = {};
   var pnum = function (v) { return String(v).replace('.', ','); };
   var pfield = function (id, lab, v, hint, attrs) { return '<div class="f"><label for="pf-' + id + '">' + lab + '</label><input class="in" id="pf-' + id + '" value="' + esc(v) + '" ' + (attrs || '') + '>' + (hint ? '<small class="sugg">' + hint + '</small>' : '') + '</div>'; };
@@ -5374,7 +5429,7 @@ header.top .tools { margin-left: auto; }
     $('pa2-t').textContent = 'Paramètres · ' + sec; $('pa2-a').innerHTML = '';
     $('pa2-s').textContent = 'Valeurs réglées par la direction · ' + (log ? 'Dernière modification : ' + fdt(log.at) + ' par ' + log.by : 'Jamais modifié');
     var b = PROV[sec] ? bnr('warn', '<div><b>Valeurs d’exemple.</b> Vérifiez-les puis cliquez sur Enregistrer pour les confirmer.</div>') : '';
-    var f = { 'Entreprise': pEnt, 'Prix et tarifs': pPrix, 'Usine': pUsine, 'Personnel': pPers, 'Magasin': pMag, 'Charges': pChg, 'Banque': pBanque, 'Location': pLoc, 'Listes': pListes }[sec];
+    var f = { 'Entreprise': pEnt, 'Prix et tarifs': pPrix, 'Usine': pUsine, 'Personnel': pPers, 'Magasin': pMag, 'Charges': pChg, 'Rentabilité': pRent, 'Banque': pBanque, 'Location': pLoc, 'Listes': pListes }[sec];
     $('pa2-body').innerHTML = b + f() + printBar();
   }
   VIEWHOOKS['view-params'] = renderParams;
@@ -5382,7 +5437,10 @@ header.top .tools { margin-left: auto; }
     return '<div class="sheet"><section class="box"><p class="sugg" style="margin:0 0 12px">Ces informations s’impriment sur les bons de livraison et les documents.</p><div class="row2">' + pfield('nom', 'Nom de l’entreprise *', COMPANY.nom) + pfield('ville', 'Ville *', COMPANY.ville) + '</div><div class="row2">' + pfield('adresse', 'Adresse', COMPANY.adresse) + pfield('tel', 'Téléphone', COMPANY.tel) + '</div><div class="row3">' + pfield('ice', 'ICE', COMPANY.ice, '15 chiffres') + pfield('rc', 'RC', COMPANY.rc) + pfield('ifs', 'IF', COMPANY.ifs) + '</div>' + perr + psave('Entreprise') + '</section></div>';
   }
   function pPrix() {
-    return '<div class="sheet"><section class="box"><div class="row2">' + pfield('kwh', 'Prix du kWh (MAD)', pnum(FC.kwh), 'Tarif interne de l’électricité de l’usine', 'inputmode="decimal"') + pfield('ci', 'Prix du ciment par tonne (MAD)', pnum(FC.ciPx), 'Ciment en vrac', 'inputmode="decimal"') + '</div>' + perr + psave('Prix et tarifs') + '</section></div><div class="foot" style="margin-top:12px"><span>Les prix de vente se règlent dans <b>Point de vente › Produits</b> (prix par tonne, par m³ ou par mille).</span><button type="button" class="btn mini" data-pgoto="pdv|Produits">Ouvrir Produits</button></div>';
+    return '<div class="sheet"><section class="box"><div class="row2">' + pfield('kwh', 'Prix du kWh (MAD)', pnum(FC.kwh), 'Tarif interne de l’électricité de l’usine', 'inputmode="decimal"') + pfield('ci', 'Prix du ciment par tonne (MAD)', pnum(FC.ciPx), 'Ciment en vrac', 'inputmode="decimal"') + '</div><h3 class="sech">Densité des produits<span>tonnes par m³ · sert à convertir t ↔ m³ à la caisse</span></h3><div class="row3">' + Object.keys(DENS).map(function (k) { return pfield('de-' + k, P[k].n, pnum(DENS[k]), 'Prix au m³ = prix à la tonne × densité', 'inputmode="decimal"'); }).join('') + '</div>' + perr + psave('Prix et tarifs') + '</section></div><div class="foot" style="margin-top:12px"><span>Les prix de vente se règlent dans <b>Point de vente › Produits</b> (prix par tonne, par m³ ou par mille).</span><button type="button" class="btn mini" data-pgoto="pdv|Produits">Ouvrir Produits</button></div>';
+  }
+  function pRent() {
+    return '<div class="sheet"><section class="box"><h3 class="sech">Matières du carrière utilisées par l’usine<span>m³ par millier de briques</span></h3><div class="row3">' + pfield('rm-b', 'Bouaanfir (m³ / mille)', pnum(RENT.mat.Bouaanfir), 'Sable, gravette… tirés de Bouaanfir', 'inputmode="decimal"') + pfield('rm-n', 'Nfifa (m³ / mille)', pnum(RENT.mat.Nfifa), 'Sable, grave… tirés de Nfifa', 'inputmode="decimal"') + pfield('rk', 'Majoration du prix de transfert (%)', pnum(RENT.markup), '0 = au prix de revient du m³', 'inputmode="decimal"') + '</div><h3 class="sech">Frais généraux</h3><div class="row3">' + psel('ra', 'Répartition sur les centres', ['Au prorata des ventes', 'Non réparti'], RENT.alloc) + '<div class="f"></div><div class="f"></div></div>' + perr + psave('Rentabilité') + '</section></div><div class="foot" style="margin-top:12px"><span>Le prix de transfert sert à calculer le résultat de chaque centre ; il s’annule au niveau de l’entreprise.</span></div>';
   }
   function pUsine() {
     var uk = usineKeys().filter(function (k) { return P[k].actif; });
@@ -5415,7 +5473,7 @@ header.top .tools { margin-left: auto; }
       ['nom', 'ville', 'adresse', 'tel', 'ice', 'rc'].forEach(function (k) { COMPANY[k] = g(k); }); COMPANY.ifs = g('ifs');
     } else if (sec === 'Prix et tarifs') {
       if (!(n('kwh') >= 0)) return pfail('Prix du kWh invalide.'); if (!(n('ci') >= 0)) return pfail('Prix du ciment invalide.');
-      FC.kwh = n('kwh'); FC.ciPx = n('ci'); FC.kwhSet = true; FC.ciSet = true; usRefresh();
+      var dn = {}; for (var dk in DENS) { var dv = n('de-' + dk); if (!(dv >= 0.5 && dv <= 3)) return pfail('Densité invalide (' + P[dk].n + ') : entre 0,5 et 3.'); dn[dk] = dv; } Object.keys(dn).forEach(function (k) { DENS[k] = dn[k]; P[k].pm3 = Math.round(P[k].px * DENS[k] * 100) / 100; }); FC.kwh = n('kwh'); FC.ciPx = n('ci'); FC.kwhSet = true; FC.ciSet = true; usRefresh();
     } else if (sec === 'Usine') {
       var sech = n('sech'); if (!(sech >= 0 && sech <= 60 && sech === Math.floor(sech))) return pfail('Les jours de séchage doivent être un entier entre 0 et 60.');
       var mo = {}, fo = {}, uk = usineKeys().filter(function (k) { return P[k].actif; }), bad = '';
@@ -5432,6 +5490,9 @@ header.top .tools { margin-left: auto; }
       upd.forEach(function (u) { var it = u[0]; it.nom = u[1]; it.min = u[2]; if (it.cap) it.cap = u[3]; if (it.k === 'oil') { it.unit = $('pf-mu-' + it.id).value; it.byMach = $('pf-mb-' + it.id).value === '1'; } });
     } else if (sec === 'Charges') {
       var nb = {}; for (var j = 0; j < CHCAT.length; j++) { var v = n('bu-' + CHCAT[j].k); if (!(v >= 0)) return pfail('Budget invalide (' + CHCAT[j].l + ').'); nb[CHCAT[j].k] = v; } Object.keys(nb).forEach(function (k) { BUD[k] = nb[k]; });
+    } else if (sec === 'Rentabilité') {
+      var rb = n('rm-b'), rn = n('rm-n'), rk = n('rk'); if (!(rb >= 0 && rb <= 20) || !(rn >= 0 && rn <= 20)) return pfail('Les m³ par millier doivent être compris entre 0 et 20.'); if (!(rk >= 0 && rk <= 200)) return pfail('La majoration doit être comprise entre 0 et 200 %.');
+      RENT.mat.Bouaanfir = rb; RENT.mat.Nfifa = rn; RENT.markup = rk; RENT.alloc = g('ra');
     } else if (sec === 'Banque') {
       if (!g('bq') || !g('cpt')) return pfail('Indiquez la banque et le numéro du compte.'); BANQUE = g('bq'); COMPTE = g('cpt');
     } else if (sec === 'Location') {
@@ -5670,6 +5731,62 @@ header.top .tools { margin-left: auto; }
   $('view-chrec').addEventListener('click', function (e) {
     var b; if ((b = e.target.closest('[data-chrtab]'))) { chrTab = b.dataset.chrtab; return chrRender(); } if ((b = e.target.closest('[data-chrper]'))) { chrPer = b.dataset.chrper; return chrRender(); }
     if (e.target.closest('[data-chrnew]')) return chrNew(); if ((b = e.target.closest('[data-chrrow]'))) return chrOpen(b.dataset.chrrow);
+  });
+
+  /* ===== Rentabilité : bénéfice par centre (direction seulement) ===== */
+  var RENT = { mat: { 'Bouaanfir': 0.6, 'Nfifa': 0.5 }, markup: 0, alloc: 'Au prorata des ventes' }, RCEN = ['Bouaanfir', 'Nfifa', 'Usine Agglos'], rtTab = 'Synthèse', rtPer = 'month';
+  ic.trend = '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>';
+  var rentSite = function (nom) { var m = MACH.filter(function (x) { return x.nom === nom; })[0]; if (m) return m.site || 'Général'; var u = LFLEET.filter(function (x) { return x.nom === nom; })[0]; return u && u.site ? u.site : 'Général'; };
+  var NAT = [['lab', 'Main-d’œuvre'], ['fuel', 'Gasoil'], ['oil', 'Huiles et graisses'], ['rent', 'Location (nette du gasoil fourni)'], ['maint', 'Maintenance du Parc'], ['chg', 'Charges propres au centre'], ['mat', 'Matières du carrière (interne)']];
+  function rentCalc(rg) {
+    magCalc(); var C = {}, mk = function () { return { ca: 0, ci: 0, prods: {}, nat: { lab: 0, fuel: 0, oil: 0, rent: 0, maint: 0, chg: 0, mat: 0 } }; };
+    RCEN.concat(['Général']).forEach(function (c) { C[c] = mk(); });
+    var pk = function (p) { return Object.keys(P).filter(function (x) { return P[x] === p; })[0]; };
+    rows.forEach(function (r) {
+      if (r.qty == null || r.date < rg.from || r.date > rg.to || !C[r.prod.site]) return; var k = pk(r.prod), ht = r.mille ? r.qty * r.prod.px : (r.mu === 'm3' ? r.qty * pm3(k) : r.qty * r.prod.px), c = C[r.prod.site];
+      c.ca += ht; var o = c.prods[r.prod.n] = c.prods[r.prod.n] || { ht: 0, q: 0, u: r.mille ? 'mille' : (r.mu === 'm3' ? 'm³' : 't') }; o.ht += ht; o.q += r.qty;
+    });
+    for (var d = new Date(rg.from < DATA_START ? DATA_START : rg.from); d <= rg.to; d = addDays(d, 1)) { if (!workDay(d)) continue; EMP.forEach(function (e) { if (!e.actif) return; var a = affOf(e, d), c = a === 'Usine Agglos' ? 'Usine Agglos' : (a === 'Oued' || a === 'Carrière' ? (e.zone === 'Nfifa' ? 'Nfifa' : 'Bouaanfir') : 'Général'); C[c].nat.lab += e.sal / JOURS_MOIS; }); }
+    MAGM.forEach(function (x) { if ((x.k === 'fuel' || x.k === 'oil') && x.type === 'out' && x.d >= rg.from && x.d <= rg.to) C[rentSite(x.mach)].nat[x.k] += x.cost; });
+    LFLEET.forEach(function (u) { var c = C[u.site] || C['Général']; c.nat.rent += unitHours(u, rg.from, rg.to).h * u.rate - unitFuel(u, rg.from, rg.to).c; });
+    MACH.forEach(function (m) { C[m.site && C[m.site] ? m.site : 'Général'].nat.maint += machCostOf(m, rg.from, rg.to); });
+    chIn(rg).forEach(function (x) { C[C[x.centre] && x.centre !== 'Général' ? x.centre : 'Général'].nat.chg += x.ht; });
+    C['Général'].nat.chg += sum2(DEPS.filter(function (x) { return x.d >= rg.from && x.d <= rg.to; }), function (x) { return x.amt; });
+    var prod = sum2(DAYS.filter(function (x) { return x.date >= rg.from && x.date <= rg.to; }), function (x) { return x.bri || 0; }), tr = {};
+    ['Bouaanfir', 'Nfifa'].forEach(function (s) {
+      var dc = sum2(Object.keys(C[s].nat), function (k) { return C[s].nat[k]; }), m3 = oudCalc(s, rg).tot.m3, px = m3 > 0 ? dc / m3 * (1 + RENT.markup / 100) : 0, q = prod * (RENT.mat[s] || 0);
+      tr[s] = { m3: q, px: px, v: q * px }; C[s].ci = q * px; C['Usine Agglos'].nat.mat += q * px;
+    });
+    var tot = { ca: 0, cost: 0 }, shared = sum2(Object.keys(C['Général'].nat), function (k) { return C['Général'].nat[k]; }), caAll = sum2(RCEN, function (c) { return C[c].ca; });
+    RCEN.forEach(function (c) {
+      var x = C[c]; x.cost = sum2(Object.keys(x.nat), function (k) { return x.nat[k]; }); x.rev = x.ca + x.ci; x.brut = x.rev - x.cost;
+      x.alloc = RENT.alloc === 'Non réparti' || !(caAll > 0) ? 0 : shared * x.ca / caAll; x.net = x.brut - x.alloc; x.marge = x.rev > 0 ? x.net / x.rev * 100 : null; tot.ca += x.ca; tot.cost += x.cost - x.nat.mat;
+    });
+    var gal = C['Général']; gal.cost = shared; tot.cost += shared; tot.net = tot.ca - tot.cost; tot.marge = tot.ca > 0 ? tot.net / tot.ca * 100 : null; tot.prod = prod;
+    return { C: C, tr: tr, tot: tot, shared: shared, rg: rg };
+  }
+  function renderRent() {
+    if (ROLE !== 'dg') return; var rg = perRange(rtPer), R = rentCalc(rg), T = R.tot, C = R.C, cl = function (v) { return 'style="color:var(--' + (v < 0 ? 'bad' : 'ok') + '-fg)"'; }, pc = function (v) { return v == null ? '—' : nf2.format(v) + ' %'; };
+    $('rt-t').textContent = 'Rentabilité' + (rtTab === 'Synthèse' ? '' : ' · ' + rtTab); $('rt-s').textContent = 'Chiffre d’affaires moins coûts, hors taxe · ' + perStr(rg);
+    $('rt-per').innerHTML = perTabs(rtPer, 'data-rtper');
+    $('rt-tabs').innerHTML = ['Synthèse'].concat(RCEN).map(function (t) { return '<button type="button" role="tab" data-rttab="' + t + '" aria-selected="' + (rtTab === t) + '">' + t + '</button>'; }).join('');
+    var h;
+    if (rtTab === 'Synthèse') {
+      $('rt-kpis').innerHTML = kpiH('Bénéfice net', nf2.format(T.net), T.net < 0 ? 'Perte sur la période' : 'Après tous les coûts', T.net < 0, true) + kpiH('Chiffre d’affaires', nf2.format(T.ca), 'Ventes hors taxe, hors transferts internes') + kpiH('Coûts totaux', nf2.format(T.cost), 'Main-d’œuvre, gasoil, location, charges…') + kpiH('Marge nette', pc(T.marge), 'Bénéfice ÷ chiffre d’affaires');
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Centre</th><th>Ventes</th><th>Ventes internes</th><th>Coûts directs</th><th>Résultat brut</th><th>Frais généraux</th><th>Résultat net</th><th>Marge</th></tr></thead><tbody>' + RCEN.map(function (c) { var x = C[c]; return '<tr><td><button type="button" class="lnk-b" data-rttab="' + c + '">' + esc(c) + '</button></td><td class="num">' + nf2.format(x.ca) + '</td><td class="num">' + (x.ci ? nf2.format(x.ci) : '—') + '</td><td class="num">' + nf2.format(x.cost) + '</td><td class="num" ' + cl(x.brut) + '>' + nf2.format(x.brut) + '</td><td class="num">' + (RENT.alloc === 'Non réparti' ? '—' : nf2.format(x.alloc)) + '</td><td class="num" ' + cl(x.net) + '><b>' + nf2.format(x.net) + '</b></td><td class="num">' + pc(x.marge) + '</td></tr>'; }).join('') + (RENT.alloc === 'Non réparti' ? '<tr><td>Frais généraux non répartis</td><td class="num">—</td><td class="num">—</td><td class="num">' + nf2.format(R.shared) + '</td><td class="num" ' + cl(-R.shared) + '>' + nf2.format(-R.shared) + '</td><td class="num">—</td><td class="num" ' + cl(-R.shared) + '>' + nf2.format(-R.shared) + '</td><td></td></tr>' : '') + '</tbody><tfoot><tr class="tot"><td>Entreprise</td><td class="num">' + nf2.format(T.ca) + '</td><td class="num">' + nf2.format(sum2(RCEN, function (c) { return C[c].ci; })) + '</td><td class="num">' + nf2.format(sum2(RCEN, function (c) { return C[c].cost; })) + '</td><td class="num">' + nf2.format(sum2(RCEN, function (c) { return C[c].brut; })) + '</td><td class="num">' + nf2.format(R.shared) + '</td><td class="num">' + nf2.format(T.net) + '</td><td class="num">' + pc(T.marge) + '</tr></tfoot></table></div>';
+      h += '<div class="foot"><span>Les ventes internes (matières du carrière utilisées par l’usine) s’annulent au niveau de l’entreprise. Prix de transfert : coût du m³ du centre' + (RENT.markup ? ' + ' + nf2.format(RENT.markup) + ' %' : '') + '. Frais généraux : ' + RENT.alloc.toLowerCase() + '. Non inclus : achats de ciment et autres matières de l’usine, amortissements. Les chiffres sont des exemples. Réglages dans Paramètres › Rentabilité.</span><button type="button" class="btn mini" data-rtgo>Ouvrir Paramètres</button></div>';
+    } else {
+      var x = C[rtTab], isQ = rtTab !== 'Usine Agglos', ou = isQ ? oudCalc(rtTab, rg).tot.m3 : 0, un = isQ ? (ou > 0 ? x.net / ou : null) : (T.prod > 0 ? x.net / T.prod : null);
+      $('rt-kpis').innerHTML = kpiH('Résultat net', nf2.format(x.net), 'Après frais généraux' + (RENT.alloc === 'Non réparti' ? ' (non répartis ici)' : ''), x.net < 0, true) + kpiH('Ventes', nf2.format(x.rev), x.ci ? 'dont ventes internes : ' + nf2.format(x.ci) : 'Hors taxe') + kpiH('Coûts directs', nf2.format(x.cost), 'Hors frais généraux') + kpiH(isQ ? 'Bénéfice par m³ extrait' : 'Bénéfice par mille', un == null ? '—' : nf2.format(un), isQ ? nf2.format(ou) + ' m³ de tout-venant extraits' : nf2.format(T.prod) + ' mille produits');
+      var pk = Object.keys(x.prods), nat = NAT.filter(function (n) { return x.nat[n[0]] > 0; }).map(function (n) { return { l: n[1], v: x.nat[n[0]] }; });
+      h = '<div class="cols2"><div class="sheet" style="margin:0"><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Produit vendu</th><th>Quantité</th><th>Ventes</th></tr></thead><tbody>' + (pk.length ? pk.map(function (n) { return '<tr><td><b style="font-weight:600">' + esc(n) + '</b></td><td class="num">' + nf2.format(x.prods[n].q) + ' ' + x.prods[n].u + '</td><td class="num">' + nf2.format(x.prods[n].ht) + '</td></tr>'; }).join('') : '<tr><td colspan="3" style="color:var(--ink-2)">Aucune vente sur cette période.</td></tr>') + (x.ci ? '<tr><td><b style="font-weight:600">Matières cédées à l’usine</b><small>Vente interne · ' + nf2.format(R.tr[rtTab].m3) + ' m³ à ' + nf2.format(R.tr[rtTab].px) + ' le m³</small></td><td class="num">' + nf2.format(R.tr[rtTab].m3) + ' m³</td><td class="num">' + nf2.format(x.ci) + '</td></tr>' : '') + '</tbody><tfoot><tr class="tot"><td>Total des ventes</td><td></td><td class="num">' + nf2.format(x.rev) + '</td></tr></tfoot></table></div></div><div class="cardbox"><h3>Coûts du centre</h3>' + (nat.length ? hbars(nat, x.cost) : '<p class="sugg">Aucun coût sur cette période.</p>') + '<div class="foot" style="margin-top:10px"><span>Total des coûts directs : <b>' + nf2.format(x.cost) + '</b> · Frais généraux alloués : <b>' + nf2.format(x.alloc) + '</b></span></div></div></div>';
+    }
+    $('rt-body').innerHTML = '<div class="sheet"><section class="box">' + h + '</section></div>';
+  }
+  VIEWHOOKS['view-rent'] = function () { renderRent(); };
+  $('view-rent').addEventListener('click', function (e) {
+    var b; if ((b = e.target.closest('[data-rtper]'))) { rtPer = b.dataset.rtper; return renderRent(); } if ((b = e.target.closest('[data-rttab]'))) { rtTab = b.dataset.rttab; return renderRent(); }
+    if (e.target.closest('[data-rtgo]')) return go('parametres', 'Rentabilité');
   });
 
   /* --- Audit --- */

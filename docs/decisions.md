@@ -227,6 +227,15 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] **Usine › Saisie du jour**: one product row (Hourdis 12/20K) plus an "Ajouter" button for other types.
 - [D] New **Paramètres** section (DG only) centralising all settings: Entreprise, Prix et tarifs, Usine, Personnel, Magasin, Charges, Banque, Location, Listes. Entreprise moved out of Utilisateurs (which keeps roles, tasks, accounts). Old screens link to Paramètres. Values are examples until real data is given.
 
+## 23. Période personnalisée, Caisse m³/t, Rentabilité (v42)
+
+- [D] **Périodes**: every period bar gets a **Personnalisé** tab with Du/Au dates and ‹ › arrows (one day = Du equal to Au). No future dates; Au cannot precede Du. Print follows the chosen period.
+- [D] **Caisse**: client, truck and product cards are bordered; the chosen truck and product show a clear selected state. A switch **Vendre en : m³ (default) / Tonne** applies to each sale; the price of the chosen unit is highlighted. Densities (t/m³) are set in Paramètres › Prix et tarifs and convert t ↔ m³. Bricks stay per mille.
+- [D] **Oued › Journal**: the Gasoil total now equals the sum of the day rows (it ignored fuel given to rented machines).
+- [D] New **Rentabilité** section (DG only): result per centre (Bouaanfir, Nfifa, Usine Agglos) = sales − direct costs (labour, fuel, oils, net rental, Parc maintenance, own charges); then general costs (head office, general charges, caisse expenses) allocated pro rata to sales or left unallocated (Paramètres › Rentabilité). Gross and net result, margin, profit per m³ extracted (quarries) and per mille (factory).
+- [D] **Internal sales**: quarry materials used by the factory are charged to the factory at the quarry's cost per m³ (+ optional markup %), credited to the quarry, and cancel out at company level. Consumption per mille is a parameter (example values).
+- [A] Not included yet: purchases of cement and other factory materials, depreciation. Point de vente has no centre of its own because its sales are already counted under the producing centre. All figures are examples.
+
 ## 21. Open questions
 
 1. Legal name on bank documents.
