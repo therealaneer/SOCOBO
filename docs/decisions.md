@@ -265,6 +265,17 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [A] The prototype has no real login. Real authentication (hashed passwords, sessions, forced change at first login) is built in Django.
 - [D] **Product order** (Point de vente › Produits, DG only): drag handle plus ▲ ▼ buttons; saved immediately and audited. New products go last. Reordering is disabled while the search or site filter is active. **The same order applies everywhere**: Caisse cards, Stock produits, Usine (add-a-product list), Paramètres. The Caisse no longer sorts by most sold.
 
+## 27. À saisir: guided day for the accountant (v46)
+
+- [D] **À saisir** (Comptabilité et saisie, also the DG preview) is now a **guided, ordered day** instead of a flat list. Day chips (today, yesterday, day before) show what remains. Numbered sections with a progress badge (n / total), green when complete:
+  1. **Production**: Présences du personnel; Oued Bouaanfir; Oued Nfifa; Carrière (Ancien Machine, Nouveau Machine, Machine Nfifa); Usine Agglos production.
+  2. **Magasin**: Gasoil citerne Bouaanfir; Gasoil citerne Nfifa; Huiles et graisses; Pièces de rechange (invoices received).
+  3. **Comptabilité**: supplier invoices, payments and collections, invoicing of the day's BL.
+  4. **À échéance**: weekly, monthly, quarterly and annual tasks (cheques, bank statement, CNSS, VAT, annual documents), late ones first.
+- [D] **Automatic detection**: a task is "Saisi" (green) as soon as the data exists for that day (Oued, Carrière, Usine, gasoil exits per tank, oil exits, parts invoice lines, presences). Otherwise buttons **Ouvrir** (goes to the right screen and tab) and **Rien à signaler** (or **Fait** for accounting tasks), stamped with time and user.
+- [D] A top card shows the day progress bar (blue, then green when everything is entered). Closing the day stays as before.
+- [A] Pdv tasks keep their own short list (Caisse, Magasin, Production, Parc). Which tasks are mandatory is still to be decided (Utilisateurs › Tâches à saisir).
+
 ## 21. Open questions
 
 1. Legal name on bank documents.

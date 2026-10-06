@@ -921,6 +921,30 @@ header.top .tools { margin-left: auto; }
 .grip.off { opacity: .35; cursor: not-allowed; }
 tr.dragging { opacity: .45; }
 tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
+.aschips { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 14px; }
+.aschip { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 16px; border-radius: 16px; border: 2px solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; font: inherit; text-align: left; }
+.aschip span { font-size: 12.5px; color: var(--ink-2); }
+.aschip.on { border-color: var(--act); background: color-mix(in srgb, var(--act) 9%, var(--sheet)); }
+.aschip.ok { border-color: var(--ok-fg); background: var(--ok-bg); } .aschip.ok span { color: var(--ok-fg); }
+.aschip.late:not(.ok) { border-color: var(--bad-fg); } .aschip.late:not(.ok) span { color: var(--bad-fg); }
+.assec { background: var(--sheet); border: 2px solid var(--line); border-radius: 22px; margin: 0 0 16px; overflow: hidden; }
+.assec.full { border-color: var(--ok-fg); }
+.asshead { display: flex; align-items: center; gap: 12px; padding: 12px 18px; background: color-mix(in srgb, var(--act) 8%, var(--sheet)); border-bottom: 2px solid var(--line); font-size: 17px; }
+.assec.full .asshead { background: var(--ok-bg); }
+.asnum { width: 28px; height: 28px; border-radius: 50%; background: var(--act); color: #fff; display: grid; place-items: center; font-size: 14px; font-weight: 700; flex: none; }
+.assec.full .asnum { background: var(--ok-fg); }
+.asshead .bd { margin-left: auto; }
+.astask { display: flex; align-items: center; gap: 14px; padding: 12px 18px; border-top: 1px solid var(--line); }
+.astask:first-of-type { border-top: 0; }
+.astask.done { background: color-mix(in srgb, var(--ok-bg) 55%, var(--sheet)); }
+.astask.late { background: color-mix(in srgb, var(--bad-bg) 55%, var(--sheet)); }
+.asdot { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-style: normal; font-weight: 700; font-size: 14px; flex: none; color: #fff; }
+.astask.done .asdot { background: var(--ok-fg); border-color: var(--ok-fg); } .astask.late .asdot { background: var(--bad-fg); border-color: var(--bad-fg); }
+.astx { flex: 1; min-width: 0; } .astx b { font-weight: 600; font-size: 16px; } .astx small { display: block; color: var(--ink-2); margin-top: 2px; }
+.asst { white-space: nowrap; }
+.asbar { height: 8px; border-radius: 99px; background: rgba(255,255,255,.35); margin-top: 10px; overflow: hidden; } .asbar i { display: block; height: 100%; background: #fff; border-radius: 99px; }
+.kpi.okc .asbar { background: color-mix(in srgb, var(--ok-fg) 25%, transparent); } .kpi.okc .asbar i { background: var(--ok-fg); }
+@media (max-width: 720px) { .astask { flex-wrap: wrap; } .asst { order: 3; } }
 </style>
 
 <div id="fit"><div id="stage"><div class="shell">
@@ -4441,19 +4465,29 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
   /* --- Tâches à saisir --- */
   var FREQS = ['Jour', 'Semaine', 'Mois', 'Trimestre', 'Année'], LOOK = { 'Jour': 2, 'Semaine': 1, 'Mois': 1, 'Trimestre': 0, 'Année': 0 };
   var TASKS = [
-    { id: 1, nom: 'Saisir les factures fournisseurs reçues', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['fournisseurs', null] },
-    { id: 2, nom: 'Enregistrer les règlements et encaissements', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['clients', null] },
-    { id: 3, nom: 'Facturer les BL du jour', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['clients', null] },
-    { id: 4, nom: 'Entrées de stock du jour (pièces, huiles, gasoil)', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['stock', 'Pièces de rechange'] },
-    { id: 5, nom: 'Suivi des chèques et effets', freq: 'Semaine', role: 'compta', oblig: false, actif: true, go: ['banque', 'Chèques émis'] },
-    { id: 6, nom: 'Relevé bancaire à rapprocher', freq: 'Mois', role: 'compta', oblig: false, actif: true, go: ['banque', 'Chèques émis'] },
-    { id: 7, nom: 'Déclaration CNSS', freq: 'Mois', role: 'compta', oblig: false, actif: true, go: null },
-    { id: 8, nom: 'Déclaration de TVA', freq: 'Trimestre', role: 'compta', oblig: false, actif: true, go: null },
-    { id: 9, nom: 'Documents annuels (bilan, assurances)', freq: 'Année', role: 'compta', oblig: false, actif: true, go: null },
-    { id: 10, nom: 'Clôture de la caisse (espèces comptées)', freq: 'Jour', role: 'pdv', oblig: false, actif: true, go: null },
-    { id: 11, nom: 'Sorties de stock du jour', freq: 'Jour', role: 'pdv', oblig: false, actif: true, go: ['stock', 'Pièces de rechange'] },
-    { id: 12, nom: 'Production de l’usine du jour (provisoire)', freq: 'Jour', role: 'pdv', oblig: false, actif: true, go: ['agglos', 'Saisie du jour'], auto: 'usine' },
-    { id: 13, nom: 'Relevé du compteur des machines', freq: 'Semaine', role: 'pdv', oblig: false, actif: false, go: ['machines', null] }
+    { id: 14, nom: 'Présences du personnel', hint: 'Absents, retards, heures supplémentaires et affectations du jour', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['personnel', 'Présences'], auto: 'att' },
+    { id: 15, nom: 'Oued Bouaanfir (Saaidate)', hint: 'Voyages des camions et heures de marche des engins', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['oued', 'Bouaanfir'], auto: 'oued:Bouaanfir' },
+    { id: 16, nom: 'Oued Nfifa', hint: 'Voyages des camions et heures de marche des engins', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['oued', 'Nfifa'], auto: 'oued:Nfifa' },
+    { id: 17, nom: 'Carrière · Ancien Machine', hint: 'Heures de marche, tout-venant traité, produits et arrêts', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['carriere', 'Ancien Machine'], auto: 'carr:ancien' },
+    { id: 18, nom: 'Carrière · Nouveau Machine', hint: 'Heures de marche, tout-venant traité, produits et arrêts', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['carriere', 'Nouveau Machine'], auto: 'carr:nouveau' },
+    { id: 19, nom: 'Carrière · Machine Nfifa', hint: 'Heures de marche, tout-venant traité, produits et arrêts', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['carriere', 'Machine Nfifa'], auto: 'carr:nfifa' },
+    { id: 20, nom: 'Usine Agglos · production du jour', hint: 'Briques produites, gâchées, casse et compteur électrique', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['agglos', 'Saisie du jour'], auto: 'usine' },
+    { id: 21, nom: 'Gasoil · citerne Bouaanfir', hint: 'Sorties de la journée par machine et camion', sec: 'Magasin', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['stock', 'Gasoil'], auto: 'fuel:Bouaanfir' },
+    { id: 22, nom: 'Gasoil · citerne Nfifa', hint: 'Sorties de la journée par machine et camion', sec: 'Magasin', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['stock', 'Gasoil'], auto: 'fuel:Nfifa' },
+    { id: 23, nom: 'Huiles et graisses', hint: 'Sorties de la journée (ou rien à signaler)', sec: 'Magasin', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['stock', 'Huiles et graisses'], auto: 'oil' },
+    { id: 24, nom: 'Pièces de rechange · factures reçues', hint: 'Entrer chaque facture avec ses lignes', sec: 'Magasin', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['stock', 'Pièces de rechange'], auto: 'parts' },
+    { id: 1, nom: 'Factures fournisseurs reçues', hint: 'Saisir les factures du jour', sec: 'Comptabilité', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['fournisseurs', null] },
+    { id: 2, nom: 'Règlements et encaissements', hint: 'Espèces, chèques et virements du jour', sec: 'Comptabilité', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['clients', null] },
+    { id: 3, nom: 'Facturer les BL du jour', hint: 'Transformer les bons de livraison en factures', sec: 'Comptabilité', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['clients', null] },
+    { id: 5, nom: 'Suivi des chèques et effets', hint: '', sec: 'À échéance', freq: 'Semaine', role: 'compta', oblig: false, actif: true, go: ['banque', 'Chèques émis'] },
+    { id: 6, nom: 'Relevé bancaire à rapprocher', hint: '', sec: 'À échéance', freq: 'Mois', role: 'compta', oblig: false, actif: true, go: ['banque', 'Chèques émis'] },
+    { id: 7, nom: 'Déclaration CNSS', hint: '', sec: 'À échéance', freq: 'Mois', role: 'compta', oblig: false, actif: true, go: null },
+    { id: 8, nom: 'Déclaration de TVA', hint: '', sec: 'À échéance', freq: 'Trimestre', role: 'compta', oblig: false, actif: true, go: null },
+    { id: 9, nom: 'Documents annuels (bilan, assurances)', hint: '', sec: 'À échéance', freq: 'Année', role: 'compta', oblig: false, actif: true, go: null },
+    { id: 10, nom: 'Clôture de la caisse (espèces comptées)', hint: 'Compter les espèces de la journée', sec: 'Caisse', freq: 'Jour', role: 'pdv', oblig: false, actif: true, go: null },
+    { id: 11, nom: 'Sorties du magasin du jour', hint: 'Pièces, huiles et gasoil remis aux ateliers', sec: 'Magasin', freq: 'Jour', role: 'pdv', oblig: false, actif: true, go: ['stock', 'Pièces de rechange'] },
+    { id: 12, nom: 'Production de l’usine du jour (provisoire)', hint: 'Briques produites et casse', sec: 'Production', freq: 'Jour', role: 'pdv', oblig: false, actif: true, go: ['agglos', 'Saisie du jour'], auto: 'usine' },
+    { id: 13, nom: 'Relevé du compteur des machines', hint: '', sec: 'Parc', freq: 'Semaine', role: 'pdv', oblig: false, actif: false, go: ['machines', null] }
   ];
   var DONE = {}, CLOSE = {}, REVU = {}, APPR = {};
   var wkKey = function (d) { var t = new Date(d); t.setDate(t.getDate() - ((t.getDay() + 6) % 7)); return iso(t); };
@@ -4465,7 +4499,17 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
     var lab = f === 'Jour' ? (back === 0 ? 'Aujourd’hui' : back === 1 ? 'Hier' : dfmt.format(d)) : f === 'Semaine' ? (back === 0 ? 'Cette semaine' : 'Semaine passée') : f === 'Mois' ? (back === 0 ? 'Ce mois' : 'Mois de ' + mois) : f === 'Trimestre' ? 'T' + (Math.floor(d.getMonth() / 3) + 1) + ' ' + d.getFullYear() : String(d.getFullYear());
     return { key: pkey(f, d), label: lab, late: late, d: d };
   }
-  function taskDone(t, p) { if (DONE[t.id + '|' + p.key]) return true; if (t.auto === 'usine' && t.freq === 'Jour') return !!PRODJ[p.key]; return false; }
+  function autoDone(t, key) {
+    var a = t.auto || '', k = a.split(':'), sameDay = function (d) { return iso(d) === key; };
+    if (a === 'usine') return !!PRODJ[key]; if (a === 'att') return !!(ATT[key] || AFF[key]);
+    if (k[0] === 'oued') return Object.keys(OUD).some(function (x) { return x.indexOf(key + '|' + k[1] + '|') === 0; });
+    if (k[0] === 'carr') return !!CARRD[key + '|' + k[1]];
+    if (k[0] === 'fuel') return MAGM.some(function (x) { var it = magItem(x.item); return x.k === 'fuel' && x.type === 'out' && sameDay(x.d) && it && it.site === k[1]; });
+    if (a === 'oil') return MAGM.some(function (x) { return x.k === 'oil' && x.type === 'out' && sameDay(x.d); });
+    if (a === 'parts') return MAGM.some(function (x) { return x.k === 'part' && x.type === 'in' && sameDay(x.d); });
+    return false;
+  }
+  function taskDone(t, p) { if (DONE[t.id + '|' + p.key]) return true; return t.freq === 'Jour' && !!t.auto && autoDone(t, p.key); }
   function tasksFor(role) {
     var out = []; TASKS.forEach(function (t) { if (!t.actif || t.role !== role) return; for (var b = LOOK[t.freq]; b >= 0; b--) { var p = pend(t.freq, b); if (t.freq === 'Jour' && !workDay(p.d)) continue; out.push({ t: t, p: p, done: taskDone(t, p) }); } });
     return out;
@@ -4490,25 +4534,36 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
   }
   document.addEventListener('click', function (e) { var b = e.target.closest('[data-setrole]'); if (b) { closeModal(); setRole(b.dataset.setrole); toast('Poste : ' + ROLES[ROLE].nom + '.'); } if (e.target.closest('#role-chip') || e.target.closest('.round.me')) roleModal(); });
   /* --- À saisir --- */
+  var asBack = 0;
   function renderAsaisir() {
     var role = ROLE === 'dg' ? 'compta' : ROLE, all = tasksFor(role), todo = all.filter(function (x) { return !x.done; }), obl = todo.filter(function (x) { return x.t.oblig; }), late = todo.filter(function (x) { return x.p.late > 0; }), cl = CLOSE[closeKey(role)];
+    var days = []; for (var bk = 0; bk <= 2; bk++) { var pd = pend('Jour', bk); if (workDay(pd.d)) days.push({ b: bk, p: pd }); }
+    if (!days.some(function (x) { return x.b === asBack; })) asBack = days.length ? days[0].b : 0;
+    var cur = days.filter(function (x) { return x.b === asBack; })[0], key = cur ? cur.p.key : '';
+    var dayList = all.filter(function (x) { return x.t.freq === 'Jour' && x.p.key === key; }), perList = all.filter(function (x) { return x.t.freq !== 'Jour'; });
+    var chips = days.map(function (d) { var l = all.filter(function (x) { return x.t.freq === 'Jour' && x.p.key === d.p.key; }), r = l.filter(function (x) { return !x.done; }).length; return '<button type="button" class="aschip' + (d.b === asBack ? ' on' : '') + (r ? (d.b > 0 ? ' late' : '') : ' ok') + '" data-asday="' + d.b + '"><b>' + d.p.label + '</b><span>' + (r ? r + ' à faire' : '✓ Tout est fait') + '</span></button>'; }).join('');
     var rowH = function (x) {
-      var lt = x.p.late > 0;
-      return '<tr class="' + (lt ? 'rs-bad' : '') + '"><td><b style="font-weight:600">' + esc(x.t.nom) + '</b><small>' + x.t.freq + ' · ' + x.p.label + '</small></td><td>' + (x.t.oblig ? '<span class="st bad">Obligatoire</span>' : '<span class="st mute">Facultative</span>') + '</td><td>' + (lt ? '<span class="st bad">En retard de ' + x.p.late + ' j</span>' : '<span class="st warn">À faire</span>') + '</td><td><div class="rowacts">' + (x.t.go ? '<button type="button" class="btn mini blue" data-tgo="' + x.t.id + '">Ouvrir</button>' : '') + '<button type="button" class="btn mini success" data-tdone="' + x.t.id + '|' + x.p.key + '">Fait</button></div></td></tr>';
+      var d = x.done, auto = !!x.t.auto && autoDone(x.t, x.p.key), mk = DONE[x.t.id + '|' + x.p.key], lt = !d && x.p.late > 0;
+      var st = d ? '<span class="st ok">' + (auto ? 'Saisi' : 'Fait' + (mk ? ' · ' + hhmm(mk.at) : '')) + '</span>' : (lt ? '<span class="st bad">En retard de ' + x.p.late + ' j</span>' : '<span class="st warn">À faire</span>');
+      var acts = (x.t.go ? '<button type="button" class="btn mini ' + (d ? '' : 'blue') + '" data-tgo="' + x.t.id + '">' + (d ? 'Voir' : 'Ouvrir') + '</button>' : '') + (d ? '' : '<button type="button" class="btn mini success" data-tdone="' + x.t.id + '|' + x.p.key + '">' + (x.t.auto && x.t.freq === 'Jour' ? 'Rien à signaler' : 'Fait') + '</button>');
+      return '<div class="astask' + (d ? ' done' : (lt ? ' late' : '')) + '"><i class="asdot">' + (d ? '✓' : (lt ? '!' : '')) + '</i><div class="astx"><b>' + esc(x.t.nom) + '</b>' + ((x.t.hint || x.t.freq !== 'Jour') ? '<small>' + (x.t.freq !== 'Jour' ? x.t.freq + ' · ' + x.p.label + (x.t.hint ? ' · ' : '') : '') + esc(x.t.hint || '') + '</small>' : '') + '</div><div class="asst">' + st + '</div><div class="rowacts">' + acts + '</div></div>';
     };
-    var order = todo.slice().sort(function (a, b) { return b.p.late - a.p.late || (b.t.oblig - a.t.oblig); });
-    var done = all.filter(function (x) { return x.done && (DONE[x.t.id + '|' + x.p.key] || x.t.auto) && (x.p.late === 0); });
-    var can = !obl.length && !cl;
-    $('as-body').innerHTML = '<div class="kpis"><div class="kpi' + (todo.length ? ' near' : '') + '"><div class="lab">À faire</div><div class="pill num">' + todo.length + '</div><div class="cap">' + (todo.length ? 'Rien ne disparaît tant que ce n’est pas fait' : 'Tout est à jour') + '</div></div><div class="kpi' + (late.length ? ' near' : '') + '"><div class="lab">En retard</div><div class="pill num">' + late.length + '</div><div class="cap">Jours ou périodes passés</div></div><div class="kpi' + (obl.length ? ' near' : '') + '"><div class="lab">Obligatoires restantes</div><div class="pill num">' + obl.length + '</div><div class="cap">' + (oblDefined() ? 'Bloquent la clôture de la journée' : 'Aucune tâche obligatoire définie pour l’instant') + '</div></div></div>' +
-      '<div class="sheet" style="margin-top:22px">' + (order.length ? '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Tâche</th><th>Type</th><th>État</th><th>Actions</th></tr></thead><tbody>' + order.map(rowH).join('') + '</tbody></table></div>' : '<div class="empty">Rien à saisir pour le moment.</div>') + '</div>' +
-      (done.length ? '<div class="sheet" style="margin-top:18px"><section class="box"><h3 class="sech" style="margin-top:0">Déjà fait<span>' + done.length + '</span></h3>' + done.map(function (x) { var d = DONE[x.t.id + '|' + x.p.key]; return '<div style="padding:6px 0;color:var(--ink-2)">✓ ' + esc(x.t.nom) + ' · ' + x.p.label + (d ? ' · ' + hhmm(d.at) : '') + '</div>'; }).join('') + '</section></div>' : '') +
-      '<div class="sheet" style="margin-top:18px"><section class="box" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><b style="font-weight:600">Clôture de la journée</b><div class="sugg" style="margin:4px 0 0">' + (cl ? 'Journée clôturée à ' + hhmm(cl.at) + ' par ' + esc(cl.by) + '.' : obl.length ? 'Il reste ' + obl.length + ' tâche' + (obl.length > 1 ? 's' : '') + ' obligatoire' + (obl.length > 1 ? 's' : '') + ' à terminer.' : 'Vous pouvez clôturer votre journée.') + '</div></div>' + (cl ? '<span class="st ok">Clôturée</span>' : '<button type="button" class="btn primary" id="as-close"' + (can ? '' : ' disabled') + '>Clôturer ma journée</button>') + '</section></div>';
-    if (ROLE === 'dg') $('as-sub').textContent = 'Aperçu du poste Comptabilité et saisie';
-    else $('as-sub').textContent = 'Tout ce que vous devez saisir, au même endroit';
+    var order = ['Production', 'Magasin', 'Comptabilité', 'Caisse', 'Parc'], ttl = { 'Production': 'Production', 'Magasin': 'Magasin', 'Comptabilité': 'Comptabilité', 'Caisse': 'Caisse', 'Parc': 'Parc' }, icoS = { 'Production': 'pile', 'Magasin': 'brick', 'Comptabilité': 'cash', 'Caisse': 'cash', 'Parc': 'truck' }, n = 0;
+    var secH = order.map(function (sc) {
+      var l = dayList.filter(function (x) { return x.t.sec === sc; }); if (!l.length) return ''; n += 1; var dn = l.filter(function (x) { return x.done; }).length, full = dn === l.length;
+      return '<div class="assec' + (full ? ' full' : '') + '"><div class="asshead"><span class="asnum">' + n + '</span><b>' + ttl[sc] + '</b><span class="bd ' + (full ? 'ok' : 'warn') + '">' + dn + ' / ' + l.length + '</span></div>' + l.map(rowH).join('') + '</div>';
+    }).join('');
+    var perH = perList.length ? '<div class="assec"><div class="asshead"><span class="asnum">' + (n + 1) + '</span><b>À échéance</b><span class="bd ' + (perList.every(function (x) { return x.done; }) ? 'ok' : 'warn') + '">' + perList.filter(function (x) { return x.done; }).length + ' / ' + perList.length + '</span></div>' + perList.slice().sort(function (a, b) { return b.p.late - a.p.late; }).map(rowH).join('') + '</div>' : '';
+    var dTot = dayList.length, dDone = dayList.filter(function (x) { return x.done; }).length, pct = dTot ? Math.round(dDone / dTot * 100) : 0, can = !obl.length && !cl;
+    $('as-body').innerHTML = '<div class="kpis"><div class="kpi' + (dDone === dTot && dTot ? ' okc' : ' hl') + '"><div class="lab">Journée · ' + (cur ? cur.p.label : '') + '</div><div class="pill num">' + dDone + ' / ' + dTot + '</div><div class="cap">' + (dDone === dTot && dTot ? 'Tout est saisi' : 'Saisies faites') + '</div><div class="asbar"><i style="width:' + pct + '%"></i></div></div><div class="kpi' + (todo.length ? ' near' : '') + '"><div class="lab">Reste à faire</div><div class="pill num">' + todo.length + '</div><div class="cap">' + (todo.length ? 'Rien ne disparaît tant que ce n’est pas fait' : 'Tout est à jour') + '</div></div><div class="kpi' + (late.length ? ' near' : '') + '"><div class="lab">En retard</div><div class="pill num">' + late.length + '</div><div class="cap">Jours ou périodes passés</div></div></div>' +
+      '<div class="aschips" role="group" aria-label="Jour">' + chips + '</div>' + (secH || '<div class="empty">Rien à saisir pour ce jour.</div>') + perH +
+      '<div class="sheet" style="margin-top:18px"><section class="box' + (cl ? ' okc' : '') + '" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><b style="font-weight:600">Clôture de la journée</b><div class="sugg" style="margin:4px 0 0">' + (cl ? 'Journée clôturée à ' + hhmm(cl.at) + ' par ' + esc(cl.by) + '.' : obl.length ? 'Il reste ' + obl.length + ' tâche' + (obl.length > 1 ? 's' : '') + ' obligatoire' + (obl.length > 1 ? 's' : '') + ' à terminer.' : 'Vous pouvez clôturer votre journée.') + '</div></div>' + (cl ? '<span class="st ok">Clôturée</span>' : '<button type="button" class="btn primary" id="as-close"' + (can ? '' : ' disabled') + '>Clôturer ma journée</button>') + '</section></div>';
+    if (ROLE === 'dg') $('as-sub').textContent = 'Aperçu du poste Comptabilité et saisie'; else $('as-sub').textContent = 'Votre journée, dans l’ordre : production, magasin, comptabilité';
   }
   var oblDefined = function () { return TASKS.some(function (t) { return t.actif && t.oblig && t.role === (ROLE === 'dg' ? 'compta' : ROLE); }); };
   $('as-body').addEventListener('click', function (e) {
     var role = ROLE === 'dg' ? 'compta' : ROLE, b;
+    if ((b = e.target.closest('[data-asday]'))) { asBack = +b.dataset.asday; renderAsaisir(); return; }
     if ((b = e.target.closest('[data-tgo]'))) { var t = TASKS.filter(function (x) { return x.id === +b.dataset.tgo; })[0]; if (t && t.go) { if (!roleAllows(t.go[0], t.go[1])) { toast('Cette page n’est pas disponible pour ce poste.'); return; } openG[t.go[0]] = true; go(t.go[0], t.go[1]); } return; }
     if ((b = e.target.closest('[data-tdone]'))) { var q = b.dataset.tdone.split('|'), tk = TASKS.filter(function (x) { return x.id === +q[0]; })[0]; DONE[b.dataset.tdone] = { by: USER, at: nowT() }; audit('Tâche faite', tk.nom, q[1]); renderAsaisir(); refreshNavBadges(); toast('Tâche enregistrée.'); return; }
     if (e.target.closest('#as-close')) { if (oblOf(role).length) return; CLOSE[closeKey(role)] = { by: USER, at: nowT() }; audit('Journée clôturée', ROLES[role].nom, dfmt.format(TODAY)); renderAsaisir(); toast('Journée clôturée.'); }
