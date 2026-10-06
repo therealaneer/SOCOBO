@@ -276,6 +276,12 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] A top card shows the day progress bar (blue, then green when everything is entered). Closing the day stays as before.
 - [A] Pdv tasks keep their own short list (Caisse, Magasin, Production, Parc). Which tasks are mandatory is still to be decided (Utilisateurs › Tâches à saisir).
 
+## 28. Back button on every page (v47)
+
+- [D] A **Retour** button sits at the top left of every page (header), with the keyboard shortcut **Alt + ←**. It returns to the previous screen exactly as visited (menu page and sub-tab, supplier, client or machine detail). It is disabled on the first screen.
+- [D] On a page with an inner detail view (Magasin item, Location, Personnel…), **Retour first closes the detail** and returns to its list, then to the previous screen.
+- [D] The history is per session and cleared when the Poste changes. Not available while a dialog is open.
+
 ## 21. Open questions
 
 1. Legal name on bank documents.

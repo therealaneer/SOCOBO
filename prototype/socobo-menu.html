@@ -945,6 +945,10 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
 .asbar { height: 8px; border-radius: 99px; background: rgba(255,255,255,.35); margin-top: 10px; overflow: hidden; } .asbar i { display: block; height: 100%; background: #fff; border-radius: 99px; }
 .kpi.okc .asbar { background: color-mix(in srgb, var(--ok-fg) 25%, transparent); } .kpi.okc .asbar i { background: var(--ok-fg); }
 @media (max-width: 720px) { .astask { flex-wrap: wrap; } .asst { order: 3; } }
+.backtop { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 16px 0 10px; border-radius: 99px; border: 2px solid var(--line); background: var(--sheet); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; margin-right: auto; }
+.backtop:hover:not(:disabled) { border-color: var(--act); color: var(--act); }
+.backtop:disabled { opacity: .4; cursor: default; }
+@media (max-width: 720px) { .backtop span { display: none; } .backtop { padding: 0 10px; } }
 </style>
 
 <div id="fit"><div id="stage"><div class="shell">
@@ -959,6 +963,7 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
 </aside>
   <div class="frame">
   <header class="top">
+    <button type="button" class="backtop" id="nav-back" aria-label="Retour à la page précédente" title="Retour (Alt + ←)" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg><span>Retour</span></button>
     <div class="period" role="group" aria-label="Période">
       <span class="pl">Période</span>
       <label class="pf">Du <input type="date" id="p-from" aria-label="Date de début"></label>
@@ -1440,10 +1445,30 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
   var ALLV = ['view-dashboard', 'view-pesees', 'view-produits', 'view-fournisseurs', 'view-clients', 'view-fiche', 'view-cheques', 'view-machines', 'view-machine', 'view-usine', 'view-personnel', 'view-stockp', 'view-mag', 'view-params', 'view-rent', 'view-charges', 'view-location', 'view-chrec', 'view-oued', 'view-carr', 'view-asaisir', 'view-controle', 'view-users', 'view-fsaisie', 'view-pdvdash', 'view-hist', 'view-depense', 'view-soon'];
   var PERV = ['view-dashboard', 'view-hist', 'view-fournisseurs', 'view-fiche', 'view-fsaisie', 'view-clients'];
   var VIEWHOOKS = {}, PRINTV = ['view-dashboard', 'view-pdvdash', 'view-clients', 'view-fournisseurs', 'view-produits', 'view-machines', 'view-usine', 'view-stockp', 'view-depense', 'view-cheques', 'view-hist', 'view-controle', 'view-rent'];
+  /* --- Historique et bouton Retour --- */
+  var NAVH = [], navBack = false;
+  function curLoc() {
+    if (!$('view-fiche').hidden && typeof curSup !== 'undefined' && curSup) return { t: curSup.isClient ? 'client' : 'fiche', id: curSup.id };
+    if (!$('view-machine').hidden && typeof curM !== 'undefined' && curM) return { t: 'mach', id: curM.id };
+    return { t: 'go', k: cur.k, sub: cur.sub };
+  }
+  var sameLoc = function (a, b) { return a.t === b.t && a.id === b.id && a.k === b.k && (a.sub || null) === (b.sub || null); };
+  function navPush() { if (navBack) return; var l = curLoc(); if (NAVH.length && sameLoc(NAVH[NAVH.length - 1], l)) return; NAVH.push(l); if (NAVH.length > 60) NAVH.shift(); navBtn(); }
+  function navBtn() { var b = $('nav-back'); if (b) b.disabled = !NAVH.length; }
+  function goBack() {
+    var vis = ALLV.filter(function (v) { return !$(v).hidden; })[0], inner = vis && vis !== 'view-fiche' && vis !== 'view-machine' ? $(vis).querySelector('button.back') : null;
+    if (inner) { navBack = true; inner.click(); navBack = false; return; }
+    var l = NAVH.pop(); navBtn(); if (!l) return; navBack = true;
+    try { if (l.t === 'go') go(l.k, l.sub); else if (l.t === 'fiche') openFiche(l.id); else if (l.t === 'client') openClient(l.id); else if (l.t === 'mach') openMachine(l.id); } finally { navBack = false; }
+    navBtn();
+  }
+  $('nav-back').addEventListener('click', goBack);
+  document.addEventListener('keydown', function (e) { if (e.altKey && e.key === 'ArrowLeft' && $('ov').hidden) { e.preventDefault(); goBack(); } });
   function go(k, sub) {
     if (typeof closeDrawer === 'function') closeDrawer();
     if (typeof ROLES !== 'undefined' && ROLES && !roleAllows(k, sub)) { var hm = ROLES[ROLE].home; k = hm[0]; sub = hm[1]; }
     if (k === 'utilisateurs') { k = 'parametres'; sub = 'Utilisateurs'; }
+    if (!navBack && (k !== cur.k || (sub || null) !== (cur.sub || null) || !$('view-fiche').hidden || !$('view-machine').hidden)) navPush();
     cur = { k: k, sub: sub || null };
     var m = menu.filter(function (x) { return x.k === k; })[0];
     var vm = { dashboard: 'view-dashboard', parametres: 'view-params', rentabilite: 'view-rent', charges: 'view-charges', location: 'view-location', oued: 'view-oued', carriere: 'view-carr', pdv: 'view-pesees', fournisseurs: 'view-fournisseurs', clients: 'view-clients', machines: 'view-machines', agglos: 'view-usine', personnel: 'view-personnel', asaisir: 'view-asaisir', controle: 'view-controle', utilisateurs: 'view-users', historique: 'view-hist', depense: 'view-depense' }, target = vm[k] || 'view-soon';
@@ -1913,7 +1938,7 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
   function byId(id) { return sups.filter(function (s) { return s.id === id; })[0]; }
   function openFiche(id) {
     if (typeof ROLE !== 'undefined' && ROLE === 'compta' && byId(id) && !byId(id).isClient) { toast('Les montants des fournisseurs sont réservés au DG.'); return; }
-    curSup = byId(id); curTab = 'achats'; fFilt = 'all'; fQ = '';
+    navPush(); curSup = byId(id); curTab = 'achats'; fFilt = 'all'; fQ = '';
     cur = { k: 'fournisseurs', sub: null }; drawNav();
     showOnly('view-fiche'); renderFiche(); window.scrollTo(0, 0);
   }
@@ -3157,7 +3182,7 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
     var tr = e.target.closest('tr[data-cid]'); if (tr) openClient(+tr.dataset.cid);
   });
   function openClient(id) {
-    curSup = cById(id); curTab = 'achats'; fFilt = 'all'; fQ = '';
+    navPush(); curSup = cById(id); curTab = 'achats'; fFilt = 'all'; fQ = '';
     cur = { k: 'clients', sub: null }; drawNav();
     showOnly('view-fiche'); renderFiche(); window.scrollTo(0, 0);
   }
@@ -4103,7 +4128,7 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
   function machCostOf(m, from, to) { var t = 0; m.ints.forEach(function (it) { if (it.d >= from && it.d <= to) t += intCost(it); }); return t; }
   $('mach-body').addEventListener('click', function (e) { var r = e.target.closest('[data-mach]'); if (r) openMachine(+r.dataset.mach); });
   $('new-mach').addEventListener('click', function () { machModal(null); });
-  function openMachine(id) { curM = machById(id); mTab = 'resume'; showOnly('view-machine'); cur = { k: 'machines', sub: null }; drawNav(); renderMachine(); window.scrollTo(0, 0); }
+  function openMachine(id) { navPush(); curM = machById(id); mTab = 'resume'; showOnly('view-machine'); cur = { k: 'machines', sub: null }; drawNav(); renderMachine(); window.scrollTo(0, 0); }
   $('mback').addEventListener('click', function () { go('machines'); });
   function renderMachine() {
     var m = curM; if (!m) return;
@@ -4523,7 +4548,7 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
     ROLE = r; USER = ROLES[r].user; document.body.dataset.role = r;
     var chip = $('role-chip'); if (chip) chip.innerHTML = '<span>' + ROLES[r].n + '</span> ' + esc(ROLES[r].nom);
     var av = document.querySelector('.round.me'); if (av) { av.textContent = ROLES[r].ini; av.setAttribute('aria-label', 'Compte : ' + ROLES[r].nom); }
-    navSig = ''; var h = ROLES[r].home; openG = {}; if (h[1]) openG[h[0]] = true; go(h[0], h[1]); refreshNavBadges();
+    NAVH = []; navBtn(); navSig = ''; var h = ROLES[r].home; openG = {}; if (h[1]) openG[h[0]] = true; go(h[0], h[1]); refreshNavBadges();
   }
   function roleModal() {
     var keys = ['dg', 'ctrl', 'compta', 'pdv'];
