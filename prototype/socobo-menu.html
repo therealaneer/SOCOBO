@@ -915,6 +915,12 @@ header.top .tools { margin-left: auto; }
 .pcard .price span.u-on { background: var(--act); color: #fff; }
 .unit-lab { display: inline-block; padding: 6px 14px; border-radius: 99px; background: color-mix(in srgb, var(--act) 12%, var(--sheet)); font-weight: 600; }
 .ptabs { flex-wrap: wrap; margin-bottom: 14px; }
+.ordc { width: 1%; white-space: nowrap; }
+.ordc .btn.mini { padding: 2px 8px; margin-left: 4px; font-size: 11px; }
+.grip { cursor: grab; color: var(--ink-2); font-size: 18px; letter-spacing: -3px; padding: 0 6px; user-select: none; }
+.grip.off { opacity: .35; cursor: not-allowed; }
+tr.dragging { opacity: .45; }
+tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
 </style>
 
 <div id="fit"><div id="stage"><div class="shell">
@@ -3689,7 +3695,7 @@ header.top .tools { margin-left: auto; }
   var recTxt = function (r) { return r ? r.sa + ' kg sable 0/5 · ' + r.g8 + ' kg gravette 3/8 · ' + r.ci + ' kg ciment ' + (r.cim === 'c65' ? 'CPJ 65' : 'CPJ 55') + ' · ' + r.ad + ' kg adjuvant · ' + r.eau + ' l eau' : ''; };
   var pm3 = function (key) { return P[key] && P[key].pm3 || 0; };
   var PFC = (function () { var f = {}; rows.forEach(function (r) { var k = Object.keys(P).filter(function (x) { return P[x] === r.prod; })[0]; f[k] = (f[k] || 0) + 1; }); return f; })();
-  function pfreq() { return Object.keys(P).filter(function (k) { return P[k].actif !== false; }).sort(function (a, b) { return (PFC[b] || 0) - (PFC[a] || 0); }); }
+  function pfreq() { return Object.keys(P).filter(function (k) { return P[k].actif !== false; }); }
   var usineKeys = function () { return Object.keys(P).filter(function (k) { return P[k].site === 'Usine Agglos'; }); };
   var priceTxt = function (p) {
     if (!(p.px > 0)) return '<span class="st warn">À renseigner</span>';
@@ -3706,17 +3712,29 @@ header.top .tools { margin-left: auto; }
       '<div class="kpi' + (recMiss ? ' near' : '') + '"><div class="lab">Recettes à confirmer</div><div class="pill num">' + recMiss + '</div><div class="cap">' + (recMiss ? 'Valeurs indicatives ou vides' : 'Toutes confirmées') + '</div></div>';
     var q = normTxt(prF.q);
     var list = all.filter(function (k) { var p = P[k]; return (prF.st === 'all' || (prF.st === 'actif') === !!p.actif) && (!prF.site || p.site === prF.site) && (!q || normTxt(p.n + ' ' + p.site).indexOf(q) >= 0); });
+    var ordOk = ROLE === 'dg', ordOn = ordOk && !prF.q && !prF.site;
     var recCell = function (p) { if (p.site !== 'Usine Agglos') return '<span style="color:var(--ink-2)">—</span>'; if (!p.rec) return '<span class="st mute">À renseigner</span>'; return (p.recInd ? '<span class="st warn">Indicative</span>' : '<span class="st ok">Confirmée</span>') + '<small>' + recTxt(p.rec) + '</small><small>' + (p.bpb > 0 ? nf0.format(p.bpb) + ' briques par gâchée' : 'Briques par gâchée : à renseigner') + '</small>'; };
     $('prod-body').innerHTML = '<div class="tools-row"><label class="search" for="pr-q"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="pr-q" type="search" placeholder="Rechercher un produit" value="' + esc(prF.q) + '"></label>' +
       '<select id="pr-site" class="sel" aria-label="Site"><option value="">Tous les sites</option>' + SITES.map(function (x) { return '<option' + (prF.site === x ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select>' +
       '<select id="pr-st" class="sel" aria-label="État"><option value="actif"' + (prF.st === 'actif' ? ' selected' : '') + '>Actifs</option><option value="arch"' + (prF.st === 'arch' ? ' selected' : '') + '>Archivés</option><option value="all"' + (prF.st === 'all' ? ' selected' : '') + '>Tous</option></select></div>' +
-      (list.length ? '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Produit</th><th>Site</th><th>Vente</th><th>Prix HT</th><th>Prix TTC (20 %)</th><th>Recette</th><th>État</th><th>Actions</th></tr></thead><tbody>' + list.map(function (k) {
-        var p = P[k]; return '<tr class="' + (p.actif ? '' : 'rs-bad') + '"><td><b style="font-weight:600">' + esc(p.n) + '</b></td><td><span class="site"><i class="' + siteClass[p.site] + '"></i>' + esc(p.site) + '</span></td><td>' + (p.u === 'mille' ? 'Au nombre (prix à la brique)' : 'Au poids (t) et au volume (m³)') + '</td><td class="num">' + priceTxt(p) + '</td><td class="num">' + (p.px > 0 ? (p.u === 'mille' ? nf3.format(p.px * 1.2 / 1000) + ' / brique' : nf2.format(p.px * 1.2) + ' / t') : '—') + '</td><td>' + recCell(p) + '</td><td>' + (p.actif ? '<span class="st ok">Actif</span>' : '<span class="st mute">Archivé</span>') + '</td>' +
+      (list.length ? '<div class="tablewrap"><table class="tbl-lite"><thead><tr>' + (ordOk ? '<th class="ordc">Ordre</th>' : '') + '<th>Produit</th><th>Site</th><th>Vente</th><th>Prix HT</th><th>Prix TTC (20 %)</th><th>Recette</th><th>État</th><th>Actions</th></tr></thead><tbody>' + list.map(function (k, ix) {
+        var p = P[k]; return '<tr class="' + (p.actif ? '' : 'rs-bad') + '"' + (ordOn ? ' draggable="true" data-pk="' + k + '"' : '') + '>' + (ordOk ? '<td class="ordc"><span class="grip' + (ordOn ? '' : ' off') + '" title="' + (ordOn ? 'Glisser pour déplacer' : 'Désactivez le filtre pour réordonner') + '">⋮⋮</span><button type="button" class="btn mini" data-pmv="up|' + k + '" aria-label="Monter"' + (!ordOn || ix === 0 ? ' disabled' : '') + '>▲</button><button type="button" class="btn mini" data-pmv="dn|' + k + '" aria-label="Descendre"' + (!ordOn || ix === list.length - 1 ? ' disabled' : '') + '>▼</button></td>' : '') + '<td><b style="font-weight:600">' + esc(p.n) + '</b></td><td><span class="site"><i class="' + siteClass[p.site] + '"></i>' + esc(p.site) + '</span></td><td>' + (p.u === 'mille' ? 'Au nombre (prix à la brique)' : 'Au poids (t) et au volume (m³)') + '</td><td class="num">' + priceTxt(p) + '</td><td class="num">' + (p.px > 0 ? (p.u === 'mille' ? nf3.format(p.px * 1.2 / 1000) + ' / brique' : nf2.format(p.px * 1.2) + ' / t') : '—') + '</td><td>' + recCell(p) + '</td><td>' + (p.actif ? '<span class="st ok">Actif</span>' : '<span class="st mute">Archivé</span>') + '</td>' +
           '<td><div class="rowacts"><button type="button" class="btn mini" data-peprod="' + k + '">Modifier</button><button type="button" class="btn mini ' + (p.actif ? 'danger' : 'success') + '" data-arprod="' + k + '">' + (p.actif ? 'Archiver' : 'Restaurer') + '</button></div></td></tr>'; }).join('') + '</tbody></table></div>' : '<div class="empty">Aucun produit ne correspond.</div>') +
-      '<div class="foot"><span>' + list.length + ' produit' + (list.length > 1 ? 's' : '') + '</span><span>Les prix sont HT. Seuls les produits actifs avec un prix apparaissent dans le Point de vente.</span></div>';
+      '<div class="foot"><span>' + list.length + ' produit' + (list.length > 1 ? 's' : '') + '</span><span>Les prix sont HT. Seuls les produits actifs avec un prix apparaissent dans le Point de vente.' + (ordOk ? ' L’ordre choisi ici s’applique au Point de vente et à l’usine.' : '') + '</span></div>';
   }
   $('prod-body').addEventListener('input', function (e) { if (e.target.id === 'pr-q') { prF.q = e.target.value; var p = e.target.selectionStart; renderProduits(); var i = $('pr-q'); i.focus(); i.setSelectionRange(p, p); } else if (e.target.id === 'pr-site') { prF.site = e.target.value; renderProduits(); } else if (e.target.id === 'pr-st') { prF.st = e.target.value; renderProduits(); } });
+  var moveProd = function (k, tk, after) {
+    if (ROLE !== 'dg' || k === tk) return; var order = Object.keys(P).filter(function (x) { return x !== k; }), at = order.indexOf(tk); order.splice(at + (after ? 1 : 0), 0, k);
+    var cp = {}; order.forEach(function (x) { cp[x] = P[x]; }); order.forEach(function (x) { delete P[x]; }); order.forEach(function (x) { P[x] = cp[x]; });
+    audit('Ordre des produits modifié', P[k].n, 'Déplacé ' + (after ? 'après ' : 'avant ') + P[tk].n); renderProduits(); pdvRender(); if (!$('view-usine').hidden) renderUsine();
+  };
+  var dragK = null;
+  $('prod-body').addEventListener('dragstart', function (e) { var r = e.target.closest && e.target.closest('tr[data-pk]'); if (!r) return; dragK = r.dataset.pk; try { e.dataTransfer.setData('text/plain', dragK); e.dataTransfer.effectAllowed = 'move'; } catch (x) {} r.classList.add('dragging'); });
+  $('prod-body').addEventListener('dragend', function () { dragK = null; var l = $('prod-body').querySelectorAll('tr.dragging,tr.dropt'); for (var i = 0; i < l.length; i++) l[i].classList.remove('dragging', 'dropt'); });
+  $('prod-body').addEventListener('dragover', function (e) { var r = e.target.closest && e.target.closest('tr[data-pk]'); if (!r || !dragK) return; e.preventDefault(); var l = $('prod-body').querySelectorAll('tr.dropt'); for (var i = 0; i < l.length; i++) l[i].classList.remove('dropt'); if (r.dataset.pk !== dragK) r.classList.add('dropt'); });
+  $('prod-body').addEventListener('drop', function (e) { var r = e.target.closest && e.target.closest('tr[data-pk]'); if (!r || !dragK) return; e.preventDefault(); var tk = r.dataset.pk, ks = Object.keys(P); moveProd(dragK, tk, ks.indexOf(dragK) < ks.indexOf(tk)); dragK = null; });
   $('prod-body').addEventListener('click', function (e) {
+    var mv = e.target.closest('[data-pmv]'); if (mv) { var a = mv.dataset.pmv.split('|'), vis = Object.keys(P).filter(function (k) { var p = P[k]; return (prF.st === 'all' || (prF.st === 'actif') === !!p.actif); }), ix = vis.indexOf(a[1]), nb = vis[ix + (a[0] === 'up' ? -1 : 1)]; if (nb) moveProd(a[1], nb, a[0] === 'dn'); return; }
     var b = e.target.closest('[data-peprod]'); if (b) { prodModal(b.dataset.peprod); return; }
     b = e.target.closest('[data-arprod]'); if (b) { var k = b.dataset.arprod; P[k].actif = !P[k].actif; audit(P[k].actif ? 'Produit restauré' : 'Produit archivé', P[k].n, ''); renderProduits(); toast(P[k].actif ? 'Produit restauré.' : 'Produit archivé : il n’apparaît plus au Point de vente.'); }
   });
@@ -4555,17 +4573,25 @@ header.top .tools { margin-left: auto; }
   $('fs-body').addEventListener('input', function (e) { if (e.target.id === 'fs-q') { fsQ = e.target.value; var p = e.target.selectionStart; renderFsaisie(); var i = $('fs-q'); i.focus(); i.setSelectionRange(p, p); } });
   VIEWHOOKS['view-fsaisie'] = renderFsaisie;
   /* --- Utilisateurs (DG) --- */
-  var usTab = 'postes';
+  var usTab = 'comptes';
+  var USERS = [{ id: 1, nom: 'Aneer', login: 'aneer', role: 'dg', actif: true, tel: '', last: new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate(), 8, 12) }, { id: 2, nom: 'Mohamed El Idrissi', login: 'm.elidrissi', role: 'ctrl', actif: true, tel: '06 61 20 30 40', last: addDays(TODAY, -1) }, { id: 3, nom: 'Samira Benali', login: 's.benali', role: 'compta', actif: true, tel: '06 62 11 22 33', last: new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate(), 8, 40) }, { id: 4, nom: 'Youssef Amrani', login: 'y.amrani', role: 'pdv', actif: true, tel: '06 63 44 55 66', last: new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate(), 7, 55) }], uSeq = 4;
+  var tmpPw = function () { var a = 'abcdefghjkmnpqrstuvwxyzACDEFGHJKLMNPQRSTUVWXYZ23456789', t = ''; for (var i = 0; i < 9; i++) t += a[Math.floor(Math.random() * a.length)]; return t; };
+  var lastDG = function (u) { return u.role === 'dg' && u.actif && USERS.filter(function (x) { return x.role === 'dg' && x.actif; }).length === 1; };
   function renderUsers() {
     if (!$('ur-tabs')) return;
-    var tabs = [['postes', 'Postes'], ['taches', 'Tâches à saisir']];
+    var tabs = [['comptes', 'Comptes'], ['postes', 'Postes'], ['taches', 'Tâches à saisir']];
     $('ur-tabs').innerHTML = tabs.map(function (t) { return '<button type="button" role="tab" data-urtab="' + t[0] + '" aria-selected="' + (usTab === t[0]) + '">' + t[1] + '</button>'; }).join('');
-    if (usTab === 'postes') {
+    if (usTab === 'comptes') {
+      var act = USERS.filter(function (u) { return u.actif; }).length;
+      $('ur-main').innerHTML = '<div class="tools-row" style="justify-content:space-between"><span class="sugg" style="margin:0">' + act + ' compte' + (act > 1 ? 's' : '') + ' actif' + (act > 1 ? 's' : '') + ' sur ' + USERS.length + ' · un compte par personne</span><button type="button" class="btn primary" data-newuser>+ Nouvel utilisateur</button></div><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Nom</th><th>Identifiant</th><th>Poste</th><th>État</th><th>Dernier accès</th><th>Actions</th></tr></thead><tbody>' + USERS.map(function (u) {
+        return '<tr class="' + (u.actif ? '' : 'rs-bad') + '"><td><b style="font-weight:600">' + esc(u.nom) + '</b>' + (u.tel ? '<small>' + esc(u.tel) + '</small>' : '') + '</td><td class="mono">' + esc(u.login) + '</td><td>' + esc(ROLES[u.role].nom) + '</td><td><span class="st ' + (u.actif ? 'ok' : 'mute') + '">' + (u.actif ? 'Actif' : 'Désactivé') + '</span>' + (u.must ? '<small>Doit changer son mot de passe</small>' : '') + '</td><td>' + (u.last ? fdt(u.last) : '<span style="color:var(--ink-2)">Jamais connecté</span>') + '</td><td><div class="rowacts"><button type="button" class="btn mini" data-uedit="' + u.id + '">Modifier</button><button type="button" class="btn mini" data-upw="' + u.id + '">Mot de passe</button><button type="button" class="btn mini ' + (u.actif ? 'danger' : 'success') + '" data-utog="' + u.id + '">' + (u.actif ? 'Désactiver' : 'Activer') + '</button></div></td></tr>';
+      }).join('') + '</tbody></table></div><div class="foot"><span>Seule la direction crée et gère les comptes. Un compte n’est jamais supprimé : il est désactivé, et son nom reste dans le journal d’audit.</span></div>';
+    } else if (usTab === 'postes') {
       var cards = ['dg', 'ctrl', 'compta', 'pdv'].map(function (k) {
         var r = ROLES[k], st = '';
         if (k === 'compta' || k === 'pdv') { var p = pendingOf(k), c = CLOSE[closeKey(k)]; st = '<div class="sugg" style="margin:10px 0 0">' + (c ? '✓ Journée clôturée à ' + hhmm(c.at) : p.length + ' tâche' + (p.length > 1 ? 's' : '') + ' en attente') + '</div>' + (c ? '<button type="button" class="btn mini" data-reopen="' + k + '">Rouvrir la journée</button>' : ''); }
         if (k === 'ctrl') { var ap = APPR[iso(TODAY)]; st = '<div class="sugg" style="margin:10px 0 0">' + (ap ? '✓ Journée approuvée à ' + hhmm(ap.at) : 'Journée du jour non approuvée') + '</div>'; }
-        return '<div class="kpi" style="min-height:0"><div class="lab">' + r.n + '</div><b style="font-size:19px;font-weight:600">' + esc(r.nom) + '</b><div class="sugg" style="margin:8px 0">Voit : ' + esc(r.voit) + '</div><ul style="margin:0 0 12px;padding-left:18px;font-size:14px">' + r.regles.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul><button type="button" class="btn ' + (k === ROLE ? '' : 'primary') + '" data-setrole="' + k + '"' + (k === ROLE ? ' disabled' : '') + '>' + (k === ROLE ? 'Poste actuel' : 'Essayer ce poste') + '</button>' + st + '</div>';
+        return '<div class="kpi" style="min-height:0"><div class="lab">' + r.n + '</div><b style="font-size:19px;font-weight:600">' + esc(r.nom) + '</b><div class="sugg" style="margin:8px 0">Voit : ' + esc(r.voit) + '</div><div class="sugg" style="margin:0 0 8px">Comptes actifs : <b>' + USERS.filter(function (u) { return u.role === k && u.actif; }).length + '</b></div><ul style="margin:0 0 12px;padding-left:18px;font-size:14px">' + r.regles.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul><button type="button" class="btn ' + (k === ROLE ? '' : 'primary') + '" data-setrole="' + k + '"' + (k === ROLE ? ' disabled' : '') + '>' + (k === ROLE ? 'Poste actuel' : 'Essayer ce poste') + '</button>' + st + '</div>';
       }).join('') + ['Poste 5 · Usine', 'Poste 6 · Maintenance'].map(function (n) { return '<div class="kpi" style="min-height:0;opacity:.55"><div class="lab">À venir</div><b style="font-size:19px;font-weight:600">' + n + '</b><div class="sugg" style="margin:8px 0 0">Sera ajouté plus tard.</div></div>'; }).join('');
       $('ur-main').innerHTML = '<div class="kpis" style="margin-top:0;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">' + cards + '</div>';
     } else {
@@ -4577,6 +4603,10 @@ header.top .tools { margin-left: auto; }
   $('view-params').addEventListener('click', function (e) {
     var b;
     if ((b = e.target.closest('[data-urtab]'))) { usTab = b.dataset.urtab; renderUsers(); return; }
+    if (e.target.closest('[data-newuser]')) return userModal(null);
+    if ((b = e.target.closest('[data-uedit]'))) return userModal(+b.dataset.uedit);
+    if ((b = e.target.closest('[data-upw]'))) return userPw(+b.dataset.upw);
+    if ((b = e.target.closest('[data-utog]'))) return userToggle(+b.dataset.utog);
     if ((b = e.target.closest('[data-reopen]'))) { delete CLOSE[closeKey(b.dataset.reopen)]; audit('Journée rouverte', ROLES[b.dataset.reopen].nom, dfmt.format(TODAY)); renderUsers(); refreshNavBadges(); toast('Journée rouverte.'); return; }
     if (e.target.closest('[data-newtask]')) return taskModal(null);
     if ((b = e.target.closest('[data-tedit]'))) return taskModal(+b.dataset.tedit);
@@ -4586,6 +4616,42 @@ header.top .tools { margin-left: auto; }
     if (e.target.dataset.toblig) { t = TASKS.filter(function (x) { return x.id === +e.target.dataset.toblig; })[0]; t.oblig = e.target.checked; audit('Tâche obligatoire', t.nom, t.oblig ? 'Oui' : 'Non'); renderUsers(); refreshNavBadges(); }
     else if (e.target.dataset.tactif) { t = TASKS.filter(function (x) { return x.id === +e.target.dataset.tactif; })[0]; t.actif = e.target.checked; renderUsers(); refreshNavBadges(); }
   });
+  function userModal(id) {
+    var edit = id != null, u = edit ? USERS.filter(function (x) { return x.id === id; })[0] : { nom: '', login: '', role: 'compta', tel: '', actif: true }, lock = edit && lastDG(u), names = EMP.filter(function (e) { return e.actif; }).map(function (e) { return '<option value="' + esc(e.nom) + '">'; }).join(''), pw = tmpPw();
+    var info = function (r) { return '<b>' + esc(ROLES[r].nom) + '</b> · voit : ' + esc(ROLES[r].voit) + '<br>' + ROLES[r].regles.map(esc).join(' · '); };
+    openModal('<h2>' + (edit ? 'Modifier l’utilisateur' : 'Nouvel utilisateur') + '</h2><p class="m">' + (edit ? esc(u.login) : 'Un compte par personne. Le mot de passe temporaire sera à communiquer à l’utilisateur.') + '</p>' +
+      '<div class="row2"><div class="f"><label for="ux-n">Nom complet *</label><input class="in" id="ux-n" list="ux-nl" value="' + esc(u.nom) + '"><datalist id="ux-nl">' + names + '</datalist></div><div class="f"><label for="ux-l">Identifiant *</label><input class="in" id="ux-l" value="' + esc(u.login) + '"' + (edit ? ' disabled' : '') + ' placeholder="prenom.nom"></div></div>' +
+      '<div class="row2"><div class="f"><label for="ux-r">Poste *</label><select class="in" id="ux-r"' + (lock ? ' disabled' : '') + '>' + ['dg', 'ctrl', 'compta', 'pdv'].map(function (r) { return '<option value="' + r + '"' + (u.role === r ? ' selected' : '') + '>' + esc(ROLES[r].nom) + '</option>'; }).join('') + '</select></div><div class="f"><label for="ux-t">Téléphone</label><input class="in" id="ux-t" value="' + esc(u.tel) + '" inputmode="tel"></div></div>' +
+      '<p class="sugg" id="ux-info" style="margin:0 0 12px">' + info(u.role) + '</p>' + (lock ? '<p class="sugg">Dernier compte Direction actif : son poste ne peut pas être changé.</p>' : '') +
+      (edit ? '' : '<div class="f"><label for="ux-p">Mot de passe temporaire *</label><div style="display:flex;gap:8px"><input class="in" id="ux-p" value="' + pw + '" style="flex:1"><button type="button" class="btn" id="ux-gen">Générer</button></div><small class="sugg">9 caractères minimum conseillés. L’utilisateur devra le changer à la première connexion.</small></div>') +
+      '<p class="err" id="ux-err" hidden></p><div class="mact"><button type="button" class="btn" id="ux-cancel">Annuler</button><button type="button" class="btn primary" id="ux-save">' + (edit ? 'Enregistrer' : 'Créer le compte') + '</button></div>');
+    var err = function (t) { $('ux-err').textContent = t; $('ux-err').hidden = false; };
+    $('ux-r').addEventListener('change', function () { $('ux-info').innerHTML = info($('ux-r').value); });
+    if (!edit) { $('ux-n').addEventListener('input', function () { var w = normTxt($('ux-n').value).split(/\s+/).filter(Boolean); if (!$('ux-l').dataset.t) $('ux-l').value = w.length > 1 ? (w[0] + '.' + w[w.length - 1]).replace(/[^a-z0-9.]/g, '') : (w[0] || '').replace(/[^a-z0-9.]/g, ''); }); $('ux-l').addEventListener('input', function () { $('ux-l').dataset.t = '1'; }); $('ux-gen').addEventListener('click', function () { $('ux-p').value = tmpPw(); }); }
+    $('ux-cancel').addEventListener('click', closeModal);
+    $('ux-save').addEventListener('click', function () {
+      var n = $('ux-n').value.trim(), l = $('ux-l').value.trim().toLowerCase(), r = $('ux-r').value, t = $('ux-t').value.trim();
+      if (!n) return err('Saisissez le nom complet.');
+      if (!edit) { if (!/^[a-z0-9._-]{3,}$/.test(l)) return err('Identifiant : 3 caractères minimum, lettres minuscules, chiffres, point, tiret.'); if (USERS.some(function (x) { return x.login === l; })) return err('Cet identifiant est déjà utilisé.'); if ($('ux-p').value.length < 8) return err('Le mot de passe temporaire doit comporter au moins 8 caractères.'); if (USERS.some(function (x) { return normTxt(x.nom) === normTxt(n); })) return err('Un compte existe déjà pour cette personne : un seul compte par personne.'); }
+      if (edit && USERS.some(function (x) { return x.id !== id && normTxt(x.nom) === normTxt(n); })) return err('Un autre compte porte déjà ce nom.');
+      if (edit) { var ch = (u.nom !== n ? 'nom ' : '') + (u.role !== r ? 'poste ' + ROLES[u.role].nom + ' → ' + ROLES[r].nom : ''); u.nom = n; u.role = r; u.tel = t; audit('Utilisateur modifié', n, ch.trim() || 'Coordonnées'); closeModal(); renderUsers(); toast('Utilisateur modifié.'); }
+      else { var pwv = $('ux-p').value; uSeq += 1; USERS.push({ id: uSeq, nom: n, login: l, role: r, tel: t, actif: true, last: null, must: true }); audit('Utilisateur créé', n, l + ' · ' + ROLES[r].nom); closeModal(); renderUsers(); pwShow(n, l, pwv, true); }
+    });
+  }
+  function pwShow(nom, login, pw, created) {
+    openModal('<h2>' + (created ? 'Compte créé' : 'Nouveau mot de passe') + '</h2><p class="m">' + esc(nom) + ' · identifiant <b class="mono">' + esc(login) + '</b></p><div class="kpi hl" style="min-height:0;text-align:center"><div class="lab">Mot de passe temporaire</div><div class="pill num mono" style="font-size:28px">' + esc(pw) + '</div></div><p class="sugg">Communiquez-le à la personne : il ne sera plus affiché. Elle devra le changer à sa première connexion.</p><div class="mact"><button type="button" class="btn primary" id="pw-ok">Terminé</button></div>');
+    $('pw-ok').addEventListener('click', closeModal);
+  }
+  function userPw(id) {
+    var u = USERS.filter(function (x) { return x.id === id; })[0]; if (!u) return;
+    confirmDanger('Réinitialiser le mot de passe ?', esc(u.nom) + ' recevra un mot de passe temporaire et devra le changer à la prochaine connexion.', 'Réinitialiser', function () { var pw = tmpPw(); u.must = true; audit('Mot de passe réinitialisé', u.nom, u.login); renderUsers(); pwShow(u.nom, u.login, pw, false); });
+  }
+  function userToggle(id) {
+    var u = USERS.filter(function (x) { return x.id === id; })[0]; if (!u) return;
+    if (u.actif && lastDG(u)) { toast('Impossible : c’est le dernier compte Direction actif.', 'bad'); return; }
+    var go2 = function () { u.actif = !u.actif; audit(u.actif ? 'Utilisateur activé' : 'Utilisateur désactivé', u.nom, u.login); renderUsers(); toast(u.actif ? 'Compte activé.' : 'Compte désactivé : il ne peut plus se connecter.'); };
+    if (u.actif) confirmDanger('Désactiver ce compte ?', esc(u.nom) + ' ne pourra plus se connecter. Son historique est conservé.', 'Désactiver', go2); else go2();
+  }
   function taskModal(id) {
     var edit = id != null, t = edit ? TASKS.filter(function (x) { return x.id === id; })[0] : { nom: '', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: null };
     openModal('<h2>' + (edit ? 'Modifier la tâche' : 'Nouvelle tâche') + '</h2><p class="m">Elle apparaîtra sur « À saisir » du poste choisi.</p><div class="f"><label for="tk-n">Intitulé *</label><input class="in" id="tk-n" value="' + esc(t.nom) + '"></div><div class="row2"><div class="f"><label for="tk-f">Fréquence</label><select class="in" id="tk-f">' + FREQS.map(function (x) { return '<option' + (t.freq === x ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></div><div class="f"><label for="tk-r">Poste</label><select class="in" id="tk-r">' + ['compta', 'pdv'].map(function (x) { return '<option value="' + x + '"' + (t.role === x ? ' selected' : '') + '>' + esc(ROLES[x].nom) + '</option>'; }).join('') + '</select></div></div><div class="f"><label><input type="checkbox" id="tk-o"' + (t.oblig ? ' checked' : '') + '> Obligatoire : bloque la clôture de la journée</label></div><p class="err" id="tk-err" hidden></p><div class="mact"><button type="button" class="btn" id="tk-cancel">Annuler</button><button type="button" class="btn primary" id="tk-save">Enregistrer</button></div>');

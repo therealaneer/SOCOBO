@@ -257,6 +257,14 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] **Opening stock** is entered once through Inventaire when going live. The demo references and quantities are examples.
 - [A] Not yet: low-stock alert in À saisir, link of exits on rented machines to the owner's statement, spare-parts photos.
 
+## 26. Accounts and product order (v45)
+
+- [D] **Utilisateurs › Comptes** (Paramètres, DG only): one account per person. Table with name, identifier, Poste, state (Actif / Désactivé), last access. Button **+ Nouvel utilisateur**: full name (suggested from Personnel), identifier (3+ characters, unique), Poste (one of the four roles, with a summary of what it sees), phone, temporary password (generated, shown once, to be changed at first login).
+- [D] Actions per account: modify (name, Poste, phone), reset password, deactivate / activate. **An account is never deleted** (the audit log keeps the name). The last active Direction account cannot be deactivated or change Poste. One account per person, no duplicate names. All actions are audited.
+- [D] Only the DG creates and manages accounts; the accountant cannot.
+- [A] The prototype has no real login. Real authentication (hashed passwords, sessions, forced change at first login) is built in Django.
+- [D] **Product order** (Point de vente › Produits, DG only): drag handle plus ▲ ▼ buttons; saved immediately and audited. New products go last. Reordering is disabled while the search or site filter is active. **The same order applies everywhere**: Caisse cards, Stock produits, Usine (add-a-product list), Paramètres. The Caisse no longer sorts by most sold.
+
 ## 21. Open questions
 
 1. Legal name on bank documents.
