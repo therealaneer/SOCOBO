@@ -236,6 +236,16 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] **Internal sales**: quarry materials used by the factory are charged to the factory at the quarry's cost per m³ (+ optional markup %), credited to the quarry, and cancel out at company level. Consumption per mille is a parameter (example values).
 - [A] Not included yet: purchases of cement and other factory materials, depreciation. Point de vente has no centre of its own because its sales are already counted under the producing centre. All figures are examples.
 
+## 24. Prices per brick and recipe per batch (v43)
+
+- [D] **Bricks are priced and costed per single brick**, never per thousand: sale price, cost of a brick, margin per brick, profit per brick. Brick prices show 3 decimals (1,450); other amounts keep 2. Quantities stay in bricks. Factory employees keep their monthly salary (salary ÷ 26 per day).
+- [D] **Recipe per batch (gâchée)** of the mixer, not per thousand. Mixer capacity is a setting (example 800 kg, Paramètres › Usine). One recipe per product: sable concassé 0/5 (kg), gravette 3/8 (kg), adjuvant (kg), ciment vrac (kg) with its **grade CPJ 55 or CPJ 65**, and water (litres, no cost). Total without water must not exceed the mixer capacity.
+- [D] **Bricks per batch** is a per-product field, shown "À renseigner" until the owner provides it. Until then the cost of that product's brick is "À renseigner" and its margin is partial. Recipe values are examples marked "Indicative".
+- [D] **Daily entry (Usine › Saisie du jour)** gets a "Gâchées" column. Consumption = batches × recipe; if batches are empty and bricks per batch is known, batches = production ÷ bricks per batch. Materials in stock: sable 0/5 (t), gravette 3/8 (t), CPJ 55 (t), CPJ 65 (t), adjuvant (kg). Cement prices per grade and adjuvant price per kg are in Paramètres › Prix et tarifs. Water is not tracked.
+- [D] **Densities** (t/m³) per quarry product are in Paramètres › Prix et tarifs and convert t ↔ m³.
+- [D] **Rentabilité**: the factory's sand and gravel come from the recipe consumption (converted to m³ with the densities) and are charged at the quarry's cost per m³ (+ optional markup); cement and adjuvant are costed at purchase prices. The old "m³ per mille" setting is removed.
+- [A] Examples used (kg per batch): brique 8 trous 420/290/80 CPJ 55/1,5; brique 12 trous 400/280/100 CPJ 55/1,5; hourdis 16 340/240/190 CPJ 65/3. Demo history uses hidden bricks-per-batch values to generate batches. All to be replaced by real figures.
+
 ## 21. Open questions
 
 1. Legal name on bank documents.
@@ -246,4 +256,5 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 6. Real company details (address, ICE, RC, IF).
 7. DG dashboard content.
 8. Overtime multipliers (125 % / 150 %) and what the CNSS/AMO/IR payroll must include.
-9. Real budgets per charge category, real rented fleet and prices per hour.
+9. Real recipes, bricks per batch, mixer capacity, cement and adjuvant prices.
+10. Real budgets per charge category, real rented fleet and prices per hour.
