@@ -109,5 +109,6 @@ We are **still in the design phase**. We keep refining the prototype (published 
 
 - **Deferred until the owner says the design is finished**: Phase 0 (project skeleton, Docker, database, authentication, audit, backups) and the preview environment (GitHub Codespaces). Do not prepare them in the meantime.
 - **After every accepted change to the prototype**: publish the preview, then upload the new version of `prototype/socobo-menu.html` to GitHub on a **branch + Pull Request** (never directly on `main`), and record the change in `docs/decisions.md` in the same PR.
+- **Instant preview**: the branch **`preview`** always holds the latest prototype. GitHub Pages is served from it, so `https://therealaneer.github.io/SOCOBO/` shows every change within about a minute, without waiting for a merge. `main` only receives work through a Pull Request when the owner decides.
 - **`docs/decisions.md`** is updated with every design decision (sections, fields, roles, calculation rules): add, change or remove the matching line; never leave it stale.
 - **End of every session**: commit and push all pending work, and report the state of the open Pull Requests.
