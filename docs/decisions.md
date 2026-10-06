@@ -217,6 +217,16 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] **Coûts globaux**: one page with all costs of the company by nature (charges, fuel, oils, rental, Parc maintenance, caisse expenses, labour [DG only]) and their share.
 - [A] Amounts are examples. Not included: purchases of factory materials, depreciation.
 
+## 22. Interface and Paramètres (v41)
+
+- [D] **Période bar** (Du/Au) in the header only on Dashboard, Historique, Fournisseurs and Clients; hidden elsewhere. In daily screens the **Jour** selector sits in the top bar.
+- [D] **À contrôler**: approved days green, partially checked days amber; "Éléments vus" and "Approbation de la journée" turn green when complete.
+- [D] **Section titles** are visible bars with count badges everywhere; **tabs** are bordered and visible, never floating.
+- [D] **Key colour card** (blue): Clients → Reste à encaisser; Fournisseurs → Reste à payer. Other dashboards to be chosen by the owner.
+- [D] **Print**: total rows readable (dark text on pale background).
+- [D] **Usine › Saisie du jour**: one product row (Hourdis 12/20K) plus an "Ajouter" button for other types.
+- [D] New **Paramètres** section (DG only) centralising all settings: Entreprise, Prix et tarifs, Usine, Personnel, Magasin, Charges, Banque, Location, Listes. Entreprise moved out of Utilisateurs (which keeps roles, tasks, accounts). Old screens link to Paramètres. Values are examples until real data is given.
+
 ## 21. Open questions
 
 1. Legal name on bank documents.

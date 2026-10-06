@@ -858,14 +858,43 @@ body.pos-full header.top { display: none !important; }
 .kpi.hl { background: linear-gradient(135deg, #2540e8, #6a4df0); border-color: transparent; color: #fff; box-shadow: 0 14px 28px -18px #2540e8; }
 .kpi.hl .lab, .kpi.hl .cap, .kpi.hl .pill { color: #fff; }
 .kpi.hl .lab, .kpi.hl .cap { opacity: 0.88; }
-:is(#view-dashboard, #view-clients, #view-fournisseurs, #view-machines, #view-usine, #view-stockp, #view-cheques, #view-produits) .kpis > .kpi:first-child { background: linear-gradient(135deg, #2540e8, #6a4df0); border-color: transparent; color: #fff; box-shadow: 0 14px 28px -18px #2540e8; }
-:is(#view-dashboard, #view-clients, #view-fournisseurs, #view-machines, #view-usine, #view-stockp, #view-cheques, #view-produits) .kpis > .kpi:first-child :is(.lab, .cap, .pill) { color: #fff; }
+:is(#view-dashboard, #view-machines, #view-usine, #view-stockp, #view-cheques, #view-produits) .kpis > .kpi:first-child { background: linear-gradient(135deg, #2540e8, #6a4df0); border-color: transparent; color: #fff; box-shadow: 0 14px 28px -18px #2540e8; }
+:is(#view-dashboard, #view-machines, #view-usine, #view-stockp, #view-cheques, #view-produits) .kpis > .kpi:first-child :is(.lab, .cap, .pill) { color: #fff; }
+.chip2 { display: inline-flex; align-items: center; gap: 6px; background: var(--chip); border: 1px solid var(--line); border-radius: 99px; padding: 4px 6px 4px 12px; margin: 0 6px 6px 0; }
+.chip2 button { border: 0; background: transparent; color: var(--ink-2); width: 22px; height: 22px; border-radius: 50%; font-size: 15px; line-height: 1; cursor: pointer; }
+.chip2 button:hover { background: var(--bad-fg); color: #fff; }
 .printbar { display: flex; justify-content: flex-end; margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); }
 .hb { margin: 10px 0; } .hb-l { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; } .hb-l small { color: var(--ink-2); font-weight: 400; margin-left: 4px; }
 .hb-t { height: 9px; border-radius: 99px; background: var(--grid); overflow: hidden; margin-top: 5px; } .hb-t i { display: block; height: 100%; border-radius: 99px; background: var(--act); }
 .cardbox { background: var(--sheet); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; }
 .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; } @media (max-width: 900px) { .cols2 { grid-template-columns: 1fr; } }
 .cardbox h3 { margin: 0 0 8px; font-size: 16px; font-weight: 500; }
+
+/* v41 : barre du haut, onglets visibles, titres de section, cartes clés, contrôle en vert */
+#top-day[hidden] { display: none; }
+.period.dayp { padding: 5px 8px; gap: 8px; }
+body[data-per="0"] header.top > .period:not(.dayp) { display: none; }
+header.top .tools { margin-left: auto; }
+.tabs { background: var(--sheet); border: 1px solid var(--line); border-radius: 14px; padding: 4px; display: inline-flex; gap: 4px; flex-wrap: wrap; margin-bottom: 14px; }
+.tabs button { color: var(--ink); font-weight: 500; border: 1px solid transparent; background: transparent; }
+.tabs button:hover:not([aria-selected="true"]) { background: var(--chip); border-color: var(--line); }
+.tabs button[aria-selected="true"] { box-shadow: 0 6px 14px -8px var(--act); }
+.sech { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 9px 14px; background: color-mix(in srgb, var(--act) 9%, var(--sheet)); border-left: 4px solid var(--act); border-radius: 10px; font-size: 16px; font-weight: 600; margin: 20px 0 10px; }
+.sech span { font-size: 12.5px; font-weight: 400; color: var(--ink-2); }
+.sech span.bd { font-weight: 600; color: var(--ink); background: var(--grid); border-radius: 99px; padding: 2px 11px; }
+.sech span.bd.ok { background: var(--ok-bg); color: var(--ok-fg); }
+.sech span.bd.warn { background: var(--warn-bg); color: var(--warn-fg); }
+.cardbox h3 { border-bottom: 2px solid color-mix(in srgb, var(--act) 35%, transparent); padding-bottom: 6px; font-weight: 600; }
+.btn.mini.day-ok { background: var(--ok-bg); border-color: var(--ok-fg); color: var(--ok-fg); font-weight: 600; }
+.btn.mini.day-part { background: var(--warn-bg); border-color: var(--warn-fg); color: var(--warn-fg); font-weight: 600; }
+.kpi.okc { background: var(--ok-bg); border-color: var(--ok-fg); box-shadow: 0 10px 22px -16px var(--ok-fg); }
+.kpi.okc .lab, .kpi.okc .cap, .kpi.okc .pill { color: var(--ok-fg); }
+.box.okc { background: var(--ok-bg); border-color: var(--ok-fg); }
+.box.okc b, .box.okc .sugg { color: var(--ok-fg); }
+.btn.go-ok { background: var(--ok-fg); border-color: var(--ok-fg); color: #fff; }
+.paper tr.tot td.num, .paper tr.tot td.c, .paper tfoot td.num, .paper tfoot td.c, .paper tr.tot td { color: #111; }
+#view-clients .kpis > .kpi:nth-child(3), #view-fournisseurs .kpis > .kpi:nth-child(3) { background: linear-gradient(135deg, #2540e8, #6a4df0); border-color: transparent; color: #fff; box-shadow: 0 14px 28px -18px #2540e8; }
+#view-clients .kpis > .kpi:nth-child(3) :is(.lab, .cap, .pill), #view-fournisseurs .kpis > .kpi:nth-child(3) :is(.lab, .cap, .pill) { color: #fff; }
 </style>
 
 <div id="fit"><div id="stage"><div class="shell">
@@ -886,6 +915,7 @@ body.pos-full header.top { display: none !important; }
       <label class="pf">Au <input type="date" id="p-to" aria-label="Date de fin"></label>
       <button type="button" class="pr" id="p-reset" aria-label="Revenir à toute la période" title="Toute la période"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg></button>
     </div>
+    <div class="period dayp" id="top-day" hidden></div>
     <div class="tools">
 
       <button type="button" class="round" aria-label="Notifications">
@@ -1163,6 +1193,12 @@ body.pos-full header.top { display: none !important; }
       <div class="sheet"><section class="box"><div class="tabs" role="tablist" id="mag-tabs"></div><div id="mag-main"></div></section></div>
     </section>
 
+    <!-- Paramètres -->
+    <section id="view-params" hidden>
+      <div class="head"><div><h1 id="pa2-t"></h1><p class="sub" id="pa2-s"></p></div><div class="hbtns" id="pa2-a"></div></div>
+      <div id="pa2-body"></div>
+    </section>
+
     <!-- Charges -->
     <section id="view-charges" hidden>
       <div class="head"><div><h1 id="ch2-t"></h1><p class="sub" id="ch2-s"></p></div><div class="hbtns" id="ch2-a"></div></div>
@@ -1308,10 +1344,11 @@ body.pos-full header.top { display: none !important; }
     { k: 'etablissement', l: 'Établissement', i: 'landmark' },
     { k: 'assurances', l: 'Assurances', i: 'shield' },
     { k: 'personnel', l: 'Personnel', i: 'user', sub: ['Employés', 'Présences', 'Alertes', 'Statistiques', 'Paie'] },
+    { k: 'parametres', l: 'Paramètres', i: 'sliders', sub: ['Entreprise', 'Prix et tarifs', 'Usine', 'Personnel', 'Magasin', 'Charges', 'Banque', 'Location', 'Listes'] },
     { k: 'utilisateurs', l: 'Utilisateurs', i: 'cog' },
     { k: 'audit', l: 'Audit', i: 'clip' }
   ];
-  ic.pit = '<path d="m2 20 6-11 4 6 3-4 7 9z"/>'; ic.cash = '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9v.01M18 15v.01"/>'; ic.check = '<path d="M20 6 9 17l-5-5"/><rect x="3" y="3" width="18" height="18" rx="3" opacity=".35"/>'; ic.eye = '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>';
+  ic.sliders = '<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>'; ic.pit = '<path d="m2 20 6-11 4 6 3-4 7 9z"/>'; ic.cash = '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9v.01M18 15v.01"/>'; ic.check = '<path d="M20 6 9 17l-5-5"/><rect x="3" y="3" width="18" height="18" rx="3" opacity=".35"/>'; ic.eye = '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>';
   var cur = { k: 'dashboard', sub: null }, openG = {};
   var svg = function (n) { return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ic[n] + '</svg>'; };
   function navBadge(k) {
@@ -1341,14 +1378,15 @@ body.pos-full header.top { display: none !important; }
     }).join('');
   }
   var SOON_HTML = '';
-  var ALLV = ['view-dashboard', 'view-pesees', 'view-produits', 'view-fournisseurs', 'view-clients', 'view-fiche', 'view-cheques', 'view-machines', 'view-machine', 'view-usine', 'view-personnel', 'view-stockp', 'view-mag', 'view-charges', 'view-location', 'view-chrec', 'view-oued', 'view-carr', 'view-asaisir', 'view-controle', 'view-users', 'view-fsaisie', 'view-pdvdash', 'view-hist', 'view-depense', 'view-soon'];
+  var ALLV = ['view-dashboard', 'view-pesees', 'view-produits', 'view-fournisseurs', 'view-clients', 'view-fiche', 'view-cheques', 'view-machines', 'view-machine', 'view-usine', 'view-personnel', 'view-stockp', 'view-mag', 'view-params', 'view-charges', 'view-location', 'view-chrec', 'view-oued', 'view-carr', 'view-asaisir', 'view-controle', 'view-users', 'view-fsaisie', 'view-pdvdash', 'view-hist', 'view-depense', 'view-soon'];
+  var PERV = ['view-dashboard', 'view-hist', 'view-fournisseurs', 'view-fiche', 'view-fsaisie', 'view-clients'];
   var VIEWHOOKS = {}, PRINTV = ['view-dashboard', 'view-pdvdash', 'view-clients', 'view-fournisseurs', 'view-produits', 'view-machines', 'view-usine', 'view-stockp', 'view-depense', 'view-cheques', 'view-hist', 'view-controle'];
   function go(k, sub) {
     if (typeof closeDrawer === 'function') closeDrawer();
     if (typeof ROLES !== 'undefined' && ROLES && !roleAllows(k, sub)) { var hm = ROLES[ROLE].home; k = hm[0]; sub = hm[1]; }
     cur = { k: k, sub: sub || null };
     var m = menu.filter(function (x) { return x.k === k; })[0];
-    var vm = { dashboard: 'view-dashboard', charges: 'view-charges', location: 'view-location', oued: 'view-oued', carriere: 'view-carr', pdv: 'view-pesees', fournisseurs: 'view-fournisseurs', clients: 'view-clients', machines: 'view-machines', agglos: 'view-usine', personnel: 'view-personnel', asaisir: 'view-asaisir', controle: 'view-controle', utilisateurs: 'view-users', historique: 'view-hist', depense: 'view-depense' }, target = vm[k] || 'view-soon';
+    var vm = { dashboard: 'view-dashboard', parametres: 'view-params', charges: 'view-charges', location: 'view-location', oued: 'view-oued', carriere: 'view-carr', pdv: 'view-pesees', fournisseurs: 'view-fournisseurs', clients: 'view-clients', machines: 'view-machines', agglos: 'view-usine', personnel: 'view-personnel', asaisir: 'view-asaisir', controle: 'view-controle', utilisateurs: 'view-users', historique: 'view-hist', depense: 'view-depense' }, target = vm[k] || 'view-soon';
     if (k === 'fournisseurs' && typeof ROLE !== 'undefined' && ROLE === 'compta') target = 'view-fsaisie';
     if (k === 'dashboard' && typeof ROLE !== 'undefined' && ROLE === 'pdv') target = 'view-pdvdash';
     if (k === 'banque') target = sub === 'Chèques reçus' ? 'view-chrec' : 'view-cheques';
@@ -1361,6 +1399,7 @@ body.pos-full header.top { display: none !important; }
     if ($('print-view')) $('print-view').hidden = target === 'view-pesees';
     if (target === 'view-cheques') renderCheques();
     if (target === 'view-clients') renderClients();
+    setTopDay(''); document.body.dataset.per = PERV.indexOf(target) >= 0 ? '1' : '0';
     if (VIEWHOOKS[target]) VIEWHOOKS[target](sub);
     if (PRINTV.indexOf(target) >= 0 && !$(target).querySelector(':scope > .printbar')) $(target).insertAdjacentHTML('beforeend', printBar());
     if (target === 'view-soon') { if (typeof auditHtml === 'function' && k === 'audit') $('soon-box').innerHTML = auditHtml(); else $('soon-box').innerHTML = SOON_HTML; }
@@ -3580,6 +3619,7 @@ body.pos-full header.top { display: none !important; }
   var SITES = ['Bouaanfir', 'Nfifa', 'Usine Agglos'];
   Object.keys(DENS).forEach(function (k) { P[k].pm3 = Math.round(P[k].px * DENS[k] * 100) / 100; });
   P.pa = { n: 'Parpaing 20', site: 'Usine Agglos', u: 'mille', px: 0 };
+  P.hd12 = { n: 'Hourdis 12/20K', site: 'Usine Agglos', u: 'mille', px: 0 };
   P.pv = { n: 'Pavé autobloquant', site: 'Usine Agglos', u: 'mille', px: 0 };
   Object.keys(P).forEach(function (k) { P[k].actif = true; P[k].rec = null; });
   /* Recettes indicatives par millier (à confirmer) : sable et gravette en t, ciment en kg */
@@ -3673,6 +3713,7 @@ body.pos-full header.top { display: none !important; }
     'CP': { l: 'Congé payé', cls: 'mute', paid: true, abs: false },
     'CSS': { l: 'Congé sans solde', cls: 'bad', paid: false, abs: true }
   };
+  var ALEAD = { contrat: 30, essai: 15, cin: 60, permis: 60, visite: 30 }; /* délais d'alerte en jours (Paramètres) */
   var HSM = { m1: 1.25, m2: 1.5 }; /* [A] majorations d'exemple : jours ouvrables 125 %, dimanche et nuit 150 % */
   var hourlyOf = function (e) { return e.sal * 12 / (52 * SEM_H); };
   var dAdd = function (n) { return addDays(TODAY, n); };
@@ -3729,7 +3770,7 @@ body.pos-full header.top { display: none !important; }
   /* alertes automatiques (fins de contrat, essai, CIN, permis, visite médicale) et personnelles */
   function alertsAll() {
     var l = [], add = function (e, type, titre, date, lead) { if (date) l.push({ emp: e, type: type, titre: titre, date: date, lead: lead, days: Math.round((date - TODAY) / 864e5), auto: true }); };
-    EMP.forEach(function (e) { if (!e.actif) return; if (e.contrat.fin) add(e, 'Contrat', 'Fin du contrat ' + e.contrat.type, e.contrat.fin, 30); add(e, 'Essai', 'Fin de la période d’essai', e.essaiFin, 15); add(e, 'CIN', 'Expiration de la CIN', e.cinExp, 60); add(e, 'Permis', 'Expiration du permis de conduire', e.permisExp, 60); add(e, 'Médecine', 'Visite médicale annuelle', e.visite, 30); });
+    EMP.forEach(function (e) { if (!e.actif) return; if (e.contrat.fin) add(e, 'Contrat', 'Fin du contrat ' + e.contrat.type, e.contrat.fin, ALEAD.contrat); add(e, 'Essai', 'Fin de la période d’essai', e.essaiFin, ALEAD.essai); add(e, 'CIN', 'Expiration de la CIN', e.cinExp, ALEAD.cin); add(e, 'Permis', 'Expiration du permis de conduire', e.permisExp, ALEAD.permis); add(e, 'Médecine', 'Visite médicale annuelle', e.visite, ALEAD.visite); });
     ALERTS.forEach(function (a) { if (!a.done) l.push({ id: a.id, emp: a.emp ? empById(a.emp) : null, type: 'Rappel', titre: a.titre, date: a.date, lead: a.lead, days: Math.round((a.date - TODAY) / 864e5), auto: false }); });
     return l.sort(function (a, b) { return a.date - b.date; });
   }
@@ -3807,7 +3848,8 @@ body.pos-full header.top { display: none !important; }
     var sun = !workDay(d);
     var body = act.map(function (e) { var v = peDraft.v[e.id], ab = ABS[v.s], jt = ['Certificat médical', 'Autorisation d’absence', 'Justificatif familial', 'Déclaration d’accident'];
       return '<tr class="' + (ab && ab.abs ? 'rs-bad' : (v.dest !== e.site ? 'rs-warn' : '')) + '" data-pr="' + e.id + '"><td><b style="font-weight:600">' + esc(e.nom) + '</b><small>' + esc(e.poste) + '</small></td><td><select class="in" data-pf="dest"' + (w ? '' : ' disabled') + '>' + DESTS.map(function (x) { return '<option' + (v.dest === x ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></td><td><select class="in" data-pf="s"' + (w ? '' : ' disabled') + '><option value="">' + (sun ? 'Repos' : 'Présent') + '</option>' + Object.keys(ABS).map(function (k) { return '<option value="' + k + '"' + (v.s === k ? ' selected' : '') + '>' + ABS[k].l + '</option>'; }).join('') + '</select></td><td><input class="in" data-pf="min" inputmode="numeric" value="' + esc(v.min) + '" placeholder="0"' + (w ? '' : ' disabled') + '></td><td><input class="in" data-pf="h1" inputmode="decimal" value="' + esc(v.h1) + '" placeholder="0"' + (w ? '' : ' disabled') + '></td><td><input class="in" data-pf="h2" inputmode="decimal" value="' + esc(v.h2) + '" placeholder="0"' + (w ? '' : ' disabled') + '></td><td>' + (ab && ab.paid && ab.abs ? '<select class="in" data-pf="j"' + (w ? '' : ' disabled') + '><option value="">À fournir</option>' + jt.map(function (x) { return '<option' + (v.j === x ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select>' + (v.j ? '<label style="font-size:12px"><input type="checkbox" data-pf="ok"' + (v.ok ? ' checked' : '') + (w ? '' : ' disabled') + '> reçu</label>' : '') : '<span style="color:var(--ink-2)">—</span>') + '</td></tr>'; }).join('');
-    return '<div class="tools-row"><label class="pf">Jour <input type="date" id="pe-date" value="' + key + '" max="' + iso(TODAY) + '" aria-label="Jour"></label><button type="button" class="btn" id="pe-prev">Jour précédent</button><button type="button" class="btn" id="pe-today">Aujourd’hui</button></div>' + (sun ? bnr('warn', '<div>Dimanche : jour de repos. Saisissez seulement les heures travaillées (majorées ×' + HSM.m2 + ').</div>') : '') +
+    setTopDay('<label class="pf">Jour <input type="date" id="pe-date" value="' + key + '" max="' + iso(TODAY) + '" aria-label="Jour"></label><button type="button" class="btn mini" id="pe-prev">Jour précédent</button><button type="button" class="btn mini" id="pe-today">Aujourd’hui</button>');
+    return '' + (sun ? bnr('warn', '<div>Dimanche : jour de repos. Saisissez seulement les heures travaillées (majorées ×' + HSM.m2 + ').</div>') : '') +
       kpisW(kpiH('Présents', sun ? '—' : cnt.p, cnt.a + ' absent' + (cnt.a > 1 ? 's' : ''), false, true) + kpiH('Absents', cnt.a, 'Justifiés ou non', cnt.a > 0) + kpiH('Retards', cnt.late, 'Employés en retard') + kpiH('Heures supplémentaires', nf2.format(cnt.h) + ' h', '×' + HSM.m1 + ' en semaine · ×' + HSM.m2 + ' dimanche')) +
       '<div class="sheet"><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Employé</th><th>Affectation du jour</th><th>Statut</th><th>Retard (min)</th><th>H. sup ×' + HSM.m1 + '</th><th>H. sup ×' + HSM.m2 + '</th><th>Justificatif</th></tr></thead><tbody>' + body + '</tbody><tfoot><tr class="tot"><td>Total · ' + act.length + ' employés</td><td></td><td>' + cnt.a + ' absent' + (cnt.a > 1 ? 's' : '') + '</td><td>' + cnt.late + '</td><td colspan="3">' + nf2.format(cnt.h) + ' h supplémentaires</td></tr></tfoot></table></div><div class="foot"><span>Les lignes en jaune sont des affectations exceptionnelles du jour, les lignes en rouge des absences.</span><span>' + (dg ? 'Taux horaire = salaire × 12 ÷ (52 × ' + SEM_H + ') · majorations modifiables dans Paie' : '') + '</span></div>' + (w ? '<div class="mact" style="margin-top:14px"><button type="button" class="btn primary" id="pe-save">Enregistrer la journée</button></div>' : '') + '</div>' + printBar();
   }
@@ -3837,18 +3879,13 @@ body.pos-full header.top { display: none !important; }
   function paieHtml() {
     var rg = pePaie === 'prev' ? perRange('prev') : { from: monthStart(TODAY), to: TODAY, lab: 'Ce mois' }, dg = ROLE === 'dg';
     $('pe-s').textContent = 'Estimation de la paie · ' + monthLab(rg.from) + (pePaie === 'month' ? ' (en cours)' : '');
-    $('pe-a').innerHTML = dg ? '<button type="button" class="btn" data-pmaj>Majorations</button>' : '';
+    $('pe-a').innerHTML = dg ? '<button type="button" class="btn" data-pmaj>Majorations (Paramètres)</button>' : '';
     var tabs = '<div class="tools-row"><span class="tabs" style="margin:0">' + [['month', 'Ce mois'], ['prev', 'Mois précédent']].map(function (p) { return '<button type="button" data-pepaie="' + p[0] + '" aria-selected="' + (pePaie === p[0]) + '">' + p[1] + '</button>'; }).join('') + '</span></div>';
     if (!dg) return tabs + bnr('warn', '<div>La paie est réservée à la direction. Vous pouvez saisir les présences et les heures dans l’onglet Présences.</div>');
     var act = EMP.filter(function (e) { return e.actif; }), L = act.map(function (e) { var m = monthStats(e, rg), ret = m.anj * e.sal / JOURS_MOIS, h = m.h1 * hourlyOf(e) * HSM.m1 + m.h2 * hourlyOf(e) * HSM.m2; return { e: e, m: m, ret: ret, h: h, net: e.sal - ret + h }; });
     var T = { sal: sum2(L, function (x) { return x.e.sal; }), ret: sum2(L, function (x) { return x.ret; }), h: sum2(L, function (x) { return x.h; }), net: sum2(L, function (x) { return x.net; }) };
     return tabs + kpisW(kpiH('Net estimé à payer', nf2.format(T.net), L.length + ' employés', false, true) + kpiH('Salaires de base', nf2.format(T.sal), 'Mensuels') + kpiH('Retenues pour absence', nf2.format(T.ret), 'Absences non payées', T.ret > 0) + kpiH('Heures supplémentaires', nf2.format(T.h), nf2.format(sum2(L, function (x) { return x.m.h1 + x.m.h2; })) + ' h')) +
       '<div class="sheet"><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Employé</th><th>Salaire de base</th><th>Jours non payés</th><th>Retenue</th><th>H. sup ×' + HSM.m1 + '</th><th>H. sup ×' + HSM.m2 + '</th><th>Montant H. sup</th><th>Net estimé</th></tr></thead><tbody>' + L.map(function (x) { return '<tr><td><b style="font-weight:600">' + esc(x.e.nom) + '</b><small>Taux horaire ' + nf2.format(hourlyOf(x.e)) + '</small></td><td class="num">' + nf2.format(x.e.sal) + '</td><td class="num">' + x.m.anj + '</td><td class="num">' + nf2.format(x.ret) + '</td><td class="num">' + x.m.h1 + '</td><td class="num">' + x.m.h2 + '</td><td class="num">' + nf2.format(x.h) + '</td><td class="num"><b style="font-weight:600">' + nf2.format(x.net) + '</b></td></tr>'; }).join('') + '</tbody><tfoot><tr class="tot"><td>Total</td><td class="num">' + nf2.format(T.sal) + '</td><td class="num">' + sum2(L, function (x) { return x.m.anj; }) + '</td><td class="num">' + nf2.format(T.ret) + '</td><td class="num">' + sum2(L, function (x) { return x.m.h1; }) + '</td><td class="num">' + sum2(L, function (x) { return x.m.h2; }) + '</td><td class="num">' + nf2.format(T.h) + '</td><td class="num">' + nf2.format(T.net) + '</td></tr></tfoot></table></div><div class="foot"><span>Estimation : taux horaire = salaire × 12 ÷ (52 × ' + SEM_H + ') ; retenue = salaire ÷ ' + JOURS_MOIS + ' par jour non payé. Hors CNSS, AMO et IR.</span></div></div>' + printBar();
-  }
-  function majModal() {
-    openModal('<h2>Majorations des heures supplémentaires</h2><p class="m">Le taux horaire de base est le salaire × 12 ÷ (52 × ' + SEM_H + ' h). Les majorations ci-dessous sont des valeurs d’exemple à confirmer.</p><div class="row2"><div class="f"><label for="mj-1">Jours ouvrables (×)</label><input class="in" id="mj-1" inputmode="decimal" value="' + String(HSM.m1).replace('.', ',') + '"></div><div class="f"><label for="mj-2">Dimanche, férié et nuit (×)</label><input class="in" id="mj-2" inputmode="decimal" value="' + String(HSM.m2).replace('.', ',') + '"></div></div><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Enregistrer</button></div>');
-    $('mg-cancel').addEventListener('click', closeModal);
-    $('mg-save').addEventListener('click', function () { var a = num($('mj-1').value), b = num($('mj-2').value); if (!(a >= 1) || !(b >= a)) return magErr('Les majorations doivent être au moins ×1, et celle du dimanche au moins égale à l’autre.'); HSM.m1 = a; HSM.m2 = b; audit('Majorations H. sup', '×' + a + ' · ×' + b, ''); closeModal(); renderPersonnel(); toast('Majorations enregistrées.'); });
   }
   /* ---- formulaire employé ---- */
   function empModal(id) {
@@ -3886,7 +3923,7 @@ body.pos-full header.top { display: none !important; }
     if (e.target.id === 'pe-date') { var d = parseIso(e.target.value); if (d && d <= TODAY) { peDate = d; peDraft = null; renderPersonnel(); } return; } if (e.target.id === 'pe-site') { peSite = e.target.value; return renderPersonnel(); }
     var tr = e.target.closest('[data-pr]'); if (tr && (e.target.dataset.pf === 's' || e.target.dataset.pf === 'dest')) { var v = peDraft.v[tr.dataset.pr]; v[e.target.dataset.pf] = e.target.value; var sc = window.scrollY; renderPersonnel(); window.scrollTo(0, sc); }
   });
-  $('pe-a').addEventListener('click', function (e) { if (e.target.closest('[data-pnew]')) empModal(null); var b = e.target.closest('[data-pedit]'); if (b) empModal(+b.dataset.pedit); if (e.target.closest('[data-alnew]')) alNew(); if (e.target.closest('[data-pmaj]')) majModal(); });
+  $('pe-a').addEventListener('click', function (e) { if (e.target.closest('[data-pnew]')) empModal(null); var b = e.target.closest('[data-pedit]'); if (b) empModal(+b.dataset.pedit); if (e.target.closest('[data-alnew]')) alNew(); if (e.target.closest('[data-pmaj]')) go('parametres', 'Personnel'); });
   VIEWHOOKS['view-personnel'] = renderPersonnel;
 
   /* ===== Machines : compteur d'heures, maintenance, pièces changées, coûts ===== */
@@ -4163,16 +4200,26 @@ body.pos-full header.top { display: none !important; }
     h += '<div class="sheet" style="margin-top:22px"><section class="box"><h3 class="sech" style="margin-top:0">Production nette des 14 derniers jours<span>mille briques par jour</span></h3><svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;max-width:760px;height:auto;display:block" role="img" aria-label="Production nette des 14 derniers jours">' + bars + '</svg></section></div>';
     return h;
   }
+  var sjState = { key: '', keys: [], vals: {} };
+  function sjDefault() { var ks = pjDays().slice().reverse(); for (var i = 0; i < ks.length; i++) { var l = usineKeys().filter(function (k) { return (PRODJ[ks[i]].prod[k] || 0) > 0; }); if (l.length === 1) return l[0]; } return 'hd12'; }
+  function sjInit(key) {
+    var day = PRODJ[key], l = day ? usineKeys().filter(function (k) { return P[k].actif && ((day.prod[k] || 0) > 0 || (day.casse[k] || 0) > 0); }) : []; sjState = { key: key, keys: l.length ? l : [sjDefault()], vals: {} };
+  }
+  function sjGrab() { sjState.keys.forEach(function (k) { var p = $('sj-p-' + k), c = $('sj-c-' + k); if (p) sjState.vals[k] = { p: p.value, c: c.value }; }); }
   function usSaisie() {
-    var d = sDate, key = iso(d), day = PRODJ[key] || { prod: {}, casse: {}, kwh: null, cons: null, note: '' }, uk = usineKeys().filter(function (k) { return P[k].actif; });
+    var d = sDate, key = iso(d), day = PRODJ[key] || { prod: {}, casse: {}, kwh: null, cons: null, note: '' };
+    if (sjState.key !== key) sjInit(key);
     var prevIdx = KWH0; pjDays().forEach(function (x) { if (x < key && PRODJ[x].kwh != null) prevIdx = PRODJ[x].kwh; });
     var emp = EMP.filter(function (e) { return e.actif && affOf(e, d) === 'Usine Agglos'; }), th = consTheo(day), fv = function (v) { return v != null && v !== '' ? String(v).replace('.', ',') : ''; };
-    var body = uk.map(function (k) { return '<tr><td><b style="font-weight:600">' + esc(P[k].n) + '</b></td><td><input class="in" style="max-width:150px" id="sj-p-' + k + '" inputmode="numeric" value="' + fv(day.prod[k]) + '" aria-label="Production ' + esc(P[k].n) + '"></td><td><input class="in" style="max-width:130px" id="sj-c-' + k + '" inputmode="numeric" value="' + fv(day.casse[k]) + '" aria-label="Casse ' + esc(P[k].n) + '"></td><td class="num" id="sj-n-' + k + '">' + nf0.format(netDay(day, k)) + '</td></tr>'; }).join('');
-    return '<div class="tools-row"><label class="pf">Jour <input type="date" id="sj-date" value="' + key + '" max="' + iso(TODAY) + '" aria-label="Jour"></label><button type="button" class="btn" id="sj-prev">Jour précédent</button><button type="button" class="btn" id="sj-today">Aujourd’hui</button>' + (PRODJ[key] ? '<span class="st ok">Déjà saisi</span>' : '<span class="st warn">Pas encore saisi</span>') + '</div>' +
-      (workDay(d) ? '' : bnr('warn', '<div>Dimanche : jour normalement non travaillé.</div>')) +
-      '<div class="sheet" style="margin-top:14px"><section class="box"><h3 class="sech" style="margin-top:0">Production du jour<span>nombre de briques</span></h3><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Produit</th><th>Production (briques)</th><th>Casse (briques)</th><th>Net</th></tr></thead><tbody>' + body + '</tbody></table></div>' +
+    var val = function (k, f) { var v = sjState.vals[k]; return v ? v[f] : fv(f === 'p' ? day.prod[k] : day.casse[k]); }, free = usineKeys().filter(function (k) { return P[k].actif && sjState.keys.indexOf(k) < 0; });
+    setTopDay('<label class="pf">Jour <input type="date" id="sj-date" value="' + key + '" max="' + iso(TODAY) + '" aria-label="Jour"></label><button type="button" class="btn mini" id="sj-prev">Jour précédent</button><button type="button" class="btn mini" id="sj-today">Aujourd’hui</button>' + (PRODJ[key] ? '<span class="st ok">Déjà saisi</span>' : '<span class="st warn">Pas encore saisi</span>'));
+    var body = sjState.keys.map(function (k) { return '<tr><td><b style="font-weight:600">' + esc(P[k].n) + '</b>' + (P[k].rec ? '' : (k === 'hd12' ? '<small>Recette à renseigner dans Paramètres</small>' : '')) + '</td><td><input class="in" style="max-width:150px" id="sj-p-' + k + '" inputmode="numeric" value="' + val(k, 'p') + '" aria-label="Production ' + esc(P[k].n) + '"></td><td><input class="in" style="max-width:130px" id="sj-c-' + k + '" inputmode="numeric" value="' + val(k, 'c') + '" aria-label="Casse ' + esc(P[k].n) + '"></td><td class="num" id="sj-n-' + k + '">' + nf0.format((num(val(k, 'p')) || 0) - (num(val(k, 'c')) || 0)) + '</td><td style="width:44px">' + (sjState.keys.length > 1 ? '<button type="button" class="btn mini danger" data-sjdel="' + k + '" aria-label="Retirer ' + esc(P[k].n) + '">×</button>' : '') + '</td></tr>'; }).join('');
+    var tp = sjState.keys.reduce(function (t, k) { return t + (num(val(k, 'p')) || 0); }, 0), tc = sjState.keys.reduce(function (t, k) { return t + (num(val(k, 'c')) || 0); }, 0);
+    return (workDay(d) ? '' : bnr('warn', '<div>Dimanche : jour normalement non travaillé.</div>')) +
+      '<div class="sheet" style="margin-top:14px"><section class="box"><h3 class="sech" style="margin-top:0">Production du jour<span>nombre de briques</span></h3><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Produit</th><th>Production (briques)</th><th>Casse (briques)</th><th>Net</th><th></th></tr></thead><tbody>' + body + '</tbody><tfoot><tr class="tot"><td>Total · ' + sjState.keys.length + ' produit' + (sjState.keys.length > 1 ? 's' : '') + '</td><td class="num" id="sj-tp">' + nf0.format(tp) + '</td><td class="num" id="sj-tc">' + nf0.format(tc) + '</td><td class="num" id="sj-tn">' + nf0.format(tp - tc) + '</td><td></td></tr></tfoot></table></div>' +
+      (free.length ? '<div class="tools-row" style="margin:12px 0 0"><select class="in" id="sj-addsel" style="max-width:260px" aria-label="Produit à ajouter">' + free.map(function (k) { return '<option value="' + k + '">' + esc(P[k].n) + '</option>'; }).join('') + '</select><button type="button" class="btn" id="sj-add">+ Ajouter un produit</button><small class="sugg">Un autre type fabriqué le même jour ? Ajoutez-le ici.</small></div>' : '') +
       '<hr class="sep"><div class="row3"><div class="f"><label for="sj-kwh">Index du compteur électrique (kWh)</label><input class="in" id="sj-kwh" inputmode="decimal" value="' + fv(day.kwh) + '" placeholder="Dernier : ' + nf0.format(prevIdx) + '"><small class="sugg">Dernier index : ' + nf0.format(prevIdx) + '</small></div>' +
-      '<div class="f"><label>Ouvriers à l’usine</label><div class="in" style="display:flex;align-items:center;justify-content:space-between"><b>' + emp.length + '</b><button type="button" class="btn mini" data-pegoto>Affectations</button></div><small class="sugg">Selon les affectations du jour</small></div><div class="f"></div></div>' +
+      '<div class="f"><label>Ouvriers à l’usine</label><div class="in" style="display:flex;align-items:center;justify-content:space-between"><b>' + emp.length + '</b><button type="button" class="btn mini" data-pegoto>Présences</button></div><small class="sugg">Selon les affectations du jour</small></div><div class="f"></div></div>' +
       '<details style="margin:6px 0 14px"' + (day.cons ? ' open' : '') + '><summary style="cursor:pointer;font-weight:500">Consommation réelle de matières (facultatif)</summary><p class="sugg">Laissez vide pour utiliser la consommation théorique calculée avec les recettes.</p><div class="row3">' + MATK.map(function (m) { return '<div class="f"><label for="sj-m-' + m + '">' + matName(m) + ' (t)</label><input class="in" id="sj-m-' + m + '" inputmode="decimal" value="' + fv(day.cons ? day.cons[m] : '') + '" placeholder="Théorique : ' + nf2.format(th[m]) + '"></div>'; }).join('') + '</div></details>' +
       '<div class="f"><label for="sj-note">Remarque</label><input class="in" id="sj-note" value="' + esc(day.note || '') + '" placeholder="Panne, pluie, arrêt…"></div><p class="err" id="sj-err" hidden></p><div class="mact"><button type="button" class="btn primary" id="sj-save">Enregistrer la journée</button></div></section></div>';
   }
@@ -4226,6 +4273,7 @@ body.pos-full header.top { display: none !important; }
   $('view-usine').addEventListener('input', function (e) {
     var m = /^sj-[pc]-(.+)$/.exec(e.target.id || ''); if (!m) return;
     var p = num($('sj-p-' + m[1]).value) || 0, c = num($('sj-c-' + m[1]).value) || 0; $('sj-n-' + m[1]).textContent = nf0.format(p - c);
+    var tp = 0, tc = 0; sjState.keys.forEach(function (k) { tp += num($('sj-p-' + k).value) || 0; tc += num($('sj-c-' + k).value) || 0; }); $('sj-tp').textContent = nf0.format(tp); $('sj-tc').textContent = nf0.format(tc); $('sj-tn').textContent = nf0.format(tp - tc);
   });
   $('view-usine').addEventListener('click', function (e) {
     var b;
@@ -4233,13 +4281,15 @@ body.pos-full header.top { display: none !important; }
     if (e.target.closest('[data-pegoto]')) { peDate = sDate; go('personnel', 'Présences'); return; }
     if (e.target.closest('#sj-prev')) { sDate = addDays(sDate, -1); renderUsine(); return; }
     if (e.target.closest('#sj-today')) { sDate = TODAY; renderUsine(); return; }
+    if (e.target.closest('#sj-add')) { sjGrab(); sjState.keys.push($('sj-addsel').value); renderUsine(); return; }
+    if ((b = e.target.closest('[data-sjdel]'))) { sjGrab(); sjState.keys = sjState.keys.filter(function (k) { return k !== b.dataset.sjdel; }); delete sjState.vals[b.dataset.sjdel]; renderUsine(); return; }
     if (e.target.closest('#sj-save')) return saveDay();
   });
   $('us-a').addEventListener('click', function (e) { if (e.target.closest('#us-param')) usParam(); else if (e.target.closest('#us-ent')) entModal(); });
   $('view-usine').addEventListener('click', function (e) { if (e.target.closest('#us-param2')) usParam(); });
   function saveDay() {
     var key = iso(sDate), err = function (t) { $('sj-err').textContent = t; $('sj-err').hidden = false; }, day = { prod: {}, casse: {}, kwh: null, cons: null, note: $('sj-note').value.trim() }, bad = '', any = false;
-    usineKeys().filter(function (k) { return P[k].actif; }).forEach(function (k) {
+    sjState.keys.forEach(function (k) {
       var pv = $('sj-p-' + k).value.trim(), cv = $('sj-c-' + k).value.trim(), p = pv ? num(pv) : 0, c = cv ? num(cv) : 0;
       if (!(p >= 0) || !(c >= 0) || p !== Math.floor(p) || c !== Math.floor(c)) bad = bad || 'Production et casse : nombres entiers positifs (' + P[k].n + ').';
       else if (c > p) bad = bad || 'La casse dépasse la production (' + P[k].n + ').';
@@ -4252,7 +4302,7 @@ body.pos-full header.top { display: none !important; }
     if (!any && !day.note) return err('Saisissez au moins une production, ou une remarque expliquant l’arrêt.');
     var ex = !!PRODJ[key]; PRODJ[key] = day;
     audit(ex ? 'Production modifiée' : 'Production saisie', dfmt.format(sDate), usineKeys().map(function (k) { return P[k].n + ' ' + nf0.format(day.prod[k] || 0); }).join(' · '));
-    renderUsine(); toast('Journée enregistrée.'); refreshNavBadges();
+    sjState.key = ''; renderUsine(); toast('Journée enregistrée.'); refreshNavBadges();
   }
   function entModal() {
     openModal('<h2>Entrée de matière</h2><p class="m">Transfert de la carrière ou livraison de ciment en vrac.</p><div class="row3"><div class="f"><label for="en2-d">Date</label><input class="in" id="en2-d" type="date" value="' + iso(TODAY) + '"></div><div class="f"><label for="en2-k">Matière</label><select class="in" id="en2-k">' + MATK.map(function (m) { return '<option value="' + m + '">' + matName(m) + '</option>'; }).join('') + '</select></div><div class="f"><label for="en2-q">Quantité (t) *</label><input class="in" id="en2-q" inputmode="decimal"></div></div><div class="row2"><div class="f"><label for="en2-px">Prix par tonne</label><input class="in" id="en2-px" inputmode="decimal" value="' + String(matPx('sa')).replace('.', ',') + '"></div><div class="f"><label for="en2-s">Origine</label><input class="in" id="en2-s" value="Transfert carrière"></div></div><div class="f"><label for="en2-n">Remarque</label><input class="in" id="en2-n"></div><p class="err" id="en2-err" hidden></p><div class="mact"><button type="button" class="btn" id="en2-cancel">Annuler</button><button type="button" class="btn primary" id="en2-save">Enregistrer</button></div>');
@@ -4265,26 +4315,7 @@ body.pos-full header.top { display: none !important; }
       audit('Entrée de matière', matName(k), nf2.format(q) + ' t'); closeModal(); usRefresh(); toast('Entrée enregistrée.');
     });
   }
-  function usParam() {
-    var uk = usineKeys(), fv = function (v) { return String(v).replace('.', ','); };
-    openModal('<h2>Paramètres de l’usine</h2><p class="m">Ces valeurs servent au calcul du séchage, des coûts et des stocks.</p>' +
-      '<div class="row3"><div class="f"><label for="pa-sech">Jours de séchage</label><input class="in" id="pa-sech" inputmode="numeric" value="' + FC.sech + '"></div><div class="f"><label for="pa-kwh">Prix du kWh (MAD)</label><input class="in" id="pa-kwh" inputmode="decimal" value="' + fv(FC.kwh) + '"></div><div class="f"><label for="pa-ci">Prix du ciment par tonne</label><input class="in" id="pa-ci" inputmode="decimal" value="' + fv(FC.ciPx) + '"></div></div>' +
-      (FC.kwhSet && FC.ciSet ? '' : '<p class="sugg">Valeurs provisoires : enregistrez-les pour confirmer.</p>') +
-      '<hr class="sep"><h3 class="sech">Stock initial des matières<span>tonnes, au 24/05/2026</span></h3><div class="row3">' + MATK.map(function (m) { return '<div class="f"><label for="pa-m-' + m + '">' + matName(m) + '</label><input class="in" id="pa-m-' + m + '" inputmode="decimal" value="' + fv(MOPEN[m] || 0) + '"></div>'; }).join('') + '</div>' +
-      '<h3 class="sech">Stock initial des produits finis<span>briques prêtes à vendre</span></h3><div class="row3">' + uk.map(function (k) { return '<div class="f"><label for="pa-f-' + k + '">' + esc(P[k].n) + '</label><input class="in" id="pa-f-' + k + '" inputmode="numeric" value="' + (FOPEN[k] || 0) + '"></div>'; }).join('') + '</div>' +
-      '<p class="err" id="pa-err" hidden></p><div class="mact"><button type="button" class="btn" id="pa-cancel">Annuler</button><button type="button" class="btn primary" id="pa-save">Enregistrer</button></div>', 'big');
-    $('pa-cancel').addEventListener('click', closeModal);
-    $('pa-save').addEventListener('click', function () {
-      var err = function (t) { $('pa-err').textContent = t; $('pa-err').hidden = false; }, sech = num($('pa-sech').value), kwh = num($('pa-kwh').value), ci = num($('pa-ci').value);
-      if (!(sech >= 0 && sech === Math.floor(sech) && sech <= 60)) return err('Les jours de séchage doivent être un entier entre 0 et 60.'); if (!(kwh >= 0)) return err('Prix du kWh invalide.'); if (!(ci >= 0)) return err('Prix du ciment invalide.');
-      var mo = {}, fo = {}, bad = '';
-      MATK.forEach(function (m) { var v = num($('pa-m-' + m).value); if (!(v >= 0)) bad = 'Stock initial invalide (' + matName(m) + ').'; mo[m] = v; });
-      uk.forEach(function (k) { var v = num($('pa-f-' + k).value); if (!(v >= 0) || v !== Math.floor(v)) bad = bad || 'Stock initial invalide (' + P[k].n + ').'; fo[k] = v; });
-      if (bad) return err(bad);
-      FC.sech = sech; FC.kwh = kwh; FC.ciPx = ci; FC.kwhSet = true; FC.ciSet = true; MOPEN = mo; uk.forEach(function (k) { FOPEN[k] = fo[k]; });
-      audit('Paramètres usine', 'Usine Agglos', 'Séchage ' + sech + ' j · kWh ' + nf2.format(kwh) + ' · ciment ' + nf2.format(ci)); closeModal(); usRefresh(); toast('Paramètres enregistrés.');
-    });
-  }
+  function usParam() { go('parametres', 'Usine'); }
 
   /* ===== Stock : Produits (lecture seule, issu du catalogue et de l'usine) ===== */
   function renderStockP() {
@@ -4317,12 +4348,12 @@ body.pos-full header.top { display: none !important; }
   var ROLE = 'dg';
   var visibleMenu = function () {
     var r = ROLES[ROLE]; return menu.filter(function (m) {
-      if (m.k === 'utilisateurs') return ROLE === 'dg';
+      if (m.k === 'utilisateurs' || m.k === 'parametres') return ROLE === 'dg';
       if (m.k === 'asaisir' && ROLE === 'dg') return false; if (m.k === 'controle' && ROLE !== 'ctrl' && ROLE !== 'dg') return false;
       return !r.menu || !!r.menu[m.k];
     }).map(function (m) { var a = r.menu && r.menu[m.k]; if (Array.isArray(a)) { var c = {}; Object.keys(m).forEach(function (x) { c[x] = m[x]; }); c.sub = a; return c; } return m; });
   };
-  function roleAllows(k, sub) { if (ROLE === 'dg') return true; var r = ROLES[ROLE]; if (k === 'utilisateurs') return false; if (!r.menu || !r.menu[k]) return false; if (Array.isArray(r.menu[k]) && sub && r.menu[k].indexOf(sub) < 0) return false; return true; }
+  function roleAllows(k, sub) { if (ROLE === 'dg') return true; var r = ROLES[ROLE]; if (k === 'utilisateurs' || k === 'parametres') return false; if (!r.menu || !r.menu[k]) return false; if (Array.isArray(r.menu[k]) && sub && r.menu[k].indexOf(sub) < 0) return false; return true; }
   var hhmm = function (d) { return pad2(d.getHours()) + ':' + pad2(d.getMinutes()); };
   /* --- Tâches à saisir --- */
   var FREQS = ['Jour', 'Semaine', 'Mois', 'Trimestre', 'Année'], LOOK = { 'Jour': 2, 'Semaine': 1, 'Mois': 1, 'Trimestre': 0, 'Année': 0 };
@@ -4420,20 +4451,22 @@ body.pos-full header.top { display: none !important; }
     sec.push({ nom: 'Clôtures des postes', it: cl });
     return sec.filter(function (s) { return s.it.length; });
   }
+  function ctrlStat(d) { var sec = ctrlItems(d), t = 0, v = 0; sec.forEach(function (x) { x.it.forEach(function (i) { if (!i.miss) { t += 1; if (REVU[i.id]) v += 1; } }); }); return { t: t, v: v }; }
   function renderControle() {
     var d = cDay, key = iso(d), sec = ctrlItems(d), tot = 0, vu = 0;
     sec.forEach(function (s) { s.it.forEach(function (x) { if (!x.miss) { tot += 1; if (REVU[x.id]) vu += 1; } }); });
-    var chips = '', i; for (i = 0; i < 7; i++) { var dd = addDays(TODAY, -i), k2 = iso(dd), ap = APPR[k2]; chips += '<button type="button" class="btn mini ' + (+dd === +d ? 'primary' : '') + '" data-cday="' + k2 + '">' + (ap ? '✓ ' : '• ') + dfmt.format(dd).slice(0, 5) + '</button>'; }
+    var chips = '', i; for (i = 0; i < 7; i++) { var dd = addDays(TODAY, -i), k2 = iso(dd), ap = APPR[k2], cs = ctrlStat(dd), cl = +dd === +d ? 'primary' : (ap ? 'day-ok' : (cs.v ? 'day-part' : '')); chips += '<button type="button" class="btn mini ' + cl + '" data-cday="' + k2 + '" title="' + (ap ? 'Journée approuvée' : cs.v + ' / ' + cs.t + ' éléments vus') + '">' + (ap ? '✓ ' : '• ') + dfmt.format(dd).slice(0, 5) + '</button>'; }
     var ap0 = APPR[key], miss = sec.some(function (s) { return s.it.some(function (x) { return x.miss && +d !== +TODAY; }); });
-    $('co-body').innerHTML = '<div class="tools-row"><label class="pf">Jour <input type="date" id="co-date" value="' + key + '" max="' + iso(TODAY) + '" aria-label="Jour"></label><div style="display:flex;gap:6px;flex-wrap:wrap">' + chips + '</div></div>' +
-      '<div class="kpis"><div class="kpi"><div class="lab">Éléments vus</div><div class="pill num">' + vu + ' / ' + tot + '</div><div class="cap">' + (ap0 ? 'Journée approuvée' : 'Journée à approuver') + '</div></div></div>' +
+    setTopDay('<label class="pf">Jour <input type="date" id="co-date" value="' + key + '" max="' + iso(TODAY) + '" aria-label="Jour"></label>');
+    $('co-body').innerHTML = '<div class="tools-row"><div style="display:flex;gap:6px;flex-wrap:wrap">' + chips + '</div></div>' +
+      '<div class="kpis"><div class="kpi' + (ap0 || (tot && vu === tot) ? ' okc' : (vu ? ' near' : '')) + '"><div class="lab">Éléments vus</div><div class="pill num">' + vu + ' / ' + tot + '</div><div class="cap">' + (ap0 ? 'Journée approuvée' : 'Journée à approuver') + '</div></div></div>' +
       (miss ? '<div style="margin-top:14px">' + bnr('warn', '<div>Certaines saisies de cette journée sont manquantes (lignes en rouge).</div>') + '</div>' : '') +
       sec.map(function (s) {
         var n = s.it.filter(function (x) { return !x.miss; }), v = n.filter(function (x) { return REVU[x.id]; }).length;
-        return '<div class="sheet" style="margin-top:18px"><section class="box"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3 class="sech" style="margin:0">' + s.nom + '<span>' + v + ' / ' + n.length + '</span></h3>' + (n.length && v < n.length && !ap0 ? '<button type="button" class="btn mini" data-vuall="' + esc(s.nom) + '">Tout marquer comme vu</button>' : '') + '</div><div class="tablewrap" style="margin-top:10px"><table class="tbl-lite"><tbody>' + s.it.map(function (x) {
+        return '<div class="sheet" style="margin-top:18px"><section class="box"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3 class="sech" style="margin:0">' + s.nom + '<span class="bd ' + (n.length && v === n.length ? 'ok' : (v ? 'warn' : '')) + '">' + v + ' / ' + n.length + '</span></h3>' + (n.length && v < n.length && !ap0 ? '<button type="button" class="btn mini" data-vuall="' + esc(s.nom) + '">Tout marquer comme vu</button>' : '') + '</div><div class="tablewrap" style="margin-top:10px"><table class="tbl-lite"><tbody>' + s.it.map(function (x) {
           var seen = REVU[x.id]; return '<tr class="' + (x.miss ? 'rs-bad' : (seen ? 'rs-ok' : '')) + '"><td><b style="font-weight:600">' + esc(x.t) + '</b><small>' + esc(x.s) + '</small></td><td class="num">' + esc(x.v) + '</td><td style="width:140px">' + (x.miss ? '<span class="st bad">Manquant</span>' : (seen ? '<button type="button" class="btn mini success" data-vu="' + esc(x.id) + '"' + (ap0 ? ' disabled' : '') + '>Vu ✓</button>' : '<button type="button" class="btn mini" data-vu="' + esc(x.id) + '"' + (ap0 ? ' disabled' : '') + '>Marquer vu</button>')) + '</td></tr>'; }).join('') + '</tbody></table></div></section></div>';
       }).join('') +
-      '<div class="sheet" style="margin-top:18px"><section class="box" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><b style="font-weight:600">Approbation de la journée</b><div class="sugg" style="margin:4px 0 0">' + (ap0 ? 'Approuvée à ' + hhmm(ap0.at) + ' par ' + esc(ap0.by) + '.' : vu < tot ? 'Il reste ' + (tot - vu) + ' élément' + (tot - vu > 1 ? 's' : '') + ' à marquer comme vu.' : 'Tout a été vu : vous pouvez approuver.') + '</div></div>' + (ap0 ? '<span class="st ok">Approuvée</span>' : '<button type="button" class="btn primary" id="co-ok"' + (vu < tot ? ' disabled' : '') + '>Approuver la journée</button>') + '</section></div>';
+      '<div class="sheet" style="margin-top:18px"><section class="box' + (ap0 || (tot && vu === tot) ? ' okc' : '') + '" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><b style="font-weight:600">Approbation de la journée</b><div class="sugg" style="margin:4px 0 0">' + (ap0 ? 'Approuvée à ' + hhmm(ap0.at) + ' par ' + esc(ap0.by) + '.' : vu < tot ? 'Il reste ' + (tot - vu) + ' élément' + (tot - vu > 1 ? 's' : '') + ' à marquer comme vu.' : 'Tout a été vu : vous pouvez approuver.') + '</div></div>' + (ap0 ? '<span class="st ok">Approuvée</span>' : '<button type="button" class="btn ' + (vu === tot ? 'go-ok' : 'primary') + '" id="co-ok"' + (vu < tot ? ' disabled' : '') + '>Approuver la journée</button>') + '</section></div>';
   }
   $('co-body').addEventListener('click', function (e) {
     var b = e.target.closest('[data-vu]');
@@ -4459,7 +4492,7 @@ body.pos-full header.top { display: none !important; }
   /* --- Utilisateurs (DG) --- */
   var usTab = 'postes';
   function renderUsers() {
-    var tabs = [['postes', 'Postes'], ['taches', 'Tâches à saisir'], ['entreprise', 'Entreprise']];
+    var tabs = [['postes', 'Postes'], ['taches', 'Tâches à saisir']];
     $('ur-tabs').innerHTML = tabs.map(function (t) { return '<button type="button" role="tab" data-urtab="' + t[0] + '" aria-selected="' + (usTab === t[0]) + '">' + t[1] + '</button>'; }).join('');
     if (usTab === 'postes') {
       var cards = ['dg', 'ctrl', 'compta', 'pdv'].map(function (k) {
@@ -4469,9 +4502,6 @@ body.pos-full header.top { display: none !important; }
         return '<div class="kpi" style="min-height:0"><div class="lab">' + r.n + '</div><b style="font-size:19px;font-weight:600">' + esc(r.nom) + '</b><div class="sugg" style="margin:8px 0">Voit : ' + esc(r.voit) + '</div><ul style="margin:0 0 12px;padding-left:18px;font-size:14px">' + r.regles.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul><button type="button" class="btn ' + (k === ROLE ? '' : 'primary') + '" data-setrole="' + k + '"' + (k === ROLE ? ' disabled' : '') + '>' + (k === ROLE ? 'Poste actuel' : 'Essayer ce poste') + '</button>' + st + '</div>';
       }).join('') + ['Poste 5 · Usine', 'Poste 6 · Maintenance'].map(function (n) { return '<div class="kpi" style="min-height:0;opacity:.55"><div class="lab">À venir</div><b style="font-size:19px;font-weight:600">' + n + '</b><div class="sugg" style="margin:8px 0 0">Sera ajouté plus tard.</div></div>'; }).join('');
       $('ur-main').innerHTML = '<div class="kpis" style="margin-top:0;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">' + cards + '</div>';
-    } else if (usTab === 'entreprise') {
-      var cf = function (id, lab, v) { return '<div class="f"><label for="ent-' + id + '">' + lab + '</label><input class="in" id="ent-' + id + '" value="' + esc(v) + '"></div>'; };
-      $('ur-main').innerHTML = '<p class="sugg" style="margin:6px 0 14px">Ces informations s’impriment sur le bon de livraison. Les valeurs actuelles sont des exemples : remplacez-les par celles de l’entreprise.</p><div class="row2">' + cf('adresse', 'Adresse', COMPANY.adresse) + cf('ville', 'Ville', COMPANY.ville) + '</div><div class="row3">' + cf('tel', 'Téléphone', COMPANY.tel) + cf('ice', 'ICE', COMPANY.ice) + cf('rc', 'RC', COMPANY.rc) + '</div><div class="row3">' + cf('ifs', 'IF', COMPANY.ifs) + '<div class="f"></div><div class="f"></div></div><div class="mact" style="justify-content:flex-start"><button type="button" class="btn primary" id="ent-save">Enregistrer</button></div>';
     } else {
       var rs = ['compta', 'pdv'];
       $('ur-main').innerHTML = (TASKS.some(function (t) { return t.oblig; }) ? '' : bnr('warn', '<div>Aucune tâche n’est obligatoire pour l’instant. Cochez « Obligatoire » pour celles qui bloquent la clôture de la journée.</div>')) + '<div style="display:flex;justify-content:flex-end;margin:10px 0"><button type="button" class="btn primary" data-newtask>+ Nouvelle tâche</button></div><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Tâche</th><th>Fréquence</th><th>Poste</th><th>Obligatoire</th><th>Active</th><th>Actions</th></tr></thead><tbody>' + TASKS.map(function (t) {
@@ -4480,7 +4510,6 @@ body.pos-full header.top { display: none !important; }
   }
   $('view-users').addEventListener('click', function (e) {
     var b;
-    if (e.target.closest('#ent-save')) { ['adresse', 'ville', 'tel', 'ice', 'rc', 'ifs'].forEach(function (k) { COMPANY[k] = $('ent-' + k).value.trim(); }); audit('Informations entreprise', 'SOCOBO', 'Mises à jour'); toast('Informations enregistrées.'); return; }
     if ((b = e.target.closest('[data-urtab]'))) { usTab = b.dataset.urtab; renderUsers(); return; }
     if ((b = e.target.closest('[data-reopen]'))) { delete CLOSE[closeKey(b.dataset.reopen)]; audit('Journée rouverte', ROLES[b.dataset.reopen].nom, dfmt.format(TODAY)); renderUsers(); refreshNavBadges(); toast('Journée rouverte.'); return; }
     if (e.target.closest('[data-newtask]')) return taskModal(null);
@@ -4685,7 +4714,8 @@ body.pos-full header.top { display: none !important; }
   }
   function renderDepense() {
     var d = canDG() ? depDay : TODAY, rg = { from: d, to: d }, list = depList(rg), sum = list.reduce(function (t, x) { return t + x.amt; }, 0), cash = cashOfDay(d), reste = cash - sum, dg = canDG(), today = +d === +TODAY;
-    var h = (dg ? '<div class="tools-row"><label class="pf">Jour <input type="date" id="dp-date" value="' + iso(d) + '" max="' + iso(TODAY) + '" aria-label="Jour"></label></div>' : '') +
+    setTopDay(dg ? '<label class="pf">Jour <input type="date" id="dp-date" value="' + iso(d) + '" max="' + iso(TODAY) + '" aria-label="Jour"></label>' : '');
+    var h = '' +
       '<div class="dp-sum"><div class="dp-c"><div class="pd-lab">Espèces encaissées</div><div class="pd-num" style="color:var(--ok-fg)">' + nf2.format(cash) + '</div></div><div class="dp-c"><div class="pd-lab">Dépenses</div><div class="pd-num" style="color:var(--bad-fg)">' + nf2.format(sum) + '</div></div><div class="dp-c dp-reste' + (reste < 0 ? ' neg' : '') + '"><div class="pd-lab">Reste</div><div class="pd-num">' + nf2.format(reste) + '</div></div></div>';
     if (today) h += '<div class="dp-form"><div class="step-h" style="margin-top:0"><i>+</i><span>Nouvelle dépense</span></div><div class="dp-amt"><label for="dp-amt">Montant</label><input class="qin" id="dp-amt" inputmode="decimal" autocomplete="off" placeholder="0,00"></div>' +
       '<div class="pos-h" style="margin:14px 0 8px">Catégorie</div><div class="modes" id="dp-cats">' + DEPCATS.map(function (c) { return '<button type="button" data-dpcat="' + esc(c) + '" aria-pressed="' + (depCat === c) + '">' + esc(c) + '</button>'; }).join('') + '</div>' +
@@ -4725,6 +4755,7 @@ body.pos-full header.top { display: none !important; }
 
   /* ===== Location : loueurs (propriétaires de camions et d'engins loués à l'heure) ===== */
   var supBy = function (id) { return sups.filter(function (s) { return s.id === +id; })[0]; };
+  var LOCDEF = { tva: 20, delai: 0, note: 'Paiement à la fin du mois' };
   var LOUEURS = [
     { id: 1, supId: 11, contact: 'M. Ouazzani', tva: 20, note: 'Paiement à la fin du mois', actif: true },
     { id: 2, supId: 12, contact: 'M. Haddou', tva: 20, note: 'Paiement à la demande', actif: true }
@@ -4839,7 +4870,7 @@ body.pos-full header.top { display: none !important; }
   }
   /* ---- formulaires ---- */
   function louNew() {
-    openModal('<h2>Nouveau loueur</h2><p class="m">Propriétaire de camions ou d’engins loués à l’heure. Il est ajouté automatiquement à la liste des fournisseurs.</p><div class="row2"><div class="f"><label for="ln-n">Nom ou raison sociale *</label><input class="in" id="ln-n"></div><div class="f"><label for="ln-c">Contact</label><input class="in" id="ln-c"></div></div><div class="row3"><div class="f"><label for="ln-t">Téléphone *</label><input class="in" id="ln-t"></div><div class="f"><label for="ln-v">Ville</label><input class="in" id="ln-v" value="Chichaoua"></div><div class="f"><label for="ln-d">Délai de paiement (jours)</label><input class="in" id="ln-d" inputmode="numeric" value="0"></div></div><div class="row2"><div class="f"><label for="ln-tva">TVA sur la location (%)</label><select class="in" id="ln-tva"><option>20</option><option>14</option><option>10</option><option>7</option><option>0</option></select></div><div class="f"><label for="ln-no">Condition de paiement</label><input class="in" id="ln-no" value="Paiement à la fin du mois"></div></div><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Enregistrer</button></div>');
+    openModal('<h2>Nouveau loueur</h2><p class="m">Propriétaire de camions ou d’engins loués à l’heure. Il est ajouté automatiquement à la liste des fournisseurs.</p><div class="row2"><div class="f"><label for="ln-n">Nom ou raison sociale *</label><input class="in" id="ln-n"></div><div class="f"><label for="ln-c">Contact</label><input class="in" id="ln-c"></div></div><div class="row3"><div class="f"><label for="ln-t">Téléphone *</label><input class="in" id="ln-t"></div><div class="f"><label for="ln-v">Ville</label><input class="in" id="ln-v" value="Chichaoua"></div><div class="f"><label for="ln-d">Délai de paiement (jours)</label><input class="in" id="ln-d" inputmode="numeric" value="' + LOCDEF.delai + '"></div></div><div class="row2"><div class="f"><label for="ln-tva">TVA sur la location (%)</label><select class="in" id="ln-tva">' + [20, 14, 10, 7, 0].map(function (v) { return '<option' + (v === LOCDEF.tva ? ' selected' : '') + '>' + v + '</option>'; }).join('') + '</select></div><div class="f"><label for="ln-no">Condition de paiement</label><input class="in" id="ln-no" value="' + esc(LOCDEF.note) + '"></div></div><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Enregistrer</button></div>');
     $('mg-cancel').addEventListener('click', closeModal);
     $('mg-save').addEventListener('click', function () {
       var n = $('ln-n').value.trim(), tel = $('ln-t').value.trim(), d = num($('ln-d').value); if (!n) return magErr('Saisissez le nom du loueur.'); if (!/^[\d\s+]{8,}$/.test(tel)) return magErr('Saisissez un numéro de téléphone valide.'); if (!(d >= 0)) return magErr('Le délai doit être un nombre positif.'); if (sups.some(function (s) { return normTxt(s.nom) === normTxt(n); })) return magErr('Un fournisseur porte déjà ce nom.');
@@ -5016,7 +5047,7 @@ body.pos-full header.top { display: none !important; }
     var inP = led.filter(function (r) { return r.x.d >= rg.from && r.x.d <= rg.to; }).reverse(), ins = inP.filter(function (r) { return r.x.type === 'in'; }).map(function (r) { return r.x; }), outs = inP.filter(function (r) { return r.x.type === 'out'; }).map(function (r) { return r.x; });
     var sum = function (l, f) { return l.reduce(function (t, x) { return t + f(x); }, 0); }, u = esc(it.unit), lw = s0.q < it.min;
     $('mag-t').textContent = 'Magasin · ' + K.t + ' · ' + it.nom; $('mag-s').textContent = it.k === 'fuel' ? 'Fiche de la citerne : mouvements, consommation et fournisseurs' : 'Fiche du produit : mouvements, consommation et fournisseurs';
-    $('mag-a').innerHTML = w ? '<button type="button" class="btn" data-mgin>+ Entrée</button><button type="button" class="btn" data-mginv>Inventaire</button><button type="button" class="btn" data-mgedit>Modifier</button>' : '';
+    $('mag-a').innerHTML = w ? '<button type="button" class="btn" data-mgin>+ Entrée</button><button type="button" class="btn" data-mginv>Inventaire</button><button type="button" class="btn" data-mgedit>Réglages (Paramètres)</button>' : '';
     $('mag-per').innerHTML = '<span class="tabs" style="margin:0">' + PERS.map(function (p) { return '<button type="button" data-mgper="' + p[0] + '" aria-selected="' + (magPer === p[0]) + '">' + p[1] + '</button>'; }).join('') + '</span>';
     $('mag-kpis').innerHTML = kpiH('Stock actuel', magQ(s0.q, it.unit), 'Seuil mini : ' + magQ(it.min, it.unit) + (it.cap ? ' · capacité ' + nf0.format(it.cap) + ' L' : ''), lw, true) + kpiH('Valeur du stock', nf2.format(s0.val), 'Coût moyen : ' + nf2.format(s0.avg) + ' / ' + u) +
       kpiH('Entrées · ' + rg.lab, magQ(sum(ins, function (x) { return x.q; }), it.unit), 'Montant : ' + nf2.format(sum(ins, function (x) { return x.cost; }))) + kpiH('Consommation · ' + rg.lab, magQ(sum(outs, function (x) { return x.q; }), it.unit), 'Coût : ' + nf2.format(sum(outs, function (x) { return x.cost; })));
@@ -5037,16 +5068,6 @@ body.pos-full header.top { display: none !important; }
       h += '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Fournisseur</th><th>Livraisons</th><th>Quantité</th><th>Montant</th><th>Dernier prix</th><th>Prix moyen</th></tr></thead><tbody>' + (rs.length ? rs.map(function (r) { return '<tr><td><b style="font-weight:600">' + esc(r.k) + '</b></td><td class="num">' + r.n + '</td><td class="num">' + nf2.format(r.q) + ' ' + u + '</td><td class="num">' + nf2.format(r.c) + '</td><td class="num">' + nf2.format(r.last) + '</td><td class="num">' + nf2.format(r.avg) + '</td></tr>'; }).join('') : '<tr><td colspan="6" style="color:var(--ink-2)">Aucune entrée sur cette période.</td></tr>') + '</tbody><tfoot><tr class="tot"><td>Total</td><td class="num">' + ins.length + '</td><td class="num">' + nf2.format(sum(ins, function (x) { return x.q; })) + ' ' + u + '</td><td class="num">' + nf2.format(sum(ins, function (x) { return x.cost; })) + '</td><td></td><td></td></tr></tfoot></table></div>';
     }
     $('mag-main').innerHTML = h + printBar();
-  }
-  function magEdit(it) {
-    openModal('<h2>Modifier</h2><p class="m">' + esc(it.nom) + '</p><div class="f"><label for="me-n">Désignation</label><input class="in" id="me-n" value="' + esc(it.nom) + '"></div><div class="row3"><div class="f"><label for="me-u">Unité</label><select class="in" id="me-u"' + (it.k === 'fuel' ? ' disabled' : '') + '>' + MAGU.map(function (u) { return '<option' + (u === it.unit ? ' selected' : '') + '>' + u + '</option>'; }).join('') + '</select></div><div class="f"><label for="me-m">Seuil mini</label><input class="in" id="me-m" inputmode="decimal" value="' + String(it.min).replace('.', ',') + '"></div>' + (it.cap ? '<div class="f"><label for="me-c">Capacité (L)</label><input class="in" id="me-c" inputmode="decimal" value="' + it.cap + '"></div>' : '') + '</div><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Enregistrer</button></div>');
-    $('mg-cancel').addEventListener('click', closeModal);
-    $('mg-save').addEventListener('click', function () {
-      var n = $('me-n').value.trim(), mi = num($('me-m').value), cap = it.cap ? num($('me-c').value) : 0;
-      if (!n) return magErr('Saisissez la désignation.'); if (MAGI.some(function (x) { return x !== it && x.k === it.k && x.nom.toLowerCase() === n.toLowerCase(); })) return magErr('Ce nom existe déjà.'); if (!(mi >= 0) || (it.cap && !(cap > 0))) return magErr('Seuil et capacité doivent être des nombres valides.');
-      var old = it.nom + ' · seuil ' + nf2.format(it.min); it.nom = n; it.min = mi; if (it.cap) it.cap = cap; if (it.k === 'oil') it.unit = $('me-u').value;
-      audit('Fiche modifiée', n, old + ' → seuil ' + nf2.format(mi)); closeModal(); renderMag(); toast('Modifications enregistrées.');
-    });
   }
   function magSources() { return MACH.filter(function (m) { return m.actif; }).map(function (m) { return { nom: m.nom, tag: m.type === 'Camion' ? 'Camion (Parc)' : 'Machine', site: m.site }; }).concat(LFLEET.filter(function (u) { return u.actif && u.fuel === 'nous'; }).map(function (u) { return { nom: u.nom, tag: 'Loué · ' + louNom(u.lou), site: u.site }; })); }
   function magDay() {
@@ -5121,7 +5142,7 @@ body.pos-full header.top { display: none !important; }
     if ((b = e.target.closest('[data-mgftab]'))) { magFTab = b.dataset.mgftab; return renderMag(); }
     if (e.target.closest('[data-mgmore]')) { magMore += 60; return renderMag(); }
     if (!magCanWrite()) return;
-    if (e.target.closest('[data-mgin]')) return magIn(magFiche); if (e.target.closest('[data-mgday]')) return magDay(); if (e.target.closest('[data-mginv]')) return magInv(magFiche); if (e.target.closest('[data-mgedit]')) return magEdit(magItem(magFiche)); if (e.target.closest('[data-mgnew]')) return magNew();
+    if (e.target.closest('[data-mgin]')) return magIn(magFiche); if (e.target.closest('[data-mgday]')) return magDay(); if (e.target.closest('[data-mginv]')) return magInv(magFiche); if (e.target.closest('[data-mgedit]')) return go('parametres', 'Magasin'); if (e.target.closest('[data-mgnew]')) return magNew();
   });
 
 
@@ -5332,6 +5353,109 @@ body.pos-full header.top { display: none !important; }
   });
 
 
+
+
+  /* ===== Paramètres : toutes les valeurs que l'on règle de temps en temps (direction seulement) ===== */
+  var PSUBS = ['Entreprise', 'Prix et tarifs', 'Usine', 'Personnel', 'Magasin', 'Charges', 'Banque', 'Location', 'Listes'], psub = 'Entreprise', SETLOG = {};
+  var PROV = { 'Entreprise': true, 'Prix et tarifs': true, 'Usine': true, 'Personnel': true, 'Magasin': true, 'Charges': true, 'Location': true };
+  var LISTREG = {};
+  var pnum = function (v) { return String(v).replace('.', ','); };
+  var pfield = function (id, lab, v, hint, attrs) { return '<div class="f"><label for="pf-' + id + '">' + lab + '</label><input class="in" id="pf-' + id + '" value="' + esc(v) + '" ' + (attrs || '') + '>' + (hint ? '<small class="sugg">' + hint + '</small>' : '') + '</div>'; };
+  var psel = function (id, lab, list, v) { return '<div class="f"><label for="pf-' + id + '">' + lab + '</label><select class="in" id="pf-' + id + '">' + list.map(function (x) { return '<option' + (String(x) === String(v) ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('') + '</select></div>'; };
+  function plist(id, arr, title, hint) {
+    LISTREG[id] = arr;
+    return '<div class="cardbox" style="margin-top:14px"><h3>' + esc(title) + '</h3>' + (hint ? '<p class="sugg" style="margin:0 0 8px">' + hint + '</p>' : '') + '<div>' + arr.map(function (x, i) { return '<span class="chip2">' + esc(x) + (arr.length > 1 ? '<button type="button" data-ldel="' + id + '|' + i + '" aria-label="Retirer ' + esc(x) + '">×</button>' : '') + '</span>'; }).join('') + '</div><div class="tools-row" style="margin:8px 0 0"><input class="in" id="pl-' + id + '" placeholder="Nouvel élément" style="max-width:260px"><button type="button" class="btn" data-ladd="' + id + '">+ Ajouter</button></div></div>';
+  }
+  var psave = function (sec) { return '<div class="mact" style="margin-top:14px"><button type="button" class="btn primary" data-psave="' + sec + '">Enregistrer</button></div>'; };
+  var perr = '<p class="err" id="pf-err" hidden></p>';
+  var pfail = function (t) { $('pf-err').textContent = t; $('pf-err').hidden = false; return false; };
+  function renderParams(sub) {
+    if (sub && PSUBS.indexOf(sub) >= 0) psub = sub; var sec = psub, log = SETLOG[sec];
+    $('pa2-t').textContent = 'Paramètres · ' + sec; $('pa2-a').innerHTML = '';
+    $('pa2-s').textContent = 'Valeurs réglées par la direction · ' + (log ? 'Dernière modification : ' + fdt(log.at) + ' par ' + log.by : 'Jamais modifié');
+    var b = PROV[sec] ? bnr('warn', '<div><b>Valeurs d’exemple.</b> Vérifiez-les puis cliquez sur Enregistrer pour les confirmer.</div>') : '';
+    var f = { 'Entreprise': pEnt, 'Prix et tarifs': pPrix, 'Usine': pUsine, 'Personnel': pPers, 'Magasin': pMag, 'Charges': pChg, 'Banque': pBanque, 'Location': pLoc, 'Listes': pListes }[sec];
+    $('pa2-body').innerHTML = b + f() + printBar();
+  }
+  VIEWHOOKS['view-params'] = renderParams;
+  function pEnt() {
+    return '<div class="sheet"><section class="box"><p class="sugg" style="margin:0 0 12px">Ces informations s’impriment sur les bons de livraison et les documents.</p><div class="row2">' + pfield('nom', 'Nom de l’entreprise *', COMPANY.nom) + pfield('ville', 'Ville *', COMPANY.ville) + '</div><div class="row2">' + pfield('adresse', 'Adresse', COMPANY.adresse) + pfield('tel', 'Téléphone', COMPANY.tel) + '</div><div class="row3">' + pfield('ice', 'ICE', COMPANY.ice, '15 chiffres') + pfield('rc', 'RC', COMPANY.rc) + pfield('ifs', 'IF', COMPANY.ifs) + '</div>' + perr + psave('Entreprise') + '</section></div>';
+  }
+  function pPrix() {
+    return '<div class="sheet"><section class="box"><div class="row2">' + pfield('kwh', 'Prix du kWh (MAD)', pnum(FC.kwh), 'Tarif interne de l’électricité de l’usine', 'inputmode="decimal"') + pfield('ci', 'Prix du ciment par tonne (MAD)', pnum(FC.ciPx), 'Ciment en vrac', 'inputmode="decimal"') + '</div>' + perr + psave('Prix et tarifs') + '</section></div><div class="foot" style="margin-top:12px"><span>Les prix de vente se règlent dans <b>Point de vente › Produits</b> (prix par tonne, par m³ ou par mille).</span><button type="button" class="btn mini" data-pgoto="pdv|Produits">Ouvrir Produits</button></div>';
+  }
+  function pUsine() {
+    var uk = usineKeys().filter(function (k) { return P[k].actif; });
+    return '<div class="sheet"><section class="box"><div class="row3">' + pfield('sech', 'Jours de séchage avant la vente', FC.sech, 'Entier de 0 à 60', 'inputmode="numeric"') + '</div><h3 class="sech">Stock initial des matières<span>tonnes, au ' + dfmt.format(DATA_START) + '</span></h3><div class="row3">' + MATK.map(function (m) { return pfield('mo-' + m, matName(m), pnum(MOPEN[m] || 0), '', 'inputmode="decimal"'); }).join('') + '</div><h3 class="sech">Stock initial des produits finis<span>briques prêtes à vendre</span></h3><div class="row3">' + uk.map(function (k) { return pfield('fo-' + k, P[k].n, FOPEN[k] || 0, '', 'inputmode="numeric"'); }).join('') + '</div>' + perr + psave('Usine') + '</section></div><div class="foot" style="margin-top:12px"><span>Les recettes par millier se règlent dans la fiche de chaque produit de l’usine.</span><button type="button" class="btn mini" data-pgoto="pdv|Produits">Ouvrir Produits</button></div>';
+  }
+  function pPers() {
+    return '<div class="sheet"><section class="box"><div class="row3">' + pfield('jm', 'Jours travaillés par mois', JOURS_MOIS, 'Sert au coût par jour (salaire ÷ jours)', 'inputmode="numeric"') + pfield('sh', 'Heures de travail par semaine', SEM_H, 'Taux horaire = salaire × 12 ÷ (52 × heures)', 'inputmode="numeric"') + '<div class="f"></div></div><div class="row3">' + pfield('m1', 'Majoration des heures supplémentaires, jours ouvrables (×)', pnum(HSM.m1), '', 'inputmode="decimal"') + pfield('m2', 'Majoration dimanche, férié et nuit (×)', pnum(HSM.m2), '', 'inputmode="decimal"') + '<div class="f"></div></div><h3 class="sech">Délais d’alerte<span>jours avant l’échéance</span></h3><div class="row3">' + pfield('al-contrat', 'Fin de contrat', ALEAD.contrat, '', 'inputmode="numeric"') + pfield('al-essai', 'Fin de période d’essai', ALEAD.essai, '', 'inputmode="numeric"') + pfield('al-cin', 'Expiration de la CIN', ALEAD.cin, '', 'inputmode="numeric"') + '</div><div class="row3">' + pfield('al-permis', 'Permis de conduire', ALEAD.permis, '', 'inputmode="numeric"') + pfield('al-visite', 'Visite médicale', ALEAD.visite, '', 'inputmode="numeric"') + '<div class="f"></div></div>' + perr + psave('Personnel') + '</section></div>';
+  }
+  function pMag() {
+    var rowsF = MAGI.filter(function (x) { return x.k === 'fuel'; }).map(function (x) { return '<tr><td><input class="in" id="pf-mn-' + x.id + '" value="' + esc(x.nom) + '"></td><td>' + esc(x.unit) + '</td><td><input class="in" id="pf-mc-' + x.id + '" inputmode="numeric" value="' + x.cap + '" style="max-width:130px"></td><td><input class="in" id="pf-mm-' + x.id + '" inputmode="decimal" value="' + pnum(x.min) + '" style="max-width:130px"></td></tr>'; }).join('');
+    var rowsO = MAGI.filter(function (x) { return x.k === 'oil'; }).map(function (x) { return '<tr><td><input class="in" id="pf-mn-' + x.id + '" value="' + esc(x.nom) + '"></td><td><select class="in" id="pf-mu-' + x.id + '" style="max-width:110px">' + MAGU.map(function (u) { return '<option' + (u === x.unit ? ' selected' : '') + '>' + u + '</option>'; }).join('') + '</select></td><td><select class="in" id="pf-mb-' + x.id + '" style="max-width:190px"><option value="1"' + (x.byMach ? ' selected' : '') + '>Suivi par machine</option><option value="0"' + (x.byMach ? '' : ' selected') + '>Quantité seulement</option></select></td><td><input class="in" id="pf-mm-' + x.id + '" inputmode="decimal" value="' + pnum(x.min) + '" style="max-width:130px"></td></tr>'; }).join('');
+    return '<div class="sheet"><section class="box"><h3 class="sech" style="margin-top:0">Citernes de gasoil</h3><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Citerne</th><th>Unité</th><th>Capacité (L)</th><th>Seuil mini (L)</th></tr></thead><tbody>' + rowsF + '</tbody></table></div><h3 class="sech">Huiles et graisses</h3><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Produit</th><th>Unité</th><th>Suivi</th><th>Seuil mini</th></tr></thead><tbody>' + rowsO + '</tbody></table></div><p class="sugg">Un nouveau produit s’ajoute depuis Magasin › Huiles et graisses. Le seuil déclenche l’alerte « Sous le seuil ».</p>' + perr + psave('Magasin') + '</section></div>';
+  }
+  function pChg() {
+    return '<div class="sheet"><section class="box"><h3 class="sech" style="margin-top:0">Budget mensuel par catégorie<span>montant hors taxe</span></h3><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Catégorie</th><th>Budget mensuel (HT)</th></tr></thead><tbody>' + CHCAT.map(function (c) { return '<tr><td><b style="font-weight:600">' + esc(c.l) + '</b></td><td><input class="in" id="pf-bu-' + c.k + '" inputmode="decimal" value="' + pnum(BUD[c.k]) + '" style="max-width:160px"></td></tr>'; }).join('') + '</tbody><tfoot><tr class="tot"><td>Total</td><td class="num">' + nf2.format(sum2(CHCAT, function (c) { return BUD[c.k]; })) + '</td></tr></tfoot></table></div>' + perr + psave('Charges') + '</section></div>' + CHCAT.map(function (c) { return plist('cs-' + c.k, c.s, 'Sous-catégories · ' + c.l); }).join('') + plist('chc', CHC, 'Centres de coût') + plist('chm', CHM, 'Modes de paiement');
+  }
+  function pBanque() {
+    return '<div class="sheet"><section class="box"><div class="row2">' + pfield('bq', 'Banque principale', BANQUE) + pfield('cpt', 'Numéro du compte (RIB)', COMPTE) + '</div>' + perr + psave('Banque') + '</section></div>' + plist('chrb', CHR_BANKS, 'Banques des chèques reçus') + plist('chrm', CHR_MOTIFS, 'Motifs d’impayé');
+  }
+  function pLoc() {
+    return '<div class="sheet"><section class="box"><p class="sugg" style="margin:0 0 12px">Valeurs proposées à la création d’un nouveau loueur.</p><div class="row3">' + psel('lt', 'TVA sur la location (%)', [20, 14, 10, 7, 0], LOCDEF.tva) + pfield('ld', 'Délai de paiement (jours)', LOCDEF.delai, '', 'inputmode="numeric"') + pfield('ln', 'Condition de paiement', LOCDEF.note) + '</div>' + perr + psave('Location') + '</section></div>';
+  }
+  function pListes() {
+    return plist('stops', STOPS, 'Causes d’arrêt des lignes (Carrière)') + plist('mt', MTYPES, 'Types de machines (Parc)') + plist('mu', MAGU, 'Unités du Magasin') + plist('dpc', DEPCATS, 'Catégories de dépense de caisse') + plist('fcat', CATS, 'Catégories de fournisseurs') + plist('ctr', CONTRATS, 'Types de contrat');
+  }
+  function psaveSec(sec) {
+    var g = function (id) { return $('pf-' + id).value.trim(); }, n = function (id) { return num(g(id)); }, ok;
+    if (sec === 'Entreprise') {
+      if (!g('nom')) return pfail('Saisissez le nom de l’entreprise.'); if (!g('ville')) return pfail('Saisissez la ville.'); if (g('ice') && !/^\d{15}$/.test(g('ice'))) return pfail('L’ICE comporte 15 chiffres.');
+      ['nom', 'ville', 'adresse', 'tel', 'ice', 'rc'].forEach(function (k) { COMPANY[k] = g(k); }); COMPANY.ifs = g('ifs');
+    } else if (sec === 'Prix et tarifs') {
+      if (!(n('kwh') >= 0)) return pfail('Prix du kWh invalide.'); if (!(n('ci') >= 0)) return pfail('Prix du ciment invalide.');
+      FC.kwh = n('kwh'); FC.ciPx = n('ci'); FC.kwhSet = true; FC.ciSet = true; usRefresh();
+    } else if (sec === 'Usine') {
+      var sech = n('sech'); if (!(sech >= 0 && sech <= 60 && sech === Math.floor(sech))) return pfail('Les jours de séchage doivent être un entier entre 0 et 60.');
+      var mo = {}, fo = {}, uk = usineKeys().filter(function (k) { return P[k].actif; }), bad = '';
+      MATK.forEach(function (m) { var v = n('mo-' + m); if (!(v >= 0)) bad = 'Stock initial invalide (' + matName(m) + ').'; mo[m] = v; }); uk.forEach(function (k) { var v = n('fo-' + k); if (!(v >= 0) || v !== Math.floor(v)) bad = bad || 'Stock initial invalide (' + P[k].n + ').'; fo[k] = v; });
+      if (bad) return pfail(bad); FC.sech = sech; MOPEN = mo; uk.forEach(function (k) { FOPEN[k] = fo[k]; }); usRefresh();
+    } else if (sec === 'Personnel') {
+      var jm = n('jm'), sh = n('sh'), m1 = n('m1'), m2 = n('m2'), al = ['contrat', 'essai', 'cin', 'permis', 'visite'].map(function (k) { return n('al-' + k); });
+      if (!(jm >= 20 && jm <= 31 && jm === Math.floor(jm))) return pfail('Les jours travaillés par mois : entier entre 20 et 31.'); if (!(sh >= 20 && sh <= 60)) return pfail('Les heures par semaine doivent être comprises entre 20 et 60.'); if (!(m1 >= 1) || !(m2 >= m1)) return pfail('Les majorations doivent être au moins ×1, et celle du dimanche au moins égale à l’autre.');
+      if (al.some(function (x) { return !(x >= 0 && x <= 365 && x === Math.floor(x)); })) return pfail('Les délais d’alerte sont des entiers entre 0 et 365 jours.');
+      JOURS_MOIS = jm; SEM_H = sh; HSM.m1 = m1; HSM.m2 = m2; ['contrat', 'essai', 'cin', 'permis', 'visite'].forEach(function (k, i) { ALEAD[k] = al[i]; }); refreshNavBadges();
+    } else if (sec === 'Magasin') {
+      var names = {}, upd = [];
+      for (var i = 0; i < MAGI.length; i++) { var it = MAGI[i], nm = g('mn-' + it.id), mn = n('mm-' + it.id), cp = it.cap ? n('mc-' + it.id) : 0; if (!nm) return pfail('Chaque ligne doit avoir un nom.'); if (names[normTxt(nm)]) return pfail('Le nom « ' + nm + ' » est utilisé deux fois.'); names[normTxt(nm)] = 1; if (!(mn >= 0)) return pfail('Seuil invalide (' + nm + ').'); if (it.cap && !(cp > 0)) return pfail('Capacité invalide (' + nm + ').'); upd.push([it, nm, mn, cp]); }
+      upd.forEach(function (u) { var it = u[0]; it.nom = u[1]; it.min = u[2]; if (it.cap) it.cap = u[3]; if (it.k === 'oil') { it.unit = $('pf-mu-' + it.id).value; it.byMach = $('pf-mb-' + it.id).value === '1'; } });
+    } else if (sec === 'Charges') {
+      var nb = {}; for (var j = 0; j < CHCAT.length; j++) { var v = n('bu-' + CHCAT[j].k); if (!(v >= 0)) return pfail('Budget invalide (' + CHCAT[j].l + ').'); nb[CHCAT[j].k] = v; } Object.keys(nb).forEach(function (k) { BUD[k] = nb[k]; });
+    } else if (sec === 'Banque') {
+      if (!g('bq') || !g('cpt')) return pfail('Indiquez la banque et le numéro du compte.'); BANQUE = g('bq'); COMPTE = g('cpt');
+    } else if (sec === 'Location') {
+      var dl = n('ld'); if (!(dl >= 0 && dl <= 365)) return pfail('Délai invalide.'); LOCDEF.tva = +$('pf-lt').value; LOCDEF.delai = dl; LOCDEF.note = g('ln');
+    }
+    PROV[sec] = false; SETLOG[sec] = { by: USER, at: nowT() }; audit('Paramètres modifiés', sec, 'Valeurs enregistrées'); renderParams(); toast('Paramètres enregistrés.');
+  }
+  $('view-params').addEventListener('click', function (e) {
+    var b; if ((b = e.target.closest('[data-psave]'))) return psaveSec(b.dataset.psave);
+    if ((b = e.target.closest('[data-pgoto]'))) { var t = b.dataset.pgoto.split('|'); return go(t[0], t[1]); }
+    if ((b = e.target.closest('[data-ladd]'))) { var id = b.dataset.ladd, v = $('pl-' + id).value.trim(), arr = LISTREG[id]; if (!v) return toast('Saisissez un élément.', 'err'); if (arr.some(function (x) { return normTxt(x) === normTxt(v); })) return toast('Cet élément existe déjà.', 'err'); arr.push(v); audit('Liste modifiée', id, 'Ajout : ' + v); renderParams(); return toast('Ajouté.'); }
+    if ((b = e.target.closest('[data-ldel]'))) { var q = b.dataset.ldel.split('|'), ar = LISTREG[q[0]], x = ar[+q[1]]; if (ar.length < 2) return; ar.splice(+q[1], 1); audit('Liste modifiée', q[0], 'Retrait : ' + x); renderParams(); return toast('Retiré. Les enregistrements existants ne changent pas.'); }
+  });
+
+  /* ---- Jour dans la barre du haut (Contrôle, Présences, Dépense, Usine) ---- */
+  function setTopDay(h) { $('top-day').innerHTML = h; $('top-day').hidden = !h; }
+  $('top-day').addEventListener('change', function (e) {
+    var d = parseIso(e.target.value); if (!d || d > TODAY) return;
+    if (e.target.id === 'co-date') { cDay = d; renderControle(); } else if (e.target.id === 'dp-date') { depDay = d; renderDepense(); } else if (e.target.id === 'pe-date') { peDate = d; peDraft = null; renderPersonnel(); } else if (e.target.id === 'sj-date') { sDate = d; renderUsine(); }
+  });
+  $('top-day').addEventListener('click', function (e) {
+    if (e.target.closest('#pe-prev')) { peDate = addDays(peDate, -1); peDraft = null; renderPersonnel(); } else if (e.target.closest('#pe-today')) { peDate = TODAY; peDraft = null; renderPersonnel(); }
+    else if (e.target.closest('#sj-prev')) { sDate = addDays(sDate, -1); renderUsine(); } else if (e.target.closest('#sj-today')) { sDate = TODAY; renderUsine(); }
+  });
   locSeed();
 
   /* ===== Charges : dépenses générales de l'entreprise (hors caisse, carburant, pièces et salaires) ===== */
@@ -5386,7 +5510,7 @@ body.pos-full header.top { display: none !important; }
   var _nb3 = navBadge; navBadge = function (k) { if (k === 'charges') return chW() ? CHG.filter(function (x) { return x.st === 'À payer' && x.ech <= addDays(TODAY, 7); }).length : 0; return _nb3(k); };
   function renderCharges(sub) {
     if (sub) chSub = sub; if (['Tableau de bord', 'Journal', 'Récurrentes', 'Budgets', 'Coûts globaux'].indexOf(chSub) < 0) chSub = 'Tableau de bord';
-    $('ch2-a').innerHTML = chW() && (chSub === 'Journal' || chSub === 'Tableau de bord') ? '<button type="button" class="btn primary" data-chnew>+ Nouvelle charge</button>' : (chW() && chSub === 'Récurrentes' ? '<button type="button" class="btn primary" data-recnew>+ Charge récurrente</button>' : (ROLE === 'dg' && chSub === 'Budgets' ? '<button type="button" class="btn primary" data-budsave>Enregistrer les budgets</button>' : ''));
+    $('ch2-a').innerHTML = chW() && (chSub === 'Journal' || chSub === 'Tableau de bord') ? '<button type="button" class="btn primary" data-chnew>+ Nouvelle charge</button>' : (chW() && chSub === 'Récurrentes' ? '<button type="button" class="btn primary" data-recnew>+ Charge récurrente</button>' : (ROLE === 'dg' && chSub === 'Budgets' ? '<button type="button" class="btn" data-chgo>Modifier dans Paramètres</button>' : ''));
     $('ch2-t').textContent = 'Charges · ' + chSub; $('ch2-body').innerHTML = { 'Tableau de bord': chDash, 'Journal': chJournal, 'Récurrentes': chRec, 'Budgets': chBudgets, 'Coûts globaux': chGlobal }[chSub](); refreshNavBadges();
   }
   VIEWHOOKS['view-charges'] = renderCharges;
@@ -5426,7 +5550,7 @@ body.pos-full header.top { display: none !important; }
     var tb = sum2(R, function (x) { return x.b; }), tr = sum2(R, function (x) { return x.re; });
     $('ch2-s').textContent = 'Budget mensuel et dépenses réelles (HT) · ' + monthLab(rg.from) + (chBud === 'month' ? ' (en cours)' : '');
     return '<div class="tools-row"><span class="tabs" style="margin:0">' + [['month', 'Ce mois'], ['prev', 'Mois précédent']].map(function (p) { return '<button type="button" data-chbud="' + p[0] + '" aria-selected="' + (chBud === p[0]) + '">' + p[1] + '</button>'; }).join('') + '</span></div>' + kpisW(kpiH('Réel / budget', tb > 0 ? Math.round(tr / tb * 100) + ' %' : '—', nf2.format(tr) + ' sur ' + nf2.format(tb), tr > tb, true) + kpiH('Budget mensuel', nf2.format(tb), 'Total des 13 catégories') + kpiH('Reste disponible', nf2.format(tb - tr), tb - tr < 0 ? 'Budget dépassé' : 'Jusqu’à la fin du mois', tb - tr < 0) + kpiH('Catégories dépassées', R.filter(function (x) { return x.re > x.b; }).length, 'Sur 13 catégories')) +
-      '<div class="sheet"><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Catégorie</th><th>Budget mensuel</th><th>Réel</th><th>Écart</th><th>Consommé</th><th>État</th></tr></thead><tbody>' + R.map(function (x) { var cls = x.p > 100 ? 'bad' : (x.p >= 90 ? 'warn' : 'ok'); return '<tr class="' + (x.p > 100 ? 'rs-bad' : '') + '"><td><b style="font-weight:600">' + esc(x.c.l) + '</b></td><td class="num">' + (dg ? '<input class="in" data-budk="' + x.c.k + '" inputmode="decimal" value="' + String(x.b).replace('.', ',') + '" style="width:110px;text-align:right">' : nf2.format(x.b)) + '</td><td class="num">' + nf2.format(x.re) + '</td><td class="num" style="color:' + (x.re > x.b ? 'var(--bad-fg)' : 'var(--ok-fg)') + '">' + nf2.format(x.b - x.re) + '</td><td><div class="hb-t" style="width:110px;display:inline-block;vertical-align:middle"><i style="width:' + Math.min(100, x.p) + '%;background:var(--' + (cls === 'ok' ? 'ok-fg' : (cls === 'warn' ? 'warn-fg' : 'bad-fg')) + ')"></i></div> ' + (x.p === 999 ? '—' : x.p + ' %') + '</td><td><span class="st ' + cls + '">' + (x.p > 100 ? 'Dépassé' : (x.p >= 90 ? 'Attention' : 'Dans le budget')) + '</span></td></tr>'; }).join('') + '</tbody><tfoot><tr class="tot"><td>Total</td><td class="num">' + nf2.format(tb) + '</td><td class="num">' + nf2.format(tr) + '</td><td class="num">' + nf2.format(tb - tr) + '</td><td>' + (tb > 0 ? Math.round(tr / tb * 100) + ' %' : '') + '</td><td></td></tr></tfoot></table></div><div class="foot"><span>' + (dg ? 'Modifiez les montants puis cliquez sur « Enregistrer les budgets ».' : 'Les budgets sont fixés par la direction.') + '</span></div></div>' + printBar();
+      '<div class="sheet"><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Catégorie</th><th>Budget mensuel</th><th>Réel</th><th>Écart</th><th>Consommé</th><th>État</th></tr></thead><tbody>' + R.map(function (x) { var cls = x.p > 100 ? 'bad' : (x.p >= 90 ? 'warn' : 'ok'); return '<tr class="' + (x.p > 100 ? 'rs-bad' : '') + '"><td><b style="font-weight:600">' + esc(x.c.l) + '</b></td><td class="num">' + nf2.format(x.b) + '</td><td class="num">' + nf2.format(x.re) + '</td><td class="num" style="color:' + (x.re > x.b ? 'var(--bad-fg)' : 'var(--ok-fg)') + '">' + nf2.format(x.b - x.re) + '</td><td><div class="hb-t" style="width:110px;display:inline-block;vertical-align:middle"><i style="width:' + Math.min(100, x.p) + '%;background:var(--' + (cls === 'ok' ? 'ok-fg' : (cls === 'warn' ? 'warn-fg' : 'bad-fg')) + ')"></i></div> ' + (x.p === 999 ? '—' : x.p + ' %') + '</td><td><span class="st ' + cls + '">' + (x.p > 100 ? 'Dépassé' : (x.p >= 90 ? 'Attention' : 'Dans le budget')) + '</span></td></tr>'; }).join('') + '</tbody><tfoot><tr class="tot"><td>Total</td><td class="num">' + nf2.format(tb) + '</td><td class="num">' + nf2.format(tr) + '</td><td class="num">' + nf2.format(tb - tr) + '</td><td>' + (tb > 0 ? Math.round(tr / tb * 100) + ' %' : '') + '</td><td></td></tr></tfoot></table></div><div class="foot"><span>Les budgets se règlent dans Paramètres › Charges (direction).</span></div></div>' + printBar();
   }
   /* coûts globaux : toutes les natures de coût de l'entreprise sur une même page */
   function chGlobal() {
@@ -5467,12 +5591,12 @@ body.pos-full header.top { display: none !important; }
   }
   $('view-charges').addEventListener('click', function (e) {
     var b; if ((b = e.target.closest('[data-chper]'))) { chPer = b.dataset.chper; chShown = 60; return renderCharges(); } if ((b = e.target.closest('[data-chbud]'))) { chBud = b.dataset.chbud; return renderCharges(); } if (e.target.closest('[data-chmore]')) { chShown += 60; return renderCharges(); }
-    if (!chW() && !e.target.closest('[data-budsave]')) return;
+    if (e.target.closest('[data-chgo]')) return go('parametres', 'Charges');
+    if (!chW()) return;
     if (e.target.closest('[data-chnew]')) return chModal(null); if (e.target.closest('[data-recnew]')) return recModal(); if ((b = e.target.closest('[data-chedit]'))) return chModal(+b.dataset.chedit);
     if ((b = e.target.closest('[data-chpay]'))) { var x = CHG.filter(function (c) { return c.id === +b.dataset.chpay; })[0]; x.st = 'Payé'; audit('Charge payée', x.tiers + ' · ' + x.lib, nf2.format(x.ttc)); renderCharges(); return toast('Charge marquée payée.'); }
     if ((b = e.target.closest('[data-rectog]'))) { var r = REC.filter(function (c) { return c.id === +b.dataset.rectog; })[0]; r.actif = !r.actif; audit(r.actif ? 'Récurrente reprise' : 'Récurrente mise en pause', r.lib, ''); return renderCharges(); }
     if ((b = e.target.closest('[data-recgen]'))) { var rc = REC.filter(function (c) { return c.id === +b.dataset.recgen; })[0], y = TODAY.getFullYear(), m = TODAY.getMonth(), d = recDue(rc, y, m); addChg({ d: d <= TODAY ? d : TODAY, cat: rc.cat, sub: rc.sub, lib: rc.lib, tiers: rc.tiers, piece: 'FAC-' + y + String(m + 1).padStart(2, '0') + '-' + rc.id, ht: rc.ht, tva: rc.tva, centre: rc.centre, mode: rc.mode, st: 'À payer', ech: d, rec: rc.id, ym: y + '-' + m, note: '', by: USER }); audit('Échéance générée', rc.lib, dfmt.format(d)); renderCharges(); return toast('Échéance du mois générée.'); }
-    if (e.target.closest('[data-budsave]') && ROLE === 'dg') { var bad = false, nb = {}; $('ch2-body').querySelectorAll('[data-budk]').forEach(function (i) { var v = num(i.value); if (!(v >= 0)) bad = true; nb[i.dataset.budk] = v; }); if (bad) return toast('Les budgets doivent être des nombres positifs.', 'err'); Object.keys(nb).forEach(function (k) { BUD[k] = nb[k]; }); audit('Budgets modifiés', 'Charges', 'Total ' + nf2.format(sum2(Object.keys(nb), function (k) { return nb[k]; }))); renderCharges(); toast('Budgets enregistrés.'); }
   });
   $('view-charges').addEventListener('input', function (e) { if (e.target.id === 'ch-q') { chQ = e.target.value; chShown = 60; var p = e.target.selectionStart; renderCharges(); var q = $('ch-q'); q.focus(); q.setSelectionRange(p, p); } });
   $('view-charges').addEventListener('change', function (e) { if (e.target.id === 'ch-cat') { chCat = e.target.value; chShown = 60; renderCharges(); } if (e.target.id === 'ch-cen') { chCen = e.target.value; chShown = 60; renderCharges(); } if (e.target.id === 'ch-st') { chSt = e.target.value; chShown = 60; renderCharges(); } });
