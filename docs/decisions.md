@@ -246,6 +246,17 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] **Rentabilité**: the factory's sand and gravel come from the recipe consumption (converted to m³ with the densities) and are charged at the quarry's cost per m³ (+ optional markup); cement and adjuvant are costed at purchase prices. The old "m³ per mille" setting is removed.
 - [A] Examples used (kg per batch): brique 8 trous 420/290/80 CPJ 55/1,5; brique 12 trous 400/280/100 CPJ 55/1,5; hourdis 16 340/240/190 CPJ 65/3. Demo history uses hidden bricks-per-batch values to generate batches. All to be replaced by real figures.
 
+## 25. Paramètres in one page, Point de vente order, Pièces de rechange (v44)
+
+- [D] **Paramètres** is a single sidebar entry without sub-menu. The page has tabs: Entreprise, Prix et tarifs, Usine, Personnel, Magasin, Charges, Rentabilité, Banque, Location, Listes and **Utilisateurs** (Postes, Tâches à saisir). Utilisateurs is removed from the sidebar. DG only. Audit stays in the sidebar.
+- [D] **Point de vente** order: Caisse, Dépense, Stock produits (Produits last, for DG and accountant).
+- [D] **Magasin › Pièces de rechange**: same engine as Gasoil and Huiles (stock, weighted average cost, Entrées, Sorties, Par machine, Inventaire, fiche per item). Each reference has a group (Filtres, Courroies, Freinage, Électricité, Hydraulique, Joints, Roulements, Godets), a threshold and a unit.
+- [D] **Purchases are tracked per item with quantity and price.** Every spare-parts invoice is entered **with its lines** (one line per item). The same form is used from Fournisseurs (destination "Pièces de rechange") and from Magasin (button "+ Facture (entrée)", which asks for the supplier first). Saving records the invoice at the supplier (amounts due, due date) and enters each line in stock at its price.
+- [D] **Exits** record the item, quantity, **who received it** and **where it was installed** (Parc machine, rented equipment, or "Hors machine"). The quantity cannot exceed the stock. The exit is stamped with the user and cannot be edited. For an own machine, the exit adds the part and its cost to a "Pièces sorties du magasin" intervention of that machine in Parc (same day exits are grouped), so the cost reaches Parc, Charges › Coûts globaux and Rentabilité once.
+- [D] **Caisse (Point de vente role) gets a Magasin section** (Pièces de rechange, Huiles et graisses, Gasoil): it sees only the available quantity and a status (Disponible / Stock faible / Épuisé) and can only record exits. No entries, no inventory, no prices, no value, no supplier. Its recent exits (30 days) are listed without cost. Contrôle sees everything read-only, with prices. Server-side enforcement of these limits is required in the real build.
+- [D] **Opening stock** is entered once through Inventaire when going live. The demo references and quantities are examples.
+- [A] Not yet: low-stock alert in À saisir, link of exits on rented machines to the owner's statement, spare-parts photos.
+
 ## 21. Open questions
 
 1. Legal name on bank documents.
@@ -257,4 +268,5 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 7. DG dashboard content.
 8. Overtime multipliers (125 % / 150 %) and what the CNSS/AMO/IR payroll must include.
 9. Real recipes, bricks per batch, mixer capacity, cement and adjuvant prices.
-10. Real budgets per charge category, real rented fleet and prices per hour.
+10. Real spare-parts references, thresholds and opening stock.
+11. Real budgets per charge category, real rented fleet and prices per hour.
