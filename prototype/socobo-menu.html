@@ -949,6 +949,8 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
 .backtop:hover:not(:disabled) { border-color: var(--act); color: var(--act); }
 .backtop:disabled { opacity: .4; cursor: default; }
 @media (max-width: 720px) { .backtop span { display: none; } .backtop { padding: 0 10px; } }
+.modal.host { width: min(1320px, 96vw); max-width: none; }
+.modal.host .tablewrap { overflow-x: auto; }
 </style>
 
 <div id="fit"><div id="stage"><div class="shell">
@@ -2136,7 +2138,7 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
 
   /* --- Fenêtres --- */
   function openModal(html, cls) { $('modal').className = 'modal' + (cls ? ' ' + cls : ''); $('modal').innerHTML = html; $('ov').hidden = false; var f = $('modal').querySelector('input,select'); if (f) f.focus(); }
-  function closeModal() { $('ov').hidden = true; $('modal').innerHTML = ''; }
+  function closeModal() { if (typeof hostRestore === 'function') hostRestore(); $('ov').hidden = true; $('modal').innerHTML = ''; }
   $('ov').addEventListener('click', function (e) { if (e.target === $('ov')) closeModal(); });
   document.addEventListener('keydown', function (e) { if (e.key !== 'Escape') return; if (!$('ov').hidden) closeModal(); else if (!$('dv').hidden) closeDrawer(); });
   var num = function (v) { var n = Number(String(v).replace(/\s/g, '').replace(',', '.')); return isFinite(n) ? n : NaN; };
@@ -3989,7 +3991,7 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
       if (v.dest !== e.site) AFF[key][e.id] = v.dest; else delete AFF[key][e.id];
       if (v.s || m || h1 || h2 || v.note) { ATT[key][e.id] = { s: v.s, min: m, h1: h1, h2: h2, note: v.note, j: v.s && ABS[v.s].paid && ABS[v.s].abs && v.j ? { type: v.j, ok: !!v.ok } : (v.s && ABS[v.s].paid && ABS[v.s].abs ? { type: 'À fournir', ok: false } : null) }; n += 1; } else delete ATT[key][e.id]; }
     if (!Object.keys(ATT[key]).length) delete ATT[key]; if (!Object.keys(AFF[key]).length) delete AFF[key];
-    audit('Présences du jour', dfmt.format(d), n + ' ligne' + (n > 1 ? 's' : '') + ' avec absence, retard ou heures'); peDraft = null; renderPersonnel(); if (!$('view-usine').hidden) VIEWHOOKS['view-usine'](); toast('Journée enregistrée.');
+    PRESOK[key] = true; audit('Présences du jour', dfmt.format(d), n + ' ligne' + (n > 1 ? 's' : '') + ' avec absence, retard ou heures'); peDraft = null; renderPersonnel(); if (!$('view-usine').hidden) VIEWHOOKS['view-usine'](); toast('Journée enregistrée.');
   }
   /* ---- statistiques ---- */
   function statHtml() {
@@ -4397,16 +4399,16 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
   }
   VIEWHOOKS['view-usine'] = function (s) { renderUsine(s); };
   var usRefresh = function () { renderUsine(); if (!$('view-stockp').hidden) renderStockP(); };
-  $('view-usine').addEventListener('change', function (e) {
+  var usH_change = function (e) {
     if (e.target.id === 'us-per') { usDays = +e.target.value; renderUsine(); }
     else if (e.target.id === 'sj-date') { var d = parseIso(e.target.value); if (d && d <= TODAY) { sDate = d; renderUsine(); } }
-  });
-  $('view-usine').addEventListener('input', function (e) {
+  }; $('view-usine').addEventListener('change', usH_change); $('modal').addEventListener('change', function (e) { if (HOST && HOST.n.id === 'us-body') usH_change(e); });
+  var usH_input = function (e) {
     var m = /^sj-[pcg]-(.+)$/.exec(e.target.id || ''); if (!m) return;
     var p = num($('sj-p-' + m[1]).value) || 0, c = num($('sj-c-' + m[1]).value) || 0; $('sj-n-' + m[1]).textContent = nf0.format(p - c);
     var tp = 0, tc = 0; sjState.keys.forEach(function (k) { tp += num($('sj-p-' + k).value) || 0; tc += num($('sj-c-' + k).value) || 0; }); $('sj-tp').textContent = nf0.format(tp); $('sj-tc').textContent = nf0.format(tc); $('sj-tn').textContent = nf0.format(tp - tc);
-  });
-  $('view-usine').addEventListener('click', function (e) {
+  }; $('view-usine').addEventListener('input', usH_input); $('modal').addEventListener('input', function (e) { if (HOST && HOST.n.id === 'us-body') usH_input(e); });
+  var usH_click = function (e) {
     var b;
     if ((b = e.target.closest('[data-ussub]'))) { go('agglos', b.dataset.ussub); return; }
     if (e.target.closest('[data-pegoto]')) { peDate = sDate; go('personnel', 'Présences'); return; }
@@ -4415,7 +4417,7 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
     if (e.target.closest('#sj-add')) { sjGrab(); sjState.keys.push($('sj-addsel').value); renderUsine(); return; }
     if ((b = e.target.closest('[data-sjdel]'))) { sjGrab(); sjState.keys = sjState.keys.filter(function (k) { return k !== b.dataset.sjdel; }); delete sjState.vals[b.dataset.sjdel]; renderUsine(); return; }
     if (e.target.closest('#sj-save')) return saveDay();
-  });
+  }; $('view-usine').addEventListener('click', usH_click); $('modal').addEventListener('click', function (e) { if (HOST && HOST.n.id === 'us-body') usH_click(e); });
   $('us-a').addEventListener('click', function (e) { if (e.target.closest('#us-param')) usParam(); else if (e.target.closest('#us-ent')) entModal(); });
   $('view-usine').addEventListener('click', function (e) { if (e.target.closest('#us-param2')) usParam(); });
   function saveDay() {
@@ -4490,16 +4492,17 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
   /* --- Tâches à saisir --- */
   var FREQS = ['Jour', 'Semaine', 'Mois', 'Trimestre', 'Année'], LOOK = { 'Jour': 2, 'Semaine': 1, 'Mois': 1, 'Trimestre': 0, 'Année': 0 };
   var TASKS = [
-    { id: 14, nom: 'Présences du personnel', hint: 'Absents, retards, heures supplémentaires et affectations du jour', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['personnel', 'Présences'], auto: 'att' },
+    { id: 14, nom: 'Présences et heures supplémentaires', hint: 'Présents, absents, retards, heures supplémentaires et affectations du jour, dans un seul tableau', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['personnel', 'Présences'], auto: 'att' },
     { id: 15, nom: 'Oued Bouaanfir (Saaidate)', hint: 'Voyages des camions et heures de marche des engins', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['oued', 'Bouaanfir'], auto: 'oued:Bouaanfir' },
     { id: 16, nom: 'Oued Nfifa', hint: 'Voyages des camions et heures de marche des engins', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['oued', 'Nfifa'], auto: 'oued:Nfifa' },
     { id: 17, nom: 'Carrière · Ancien Machine', hint: 'Heures de marche, tout-venant traité, produits et arrêts', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['carriere', 'Ancien Machine'], auto: 'carr:ancien' },
     { id: 18, nom: 'Carrière · Nouveau Machine', hint: 'Heures de marche, tout-venant traité, produits et arrêts', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['carriere', 'Nouveau Machine'], auto: 'carr:nouveau' },
     { id: 19, nom: 'Carrière · Machine Nfifa', hint: 'Heures de marche, tout-venant traité, produits et arrêts', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['carriere', 'Machine Nfifa'], auto: 'carr:nfifa' },
     { id: 20, nom: 'Usine Agglos · production du jour', hint: 'Briques produites, gâchées, casse et compteur électrique', sec: 'Production', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['agglos', 'Saisie du jour'], auto: 'usine' },
-    { id: 21, nom: 'Gasoil · citerne Bouaanfir', hint: 'Sorties de la journée par machine et camion', sec: 'Magasin', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['stock', 'Gasoil'], auto: 'fuel:Bouaanfir' },
-    { id: 22, nom: 'Gasoil · citerne Nfifa', hint: 'Sorties de la journée par machine et camion', sec: 'Magasin', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['stock', 'Gasoil'], auto: 'fuel:Nfifa' },
-    { id: 23, nom: 'Huiles et graisses', hint: 'Sorties de la journée (ou rien à signaler)', sec: 'Magasin', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['stock', 'Huiles et graisses'], auto: 'oil' },
+    { id: 21, nom: 'Gasoil · citerne Bouaanfir', hint: 'Consommation de la journée par machine et camion', sec: 'Magasin', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['stock', 'Gasoil'], auto: 'fuel:Bouaanfir' },
+    { id: 22, nom: 'Gasoil · citerne Nfifa', hint: 'Consommation de la journée par machine et camion', sec: 'Magasin', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['stock', 'Gasoil'], auto: 'fuel:Nfifa' },
+    { id: 23, nom: 'Huiles', hint: 'Consommation de la journée par machine (moteur, hydraulique, boîte…)', sec: 'Magasin', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['stock', 'Huiles et graisses'], auto: 'oil' },
+    { id: 25, nom: 'Graisses', hint: 'Consommation de la journée en kilogrammes', sec: 'Magasin', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['stock', 'Huiles et graisses'], auto: 'grease' },
     { id: 24, nom: 'Pièces de rechange · factures reçues', hint: 'Entrer chaque facture avec ses lignes', sec: 'Magasin', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['stock', 'Pièces de rechange'], auto: 'parts' },
     { id: 1, nom: 'Factures fournisseurs reçues', hint: 'Saisir les factures du jour', sec: 'Comptabilité', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['fournisseurs', null] },
     { id: 2, nom: 'Règlements et encaissements', hint: 'Espèces, chèques et virements du jour', sec: 'Comptabilité', freq: 'Jour', role: 'compta', oblig: false, actif: true, go: ['clients', null] },
@@ -4524,13 +4527,14 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
     var lab = f === 'Jour' ? (back === 0 ? 'Aujourd’hui' : back === 1 ? 'Hier' : dfmt.format(d)) : f === 'Semaine' ? (back === 0 ? 'Cette semaine' : 'Semaine passée') : f === 'Mois' ? (back === 0 ? 'Ce mois' : 'Mois de ' + mois) : f === 'Trimestre' ? 'T' + (Math.floor(d.getMonth() / 3) + 1) + ' ' + d.getFullYear() : String(d.getFullYear());
     return { key: pkey(f, d), label: lab, late: late, d: d };
   }
+  var PRESOK = {};
   function autoDone(t, key) {
     var a = t.auto || '', k = a.split(':'), sameDay = function (d) { return iso(d) === key; };
-    if (a === 'usine') return !!PRODJ[key]; if (a === 'att') return !!(ATT[key] || AFF[key]);
+    if (a === 'usine') return !!PRODJ[key]; if (a === 'att') return !!(PRESOK[key] || ATT[key] || AFF[key]);
     if (k[0] === 'oued') return Object.keys(OUD).some(function (x) { return x.indexOf(key + '|' + k[1] + '|') === 0; });
     if (k[0] === 'carr') return !!CARRD[key + '|' + k[1]];
     if (k[0] === 'fuel') return MAGM.some(function (x) { var it = magItem(x.item); return x.k === 'fuel' && x.type === 'out' && sameDay(x.d) && it && it.site === k[1]; });
-    if (a === 'oil') return MAGM.some(function (x) { return x.k === 'oil' && x.type === 'out' && sameDay(x.d); });
+    if (a === 'oil' || a === 'grease') return MAGM.some(function (x) { var it = magItem(x.item); return x.k === 'oil' && x.type === 'out' && sameDay(x.d) && it && ((it.unit === 'kg') === (a === 'grease')); });
     if (a === 'parts') return MAGM.some(function (x) { return x.k === 'part' && x.type === 'in' && sameDay(x.d); });
     return false;
   }
@@ -4569,8 +4573,10 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
     var chips = days.map(function (d) { var l = all.filter(function (x) { return x.t.freq === 'Jour' && x.p.key === d.p.key; }), r = l.filter(function (x) { return !x.done; }).length; return '<button type="button" class="aschip' + (d.b === asBack ? ' on' : '') + (r ? (d.b > 0 ? ' late' : '') : ' ok') + '" data-asday="' + d.b + '"><b>' + d.p.label + '</b><span>' + (r ? r + ' à faire' : '✓ Tout est fait') + '</span></button>'; }).join('');
     var rowH = function (x) {
       var d = x.done, auto = !!x.t.auto && autoDone(x.t, x.p.key), mk = DONE[x.t.id + '|' + x.p.key], lt = !d && x.p.late > 0;
-      var st = d ? '<span class="st ok">' + (auto ? 'Saisi' : 'Fait' + (mk ? ' · ' + hhmm(mk.at) : '')) + '</span>' : (lt ? '<span class="st bad">En retard de ' + x.p.late + ' j</span>' : '<span class="st warn">À faire</span>');
-      var acts = (x.t.go ? '<button type="button" class="btn mini ' + (d ? '' : 'blue') + '" data-tgo="' + x.t.id + '">' + (d ? 'Voir' : 'Ouvrir') + '</button>' : '') + (d ? '' : '<button type="button" class="btn mini success" data-tdone="' + x.t.id + '|' + x.p.key + '">' + (x.t.auto && x.t.freq === 'Jour' ? 'Rien à signaler' : 'Fait') + '</button>');
+      var st = d ? '<span class="st ' + (mk && mk.none ? 'mute' : 'ok') + '">' + (mk && mk.none ? 'Aucune activité · ' + esc(mk.none) : (auto ? 'Saisi' : 'Fait' + (mk ? ' · ' + hhmm(mk.at) : ''))) + '</span>' : (lt ? '<span class="st bad">En retard de ' + x.p.late + ' j</span>' : '<span class="st warn">À faire</span>');
+      var ent = ROLE !== 'pdv' && x.t.freq === 'Jour' && !!x.t.auto, none = mk && mk.none;
+      var acts = ent ? (d && !none ? '<button type="button" class="btn mini" data-asent="' + x.t.id + '|' + x.p.key + '">Modifier</button>' : '<button type="button" class="btn mini blue" data-asent="' + x.t.id + '|' + x.p.key + '">' + (none ? 'Saisir' : 'Saisir') + '</button>' + (d ? '' : (x.t.auto === 'att' ? '' : '<button type="button" class="btn mini" data-asnone="' + x.t.id + '|' + x.p.key + '">Aucune activité</button>')))
+        : (x.t.go ? '<button type="button" class="btn mini ' + (d ? '' : 'blue') + '" data-tgo="' + x.t.id + '">' + (d ? 'Voir' : 'Ouvrir') + '</button>' : '') + (d ? '' : '<button type="button" class="btn mini success" data-tdone="' + x.t.id + '|' + x.p.key + '">Fait</button>');
       return '<div class="astask' + (d ? ' done' : (lt ? ' late' : '')) + '"><i class="asdot">' + (d ? '✓' : (lt ? '!' : '')) + '</i><div class="astx"><b>' + esc(x.t.nom) + '</b>' + ((x.t.hint || x.t.freq !== 'Jour') ? '<small>' + (x.t.freq !== 'Jour' ? x.t.freq + ' · ' + x.p.label + (x.t.hint ? ' · ' : '') : '') + esc(x.t.hint || '') + '</small>' : '') + '</div><div class="asst">' + st + '</div><div class="rowacts">' + acts + '</div></div>';
     };
     var order = ['Production', 'Magasin', 'Comptabilité', 'Caisse', 'Parc'], ttl = { 'Production': 'Production', 'Magasin': 'Magasin', 'Comptabilité': 'Comptabilité', 'Caisse': 'Caisse', 'Parc': 'Parc' }, icoS = { 'Production': 'pile', 'Magasin': 'brick', 'Comptabilité': 'cash', 'Caisse': 'cash', 'Parc': 'truck' }, n = 0;
@@ -4585,10 +4591,38 @@ tr.dropt td { box-shadow: inset 0 3px 0 var(--act); }
       '<div class="sheet" style="margin-top:18px"><section class="box' + (cl ? ' okc' : '') + '" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><b style="font-weight:600">Clôture de la journée</b><div class="sugg" style="margin:4px 0 0">' + (cl ? 'Journée clôturée à ' + hhmm(cl.at) + ' par ' + esc(cl.by) + '.' : obl.length ? 'Il reste ' + obl.length + ' tâche' + (obl.length > 1 ? 's' : '') + ' obligatoire' + (obl.length > 1 ? 's' : '') + ' à terminer.' : 'Vous pouvez clôturer votre journée.') + '</div></div>' + (cl ? '<span class="st ok">Clôturée</span>' : '<button type="button" class="btn primary" id="as-close"' + (can ? '' : ' disabled') + '>Clôturer ma journée</button>') + '</section></div>';
     if (ROLE === 'dg') $('as-sub').textContent = 'Aperçu du poste Comptabilité et saisie'; else $('as-sub').textContent = 'Votre journée, dans l’ordre : production, magasin, comptabilité';
   }
+  /* saisie directement depuis À saisir : le formulaire s'ouvre par-dessus la page */
+  var HOST = null;
+  function hostRestore() { if (HOST) { var h = HOST; HOST = null; h.home.insertBefore(h.n, h.next); setTopDay(''); } }
+  function hostOpen(title, nodeId, task, key, init) {
+    openModal('<h2>' + title + '</h2><div id="host-slot"></div><div class="mact"><button type="button" class="btn" id="host-close">Fermer</button></div>', 'big host');
+    var n = $(nodeId); HOST = { n: n, home: n.parentNode, next: n.nextSibling, task: task, key: key, was: autoDone(task, key) }; $('host-slot').appendChild(n); init(); $('host-close').addEventListener('click', closeModal);
+  }
+  $('modal').addEventListener('click', function () { setTimeout(function () { if (HOST && !HOST.was && autoDone(HOST.task, HOST.key)) { closeModal(); toast('Saisie enregistrée.'); } }, 0); });
+  function asEnter(id, key) {
+    var t = TASKS.filter(function (x) { return x.id === id; })[0], d = parseIso(key), a = t.auto.split(':'), lab = t.nom + ' · ' + dfmt.format(d);
+    if (a[0] === 'att') return hostOpen(lab, 'pe-body', t, key, function () { peSub = 'Présences'; peFiche = null; peDate = d; peDraft = null; renderPersonnel(); });
+    if (a[0] === 'usine') return hostOpen(lab, 'us-body', t, key, function () { usSub = 'Saisie du jour'; sDate = d; sjState.key = ''; renderUsine(); });
+    var setD = function (id2) { var el = $(id2); if (el) { el.value = key; el.dispatchEvent(new Event('change', { bubbles: true })); } };
+    if (a[0] === 'oued') { ouSite = a[1]; ouSaisie(); setD('os-d'); return; }
+    if (a[0] === 'carr') { caLine = a[1]; caSaisie(); setD('cs-d'); return; }
+    if (a[0] === 'fuel') { magKind = 'fuel'; magDay(); setD('md-d'); var tb = document.querySelector('[data-mdtab="' + a[1] + '"]'); if (tb) tb.click(); return; }
+    if (a[0] === 'oil' || a[0] === 'grease') { magKind = 'oil'; magDay(); setD('md-d'); var it = MAGI.filter(function (x) { return x.k === 'oil' && ((x.unit === 'kg') === (a[0] === 'grease')); })[0], sel = $('md-i'); if (it && sel) { sel.value = it.id; sel.dispatchEvent(new Event('change', { bubbles: true })); } return; }
+    if (a[0] === 'parts') { magKind = 'part'; return magBuy(); }
+  }
+  function asNone(id, key) {
+    var t = TASKS.filter(function (x) { return x.id === id; })[0];
+    openModal('<h2>Aucune activité</h2><p class="m">' + esc(t.nom) + ' · ' + dfmt.format(parseIso(key)) + '. Indiquez pourquoi rien n’est à saisir : cela reste enregistré.</p><div class="f"><label for="an2-r">Raison</label><select class="in" id="an2-r"><option>Arrêt de la production</option><option>Panne</option><option>Intempéries</option><option>Jour férié ou repos</option><option>Rien consommé</option><option>Autre</option></select></div><div class="f"><label for="an2-n">Remarque</label><input class="in" id="an2-n" placeholder="Facultatif"></div><div class="mact"><button type="button" class="btn" id="an2-c">Annuler</button><button type="button" class="btn primary" id="an2-s">Confirmer</button></div>');
+    $('an2-c').addEventListener('click', closeModal);
+    $('an2-s').addEventListener('click', function () { var r = $('an2-r').value + ($('an2-n').value.trim() ? ' · ' + $('an2-n').value.trim() : ''); DONE[id + '|' + key] = { by: USER, at: nowT(), none: r }; audit('Aucune activité', t.nom, key + ' · ' + r); closeModal(); toast('Enregistré : aucune activité.'); refreshNavBadges(); });
+  }
+  new MutationObserver(function () { if ($('ov').hidden && !$('view-asaisir').hidden) { renderAsaisir(); refreshNavBadges(); } }).observe($('ov'), { attributes: true, attributeFilter: ['hidden'] });
   var oblDefined = function () { return TASKS.some(function (t) { return t.actif && t.oblig && t.role === (ROLE === 'dg' ? 'compta' : ROLE); }); };
   $('as-body').addEventListener('click', function (e) {
     var role = ROLE === 'dg' ? 'compta' : ROLE, b;
     if ((b = e.target.closest('[data-asday]'))) { asBack = +b.dataset.asday; renderAsaisir(); return; }
+    if ((b = e.target.closest('[data-asent]'))) { var q0 = b.dataset.asent.split('|'); return asEnter(+q0[0], q0[1]); }
+    if ((b = e.target.closest('[data-asnone]'))) { var q1 = b.dataset.asnone.split('|'); return asNone(+q1[0], q1[1]); }
     if ((b = e.target.closest('[data-tgo]'))) { var t = TASKS.filter(function (x) { return x.id === +b.dataset.tgo; })[0]; if (t && t.go) { if (!roleAllows(t.go[0], t.go[1])) { toast('Cette page n’est pas disponible pour ce poste.'); return; } openG[t.go[0]] = true; go(t.go[0], t.go[1]); } return; }
     if ((b = e.target.closest('[data-tdone]'))) { var q = b.dataset.tdone.split('|'), tk = TASKS.filter(function (x) { return x.id === +q[0]; })[0]; DONE[b.dataset.tdone] = { by: USER, at: nowT() }; audit('Tâche faite', tk.nom, q[1]); renderAsaisir(); refreshNavBadges(); toast('Tâche enregistrée.'); return; }
     if (e.target.closest('#as-close')) { if (oblOf(role).length) return; CLOSE[closeKey(role)] = { by: USER, at: nowT() }; audit('Journée clôturée', ROLES[role].nom, dfmt.format(TODAY)); renderAsaisir(); toast('Journée clôturée.'); }

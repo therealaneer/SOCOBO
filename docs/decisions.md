@@ -282,6 +282,14 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] On a page with an inner detail view (Magasin item, Location, Personnel…), **Retour first closes the detail** and returns to its list, then to the previous screen.
 - [D] The history is per session and cleared when the Poste changes. Not available while a dialog is open.
 
+## 29. Data entry from À saisir (v48)
+
+- [D] The accountant **enters the day's data directly from À saisir**. The button **Saisir** opens the entry form on top of the page (no navigation); after saving, the task turns green and the page is refreshed. A done task shows **Modifier**.
+- [D] Production tasks: **Présences et heures supplémentaires** (one table: present, absent, late, overtime ×1,25 / ×1,5, daily assignment); Oued Bouaanfir and Nfifa; Carrière (3 lines); Usine production with batches and breakage. Magasin tasks: Gasoil per tank, **Huiles** (litres) and **Graisses** (kg) as separate tasks, Pièces de rechange invoices.
+- [D] A task is green only when **real data exists** for that day. When nothing happened, the accountant uses **Aucune activité** and picks a reason (stop, breakdown, weather, holiday or rest, nothing consumed, other) with an optional note; it is recorded with user and time. No silent "nothing to report". Présences has no such shortcut.
+- [D] "Marquer vu" and "Approuver la journée" stay in À contrôler, for Contrôle only.
+- [A] Requests listed as "etc." (counter readings of machines, hours of rented machines, parts exits) are not tasks yet: rented machine hours are already in the Oued entry, parts exits are recorded by Caisse. To confirm.
+
 ## 21. Open questions
 
 1. Legal name on bank documents.
