@@ -58,7 +58,7 @@ This file is the source of truth for context. Read it fully before writing any c
 |---|---|---|---|
 | 1 | **DG** | Everything | Only role that sees salaries, margins, cost prices; sets prices, credit ceilings, blocks/unblocks (including one-time audited override); reprints a BL (marked COPIE) |
 | 2 | **Contrôle** | À contrôler, Dashboard | Read-only; marks items "Vu", approves the day |
-| 3 | **Comptabilité / saisie** | À saisir, Clients, Fournisseurs, Banque, Magasin | Clients fully, but cannot change ceiling or blocking; suppliers: can add invoices, **sees no supplier amounts**; no salaries/margins/cost prices |
+| 3 | **Comptabilité / saisie** | À saisir, Clients, Fournisseurs, Banque, Magasin | Clients fully, but cannot change ceiling or blocking; suppliers: can add invoices, **sees no supplier amounts** (one exception: the cement supplier invoices imported in Facturation › Usine Agglos); no salaries/margins/cost prices |
 | 4 | **Caisse** | Dashboard caisse, Caisse, Dépense, Magasin (quantities only), À saisir | Cannot change prices or ceilings; cannot unblock; sees no invoices; **BL printable once only**; cannot edit/delete past records |
 
 Permissions must be **enforced on the server**, never only hidden in the UI. Later roles: Usine, Maintenance.
@@ -71,6 +71,7 @@ Permissions must be **enforced on the server**, never only hidden in the UI. Lat
 - Factory internal accounting: cost per mille = materials + labour (salary/26 × days assigned) + electricity (Δkwh × tariff) + factory machine maintenance + purchases tagged "Usine". No overhead allocation for now.
 - Products sold per tonne, per m³ (price per m³ derived), or per mille (bricks). Recipes per mille are placeholders until the owner confirms.
 - A day can be **closed** per workstation; closed days are locked; only the DG can reopen (audited).
+- **Order**: every list or table ordered by time or number is shown **oldest first** (invoice numbers 1, 2, 3…, dates increasing). Rankings by amount are the only exception.
 - Colour/status conventions (Payé green, Émis orange, Annulé red, etc.), blue header rows and blue total rows: follow the prototype. **Every table with amounts has a totals row.**
 
 ## 8. Engineering principles

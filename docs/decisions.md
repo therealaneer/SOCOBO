@@ -5,7 +5,7 @@ Living record of every design decision taken with the owner while the prototype 
 Convention: **[D]** = decided by the owner · **[A]** = assumption made by Claude, to confirm · **[?]** = open question.
 UI language: French. Amounts: 2 decimals, no "MAD" suffix.
 
-Prototype status: **v34** (merged in `main`). Phase: **design** (no Django code yet — see `CLAUDE.md` section 11).
+Prototype status: **v56** (one branch per version, stacked; `main` untouched). Phase: **design** (no Django code yet — see `CLAUDE.md` section 11).
 
 ---
 
@@ -74,7 +74,7 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 
 ## 7. Catalogue Produits
 
-- [D] Sold **per tonne and per m³** (aggregates; price per m³ = price per t × density) or **per mille** (bricks, hourdis…). Products: Tout-venant 0/80, Grave 0/31,5, Gravette 8/16, Gravette 15/25, Sable 0/4 (quarries Bouaanfir/Nfifa); Brique 8 trous, Brique 12 trous, Hourdis 16, Parpaing 20, Pavé autobloquant (Usine Agglos). Prices of Parpaing and Pavé: to be set.
+- [D] Sold **per tonne and per m³** (aggregates; price per m³ = price per t × density) or **per mille** (bricks, hourdis…). Products: Tout-venant 0/80, Grave 0/31,5, Gravette 8/16, Gravette 15/25, Sable lavé concassé 0/5 (renamed from « Sable 0/4 » in v56) (quarries Bouaanfir/Nfifa); Brique 8 trous, Brique 12 trous, Hourdis 16, Parpaing 20, Pavé autobloquant (Usine Agglos). Prices of Parpaing and Pavé: to be set.
 - [D] Quarry→factory transfers (sand, gravel) are valued at the **selling price**; cement arrives bulk, by tonne.
 - [D] Recipes per mille (sand t, gravette t, cement kg) are **placeholders** until the owner confirms; marked "Indicative".
 - [D] Optional **stock initial (t)** per quarry product (empty = stock not tracked); remaining = initial − sold (m³ converted with density). Bricks: remaining = ready stock of the factory.
@@ -193,7 +193,9 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] **Buttons**: no more black. Primary buttons, selected tabs and selected chips use a vivid blue (`--act`).
 - [D] **Key card**: in every statistics page the most important figure is shown in a colour card (blue gradient); alerts use the yellow card.
 - [D] **Periods**: every statistics page offers **Aujourd'hui · Ce mois · Mois précédent · Tout** (the older pages keep the global Période bar).
-- [D] **Print button under every page of statistics** ("Imprimer cette page"). The printout is organised: SOCOBO header, section title, subtitle with the tab and the period, date and user of printing, indicators, then the tables with their totals.
+- [D] **Print button under every page of statistics** ("Imprimer cette page"); since v56 it is the **only** print button: the one in the top bar was removed. It is also under Facturation, Personnel, Rentabilité and Banque, and **not** on Paramètres and Audit. The printout is organised: SOCOBO header, section title, subtitle with the tab and the period, date and user of printing, indicators, then the tables with their totals.
+
+- [D] **Chronological order (v56, principle for the whole application)**: every list, table and statement that is ordered by time or by number is shown **from the oldest to the newest** (invoice numbers 1, 2, 3…, dates increasing, statements with a running balance, audit log). Lists capped to the last N items (last 40 entries, last 30 BL…) keep the **latest N**, shown oldest first. Only rankings by amount or importance (best clients, biggest categories) and selectors (period chips) keep their own order.
 
 ## 19. Location (renting trucks and engines from owners)
 
@@ -312,25 +314,34 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 
 - [D] Only the **global Retour** button exists; the in-page back buttons are hidden. Retour also closes an inner detail view first.
 
-## 35. Facturation (v54, refined in v55)
+## 35. Facturation (v54, refined in v55, restructured in v56)
 
-- [D] A **Facturation** menu item (after Point de vente; visible to DG, Comptabilité, Contrôle) with three sub-sections: **Espèces**, **Chèque**, **Usine Agglos**. Invoices are a **document layer separate from sales**: nothing here changes the Caisse, the daily takings or sold quantities.
-- [D] Each sub-section has its own **automatic sequential numbering that continues across days, no gaps**: `FE-2026-0001`, `FC-2026-0001`, `FA-2026-0001`. A cancelled invoice keeps its number (never reused).
-- [D] Invoice lines show **HT**; **TVA and TTC are at the foot**. Amount in French words on the print; reprint is marked **Duplicata**.
-- [D] **Espèces**:
-  - Filter **Jour** or **Période (Du / Au)**; the table stays empty until **Importer** loads the cash BL copies of that filter. Importer never duplicates a BL already in the list and never re-imports an invoiced BL; a BL removed with **Supprimer** comes back (fresh, as issued by Caisse) at the next Importer. **Éléments retirés** still restores the edited copy.
-  - Columns: N° BL, Client, Immatriculation, Quantité, Désignation, Prix unitaire HT, Total HT. Buttons per row: **Modifier** (inline, all fields), **Supprimer** (only from Facturation), **Imprimer**, **Facturer** (one BL = one invoice, after a confirmation showing the number).
-  - **Tout facturer (n)**: one invoice **per BL, exactly as edited**, consecutive numbers, summary shown before confirming. **Facturer la sélection**: groups the ticked BL, one invoice per client.
-  - **Créer une facture**: a brand-new free invoice (client with "+ Ajouter un client", date, lines with unit and Prix HT), paid in cash by definition: **no payment fields** (no mode, no piece number).
-- [D] **Chèque**: create form with client (+ Ajouter un client), automatic number, date, lines (**Prix unitaire TTC**), payment mode **Chèque / Effet / Virement** and piece number entered **once**: for chèque and effet it is **created automatically in Banque › Chèques reçus** and the **Statut comes from Suivi des chèques** (never typed twice). The list shows N° facture, Date, Client, Mode de règlement, N° de la pièce, Statut, Modifier, Annuler, Imprimer.
-- [D] **Usine Agglos**: same pattern, quantities in briques (or m³ / t), no payment fields.
-- [D] After issue an invoice can be **edited** and **cancelled** by **DG and Comptabilité**. Each edit creates a version (v2, v3…) with history, **visible to DG and Contrôle only** (version badge and Historique). **Annuler** (reason required) keeps the invoice listed as "Annulée"; its BL return to "à facturer". Every change is audited. Caisse sees no Facturation.
+- [D] A **Facturation** menu item (after Point de vente; visible to DG, Comptabilité, Contrôle) with **two** sub-sections: **Carrière** (the former Espèces and Chèque merged) and **Usine Agglos**. Invoices are a **document layer separate from sales**: nothing here changes the Caisse, the daily takings or sold quantities.
+- [D] **Numbering**: one **automatic sequential series per sub-section, continuing across days, no gaps, whatever the payment mode**: Carrière `FC-2026-0001` (cash, cheque, effet and transfer invoices share the same series), Usine Agglos `FA-2026-0001`. A cancelled invoice keeps its number (never reused). A refused invoice (validation error) never consumes a number.
+- [D] Invoice lines show **prices HT in every sub-section**; **TVA and TTC are at the foot**. Amount in French words on the print; reprint is marked **Duplicata**.
+- [D] **Quantities**: m³ for quarry products (a BL weighed in tonnes is converted with the densities of Paramètres › Prix et tarifs, the unit price becomes a price per m³, the total stays the same); **briques / hourdis / parpaings are counted per piece**; cement purchases are in tonnes. The unit "t" is no longer offered in the invoice forms.
+- [D] **Top of every sub-section**: a visible blue **« + Créer une facture »** button (it becomes « Fermer la nouvelle facture » while open). The creation form is **closed by default** and opens only on that button. After **Facturer** the invoice goes straight to **Factures émises** (no preview window, printing is done from the table), the form stays open and empty (client, date, payment mode kept) to enter the next one; **Vider** empties and closes it.
+- [D] **Carrière cards** (TTC, period chips Aujourd'hui · Ce mois · Mois précédent · Tout · Personnalisé, default « Tout », by invoice date, cancelled invoices excluded): **Total facturé** (key card), **Total espèces facturé**, **Total chèque facturé** (chèque and effet), **Total virement facturé**.
+- [D] **Carrière payment modes**: Espèces, Chèque, Effet, Virement. Chèque and effet: the piece number is entered **once** and the cheque is **created automatically in Banque › Chèques reçus**, the **Statut comes from Suivi des chèques**. Virement: reference. Espèces: no payment field. « Client de passage » is offered for Espèces only.
+- [D] **Carrière › import of cash BL**: filter **Jour** or **Période (Du / Au)**; the BL table stays empty until **Importer** loads the cash BL copies of that filter. Importer never duplicates a BL already in the list and never re-imports an invoiced BL; a BL removed with **Supprimer** comes back (fresh, as issued by Caisse) at the next Importer. **Éléments retirés** restores the edited copy.
+  - Columns: N° BL, Client, Immatriculation, Quantité, Désignation, Prix unitaire HT, Total HT. Per row: **Modifier** (inline), **Supprimer** (only from Facturation), **Imprimer**, **Facturer** (one BL = one invoice, created directly, toast with the number).
+  - **Tout facturer (n)**: one invoice **per BL, exactly as edited**, consecutive numbers, a confirmation lists them before creating. **Facturer la sélection**: groups the ticked BL, one invoice per client, created directly. **Both buttons are hidden while there is nothing left to invoice** (empty table or everything already invoiced); **Facturer la sélection** is disabled until a BL is ticked. Their invoices have payment mode Espèces.
+- [D] **Factures émises** (both sub-sections), oldest first: N° de facture, Date, Client, BL, Mode de règlement, N° de la pièce, Total HT, Total TTC, Statut, Actions (Carrière); the same without BL, mode and piece for Usine Agglos.
+- [D] **Usine Agglos cards**: **Total facturé** (key card) and **Total ciment acheté** (TTC, period chips). Quantities in briques (or m³).
+- [D] **Usine Agglos › Factures de ciment importées**: button **« Importer facture fournisseur »** lists the invoices of the suppliers of category **Ciment** (Fournisseurs) not yet imported. Importing is a **link, not a copy**: the invoice stays in the supplier account (its status Payée / À venir / En retard follows the payments there), it cannot be imported twice, and **Retirer** only removes the link. Table: N° de facture, Date, Fournisseur, Désignation, Quantité (t, when known), Total TTC, Statut, with a total row. **Exception to the rule « the accountant sees no supplier amounts »**: DG, **Comptabilité** and Contrôle all see this card and table; Comptabilité and DG import and remove, Contrôle reads. [A] Demo supplier « Ciments du Sud SARL » (category Ciment) added for the example.
+- [D] After issue an invoice can be **edited** (prices entered HT) and **cancelled** by **DG and Comptabilité**. Each edit creates a version (v2, v3…) with history, **visible to DG and Contrôle only** (version badge and Historique, oldest first). **Annuler** (reason required) keeps the invoice listed as "Annulée"; its BL return to "à facturer". Every change is audited. Caisse sees no Facturation.
+- [?] Cement purchase invoices tagged « Usine » are also counted in « Achats destinés à l'usine » of the factory cost, while the cement consumed is costed from the recipes: check there is no double counting before the real build.
 
 ## 36. Caisse BL numbering and client receipt (v54)
 
 - [D] New BL use two series: **`BLE-2026-00001`** (espèces) and **`BLC-2026-00001`** (crédit), each starting at 1. Numbers on the demo data are symbolic.
 - [D] Every client payment (Encaissement) produces a **Reçu d'encaissement `REC-2026-00001`**: client and company copies, amount in digits and French words, mode and reference, **"Sous réserve d'encaissement"** for chèque and effet, balance remaining after the payment, **Duplicata** on reprint. A **Reçu** button sits on each payment in the client file.
 - [A] In the prototype the REC number is assigned lazily the first time a receipt is opened; in the real build it is assigned when the payment is recorded.
+
+## 37. v56 summary
+
+- [D] Facturation restructured into **Carrière** and **Usine Agglos** (§35). Top-bar print button removed; chronological order principle (§18). « Sable 0/4 » renamed « Sable lavé concassé 0/5 » (§7).
+- [D] **Factory cost, materials with a supplier invoice in TTC**: cement (CPJ 55, CPJ 65) and adjuvant are costed at the **invoice price TTC**. Paramètres › Prix et tarifs fields are labelled « TTC » and the cost lines of Usine and Rentabilité say « TTC ». Electricity, maintenance, labour and the sand and gravel transferred from the quarry are unchanged. [A] The example values (cement 1 050 per tonne…) are now read as TTC prices, not converted; replace them with the real invoice prices.
 
 ## 21. Open questions
 
