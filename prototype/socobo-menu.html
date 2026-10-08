@@ -3907,7 +3907,7 @@ button.back { display: none !important; }
   $('prod-body').addEventListener('click', function (e) {
     var mv = e.target.closest('[data-pmv]'); if (mv) { var a = mv.dataset.pmv.split('|'), vis = Object.keys(P).filter(function (k) { var p = P[k]; return (prF.st === 'all' || (prF.st === 'actif') === !!p.actif); }), ix = vis.indexOf(a[1]), nb = vis[ix + (a[0] === 'up' ? -1 : 1)]; if (nb) moveProd(a[1], nb, a[0] === 'dn'); return; }
     var b = e.target.closest('[data-peprod]'); if (b) { prodModal(b.dataset.peprod); return; }
-    b = e.target.closest('[data-arprod]'); if (b) { var k = b.dataset.arprod; P[k].actif = !P[k].actif; audit(P[k].actif ? 'Produit restauré' : 'Produit archivé', P[k].n, ''); renderProduits(); toast(P[k].actif ? 'Produit restauré.' : 'Produit archivé : il n’apparaît plus au Point de vente.'); }
+    b = e.target.closest('[data-arprod]'); if (b) { var k = b.dataset.arprod; P[k].actif = !P[k].actif; audit(P[k].actif ? 'Produit restauré' : 'Produit archivé', P[k].n, ''); if (!P[k].actif) FCI.forEach(function (x) { x.alloc = (x.alloc || []).filter(function (y) { return y.k !== k; }); }); renderProduits(); toast(P[k].actif ? 'Produit restauré.' : 'Produit archivé : il n’apparaît plus au Point de vente.'); }
   });
   $('new-prod').addEventListener('click', function () { prodModal(null); });
   function prodModal(key) {
@@ -6317,7 +6317,9 @@ button.back { display: none !important; }
   var FINV = [], FBL = {}, FSEQ = { C: 0, A: 0 }, FPFX = { C: 'FC', A: 'FA' }, FSUB = { 'Carrière': 'C', 'Usine Agglos': 'A' }, fSub = 'Carrière', fDay = null, fSel = {}, fEdit = null, fHid = false, fIdc = 0, faPer = 'all', FCI = [];
   var FDR = { C: null, A: null }, fNewOpen = { C: false, A: false }, FMODES = ['Espèces', 'Chèque', 'Effet', 'Virement'];
   var fCanW = function () { return ROLE === 'dg' || ROLE === 'compta'; }, fSeeV = function () { return ROLE === 'dg' || ROLE === 'ctrl'; };
-  var fNext = function (t) { return FPFX[t] + '-' + TODAY.getFullYear() + '-' + String(FSEQ[t] + 1).padStart(4, '0'); };
+  var fFree = function (t, k) { var used = {}, out = []; FINV.forEach(function (x) { if (x.t === t) used[x.n] = 1; }); for (var i = 1; out.length < (k || 1); i++) if (!used[i]) out.push(i); return out; };
+  var fNo = function (t, n) { return FPFX[t] + '-' + TODAY.getFullYear() + '-' + String(n).padStart(4, '0'); };
+  var fNext = function (t) { return fNo(t, fFree(t)[0]); };
   var fTot = function (lines, rate) { var ht = lines.reduce(function (s, l) { return s + (num(l.q) > 0 ? num(l.q) * (+l.pu || 0) : 0); }, 0); return { ht: ht, tva: ht * rate, ttc: ht * (1 + rate) }; };
   var fRate = function (name) { var c = clients.filter(function (x) { return x.nom === name; })[0]; return c ? rateOf(c) : 0.2; };
   var fQty = function (q, u) { return u === 'briques' || u === 'unité' ? nf0.format(q) + ' unité' + (q > 1 ? 's' : '') : nf2.format(q) + ' ' + u; };
@@ -6356,8 +6358,8 @@ button.back { display: none !important; }
   var invBy = function (id) { return FINV.filter(function (x) { return x.id === +id; })[0]; };
   /* un seul tableau de numéros par section : la suite ne comporte aucun trou, quel que soit le mode de règlement */
   function fMake(t, o) {
-    var rate = fRate(o.client), tt = fTot(o.lines, rate); FSEQ[t] += 1;
-    var inv = { id: ++fIdc, t: t, no: FPFX[t] + '-' + TODAY.getFullYear() + '-' + String(FSEQ[t]).padStart(4, '0'), d: o.d || TODAY, client: o.client, rate: rate, lines: o.lines.map(function (l) { return { des: l.des, q: num(l.q), u: l.u || '', pu: +l.pu, bl: l.bl || '' }; }), st: 'Émise', v: 1, hist: [], bls: o.bls || [], printed: 0, pay: o.pay || null, tt: tt };
+    var rate = fRate(o.client), tt = fTot(o.lines, rate), n = fFree(t)[0];
+    var inv = { id: ++fIdc, t: t, n: n, no: fNo(t, n), d: o.d || TODAY, client: o.client, rate: rate, lines: o.lines.map(function (l) { return { des: l.des, q: num(l.q), u: l.u || '', pu: +l.pu, bl: l.bl || '' }; }), st: 'Émise', v: 1, hist: [], bls: o.bls || [], printed: 0, pay: o.pay || null, tt: tt };
     FINV.push(inv); audit('Facture créée', inv.no, inv.client + ' · ' + mad(tt.ttc)); return inv;
   }
   function fPaper(inv) {
@@ -6381,11 +6383,11 @@ button.back { display: none !important; }
   };
   /* factures émises : de la plus ancienne à la plus récente */
   function fInvTable(t) {
-    var l = FINV.filter(function (x) { return x.t === t; }).sort(function (a, b) { return a.id - b.id; }).slice(-80), w = fCanW(), pc = t === 'C', nv = l.filter(function (x) { return x.st !== 'Annulée'; }).length, tot = l.reduce(function (z, x) { return x.st === 'Annulée' ? z : z + fTot(x.lines, x.rate).ttc; }, 0);
+    var l = FINV.filter(function (x) { return x.t === t; }).sort(function (a, b) { return a.n - b.n; }).slice(-80), w = fCanW(), pc = t === 'C', nv = l.filter(function (x) { return x.st !== 'Annulée'; }).length, tot = l.reduce(function (z, x) { return x.st === 'Annulée' ? z : z + fTot(x.lines, x.rate).ttc; }, 0);
     return '<div class="sheet" style="margin-top:22px"><section class="box"><h3 class="sech" style="margin-top:0">Factures émises<span>' + l.length + '</span></h3><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>N° de facture</th><th>Date</th><th>Client</th>' + (pc ? '<th>Mode de règlement</th><th>N° de la pièce</th>' : '') + '<th>Total TTC</th><th>Actions</th></tr></thead><tbody>' + (l.length ? l.map(function (x) {
       var tt = fTot(x.lines, x.rate), ann = x.st === 'Annulée';
       return '<tr class="' + (ann ? 'rs-bad' : '') + '"><td class="mono"><b style="font-weight:600">' + esc(x.no) + '</b>' + (fSeeV() && x.v > 1 ? ' <span class="st warn" title="' + (x.v - 1) + ' modification(s)">v' + x.v + '</span>' : '') + '</td><td>' + dfmt.format(x.d) + '</td><td>' + esc(x.client) + '</td>' + (pc ? '<td>' + esc(x.pay ? x.pay.mode : '—') + '</td><td class="mono">' + esc(x.pay && x.pay.piece ? x.pay.piece : '—') + '</td>' : '') + '<td class="num"><b style="font-weight:600">' + nf2.format(tt.ttc) + '</b></td>' +
-        '<td><div class="rowacts">' + (w && !ann ? '<button type="button" class="btn mini" data-finvedit="' + x.id + '">Modifier</button><button type="button" class="btn mini danger" data-finvann="' + x.id + '">Annuler</button>' : '') + '<button type="button" class="btn mini" data-finvprint="' + x.id + '">Imprimer</button>' + (fSeeV() && x.hist.length ? '<button type="button" class="btn mini" data-finvhist="' + x.id + '">Historique</button>' : '') + '</div></td></tr>';
+        '<td><div class="rowacts">' + (w && !ann ? '<button type="button" class="btn mini" data-finvedit="' + x.id + '">Modifier</button><button type="button" class="btn mini danger" data-finvann="' + x.id + '">Annuler</button>' : '') + '<button type="button" class="btn mini" data-finvprint="' + x.id + '">Imprimer</button>' + (w ? '<button type="button" class="btn mini danger" data-finvdel="' + x.id + '">Supprimer</button>' : '') + (fSeeV() && x.hist.length ? '<button type="button" class="btn mini" data-finvhist="' + x.id + '">Historique</button>' : '') + '</div></td></tr>';
     }).join('') : '<tr><td colspan="' + (pc ? 7 : 5) + '" style="color:var(--ink-2)">Aucune facture pour le moment.</td></tr>') + '</tbody><tfoot><tr class="tot"><td colspan="' + (pc ? 5 : 3) + '">Total TTC · ' + nv + ' facture' + (nv > 1 ? 's' : '') + '</td><td class="num">' + nf2.format(tot) + '</td><td></td></tr></tfoot></table></div></section></div>';
   }
   /* cartes : totaux facturés (TTC) de la période choisie */
@@ -6402,7 +6404,7 @@ button.back { display: none !important; }
       var ci = sum2(FCI, function (x) { return x.a.ttc; }), st = fCiStock(), fm = sum2(st.rows, function (x) { return x.mnt; });
       var mini = st.rows.filter(function (x) { return x.t > 0; }).map(function (x) {
         return '<div class="kpi kmini"><div class="lab">' + esc(P[x.k].n) + '</div><div class="kq"><span>Qté reste à facturer</span><b style="' + (x.rest != null && x.rest < 0 ? 'color:var(--bad-fg)' : '') + '">' + (x.rest == null ? 'À renseigner' : nf0.format(x.rest)) + '</b></div><div class="kq kqb"><span>Qté facturé</span><b>' + nf0.format(x.bil) + '</b></div></div>';
-      }).join('');
+      }).join('') + (st.un > 0 ? '<div class="kpi kmini"><div class="lab">Non attribué</div><div class="kq"><span>Ciment à attribuer</span><b>' + nf2.format(st.un) + ' t</b></div></div>' : '');
       return '<div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">' + kpiH('Total ciment acheté', nf2.format(ci), 'Factures importées · TTC') + kpiH('Total ciment facturé', nf2.format(fm), 'Ciment des briques facturées · TTC') + kpiH('Reste à facturer', nf2.format(ci - fm), 'Ciment pas encore facturé · TTC') + kpiH('Total facturé', nf2.format(by.all), cap, false, true) + '</div>' + (mini ? '<div class="kpis kminis" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-top:16px">' + mini + '</div>' : '');
     }
     return '<div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">' + kpiH('Total facturé', nf2.format(by.all), cap, false, true) + kpiH('Total espèces facturé', nf2.format(by.esp), sub('Espèces')) + kpiH('Total chèque facturé', nf2.format(by.chq), sub('Chèque et effet')) + kpiH('Total virement facturé', nf2.format(by.vir), sub('Virement')) + '</div>';
@@ -6441,7 +6443,7 @@ button.back { display: none !important; }
       '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>N° de facture</th><th>Date</th><th>Fournisseur</th><th>Désignation</th><th>Quantité</th><th>Type de brique</th><th>Total TTC</th><th>Statut</th><th>Actions</th></tr></thead><tbody>' + (l.length ? l.map(function (p) { var a = p.x.a, st = invStatus(a); return '<tr><td class="mono"><b style="font-weight:600">' + esc(a.piece || '—') + '</b></td><td>' + dfmt.format(a.date) + '</td><td>' + esc(p.x.s.nom) + '</td><td>' + esc(a.lib) + '</td><td class="num">' + (a.qt ? nf2.format(a.qt) + ' t' : '—') + '</td><td>' + fAllocTxt(p.x) + '</td><td class="num">' + nf2.format(a.ttc) + '</td><td><span class="st ' + (invCls[st] || 'mute') + '">' + st + '</span></td><td><div class="rowacts">' + (w && a.qt ? '<button type="button" class="btn mini" data-fcialloc="' + p.i + '">' + (fAllocT(p.x) ? 'Modifier' : 'Définir') + '</button>' : '') + (w ? '<button type="button" class="btn mini danger" data-fcirm="' + p.i + '">Retirer</button>' : '') + '</div></td></tr>'; }).join('') : '<tr><td colspan="9" style="color:var(--ink-2)">Aucune facture de ciment importée.</td></tr>') + '</tbody><tfoot><tr class="tot"><td colspan="6">Total TTC · ' + l.length + ' facture' + (l.length > 1 ? 's' : '') + '</td><td class="num">' + nf2.format(tot) + '</td><td></td><td></td></tr></tfoot></table></div></section></div>';
   }
   /* ---- ciment importé → briques facturables (le ciment par pièce vient de Paramètres › Usine) ---- */
-  var fAlloc = function (x) { return x.alloc || (x.alloc = []); };
+  var fAlloc = function (x) { x.alloc = (x.alloc || []).filter(function (y) { return P[y.k] && P[y.k].actif; }); return x.alloc; };
   var fAllocT = function (x) { return Math.round(fAlloc(x).reduce(function (t, y) { return t + y.t; }, 0) * 1000) / 1000; };
   var fAllocTxt = function (x) {
     if (!x.a.qt) return '<span style="color:var(--ink-2)">—</span>';
@@ -6462,15 +6464,6 @@ button.back { display: none !important; }
     }), un = 0;
     FCI.forEach(function (x) { if (x.a.qt) un += Math.max(0, x.a.qt - fAllocT(x)); });
     return { rows: rows, un: Math.round(un * 1000) / 1000 };
-  }
-  function fCiCard() {
-    var st = fCiStock(), tt = 0, tp = 0, tb = 0, tr = 0;
-    var body = st.rows.map(function (x) {
-      tt += x.t; tb += x.bil; if (x.pos != null) { tp += x.pos; tr += x.rest; }
-      return '<tr><td><b style="font-weight:600">' + esc(P[x.k].n) + '</b></td><td class="num">' + nf2.format(x.t) + '</td><td class="num">' + (x.cpp ? nf2.format(x.cpp) : '<span class="st warn">À renseigner</span>') + '</td><td class="num">' + (x.pos == null ? '—' : nf0.format(x.pos)) + '</td><td class="num">' + nf0.format(x.bil) + '</td><td class="num"><b style="font-weight:600;' + (x.rest != null && x.rest < 0 ? 'color:var(--bad-fg)' : '') + '">' + (x.rest == null ? '—' : nf0.format(x.rest)) + '</b></td></tr>';
-    }).join('');
-    if (st.un > 0) body += '<tr class="rs-warn"><td><b style="font-weight:600">Non attribué</b></td><td class="num">' + nf2.format(st.un) + '</td><td colspan="4" style="color:var(--ink-2)">Choisissez un type de brique dans le tableau des factures de ciment (bouton Définir).</td></tr>';
-    return '<div class="sheet" style="margin-top:22px"><section class="box"><h3 class="sech" style="margin-top:0">Briques facturables<span>d’après le ciment importé</span></h3><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Type de brique</th><th>Ciment attribué (t)</th><th>Ciment par pièce (kg)</th><th>Pièces facturables</th><th>Pièces facturées</th><th>Reste à facturer</th></tr></thead><tbody>' + (body || '<tr><td colspan="6" style="color:var(--ink-2)">Aucun produit de l’usine.</td></tr>') + '</tbody><tfoot><tr class="tot"><td>Total · ' + st.rows.length + ' type' + (st.rows.length > 1 ? 's' : '') + '</td><td class="num">' + nf2.format(tt + st.un) + '</td><td></td><td class="num">' + nf0.format(tp) + '</td><td class="num">' + nf0.format(tb) + '</td><td class="num">' + nf0.format(tr) + '</td></tr></tfoot></table></div><div class="foot"><span>Pièces facturables = ciment attribué ÷ ciment par pièce (Paramètres › Usine). Les pièces facturées viennent des factures de l’usine (unité « Unité », même désignation). Ce calcul concerne uniquement la facturation de l’usine.</span></div></section></div>';
   }
   function fCiAlloc(i) {
     var x = FCI[i]; if (!x || !x.a.qt) return;
@@ -6523,7 +6516,7 @@ button.back { display: none !important; }
   }
   function fAgg() {
     $('fa-s').textContent = 'Factures de l’usine : briques, hourdis et autres produits';
-    return fPerBar() + fCards('A') + (fNewOpen.A && fCanW() ? fForm('A') : '') + fInvTable('A') + fCiCard() + fCiTable();
+    return fPerBar() + fCards('A') + (fNewOpen.A && fCanW() ? fForm('A') : '') + fCiTable() + fInvTable('A');
   }
   /* ---- formulaire de création (Carrière : tous les modes de règlement ; Usine Agglos) ---- */
   function fDraft(t, keep) { var k = keep || {}; return { cid: k.cid || '', date: k.date || iso(TODAY), mode: k.mode || 'Espèces', piece: '', banque: k.banque || CHR_BANKS[0], ech: k.date || iso(TODAY), lines: [{ des: '', q: '', pu: '', u: t === 'A' ? 'unité' : 'm³' }] }; }
@@ -6586,6 +6579,13 @@ button.back { display: none !important; }
     $('fa-x').addEventListener('click', closeModal);
     $('fa-ok').addEventListener('click', function () { inv.st = 'Annulée'; inv.reason = $('fa-r').value + ($('fa-n').value.trim() ? ' · ' + $('fa-n').value.trim() : ''); inv.hist.push({ v: inv.v, at: nowT(), by: USER, motif: inv.reason, snap: null, note: 'Facture annulée' }); inv.bls.forEach(function (b) { if (FBL[b]) FBL[b].inv = null; }); audit('Facture annulée', inv.no, inv.reason); closeModal(); toast('Facture annulée.'); });
   }
+  function fInvDel(inv) {
+    var back = inv.t === 'A' ? ' Les pièces facturées redeviennent « à facturer ».' : (inv.bls.length && inv.st !== 'Annulée' ? ' Les BL liées redeviennent « à facturer ».' : '');
+    confirmDanger('Supprimer définitivement la facture ' + inv.no + ' ?', 'Cette action est irréversible. Le numéro ' + inv.no + ' sera réutilisé par la prochaine facture.' + back + (inv.chrId ? ' Le chèque reste dans Banque : annulez-le là-bas si nécessaire.' : '') + (inv.st === 'Annulée' ? ' Attention : une facture annulée garde normalement son numéro.' : ''), 'Supprimer', function () {
+      if (inv.st !== 'Annulée') inv.bls.forEach(function (b) { if (FBL[b]) FBL[b].inv = null; });
+      FINV.splice(FINV.indexOf(inv), 1); audit('Facture supprimée', inv.no, inv.client + ' · ' + mad(fTot(inv.lines, inv.rate).ttc) + (inv.st === 'Annulée' ? ' · était annulée' : '') + ' · numéro réutilisable'); renderFact(); toast('Facture ' + inv.no + ' supprimée.');
+    });
+  }
   function fHist(inv) {
     openModal('<h2>Historique · ' + esc(inv.no) + '</h2><p class="m">Version actuelle : v' + inv.v + '</p><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Version</th><th>Date</th><th>Par</th><th>Changement</th><th>Motif</th></tr></thead><tbody>' + inv.hist.map(function (h) { return '<tr><td>v' + h.v + '</td><td>' + fdt(h.at) + '</td><td>' + esc(h.by) + '</td><td>' + esc(h.note) + '</td><td>' + esc(h.motif || '—') + '</td></tr>'; }).join('') + '</tbody></table></div><div class="mact"><button type="button" class="btn" id="fh-x">Fermer</button></div>', 'big');
     $('fh-x').addEventListener('click', closeModal);
@@ -6603,8 +6603,8 @@ button.back { display: none !important; }
       renderFact(); toast(made.length === 1 ? 'Facture ' + made[0].no + ' créée.' : made.length + ' factures créées (' + made[0].no + ' → ' + made[made.length - 1].no + ').');
     };
     if (one) return go();
-    var n0 = FSEQ.C, tot = 0, rowsH = ks.map(function (k, i) { var b = FBL[k], tt = fTot(b.lines, fRate(b.client)); tot += tt.ttc; return '<tr><td class="mono"><b style="font-weight:600">' + FPFX.C + '-' + TODAY.getFullYear() + '-' + String(n0 + i + 1).padStart(4, '0') + '</b></td><td>' + esc(b.client) + '</td><td class="mono">' + esc(b.bl) + '</td><td class="num">' + nf2.format(tt.ttc) + '</td></tr>'; }).join('');
-    openModal('<h2>Tout facturer : ' + ks.length + ' facture' + (ks.length > 1 ? 's' : '') + '</h2><p class="m">Une facture par BL, telle qu’elle est après vos modifications. Les numéros se suivent sans trou.</p><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>N° de facture</th><th>Client</th><th>BL</th><th>Total TTC</th></tr></thead><tbody>' + rowsH + '</tbody>' + (ks.length > 1 ? '<tfoot><tr class="tot"><td colspan="3">Total TTC</td><td class="num">' + nf2.format(tot) + '</td></tr></tfoot>' : '') + '</table></div><div class="mact"><button type="button" class="btn" id="fm-x">Annuler</button><button type="button" class="btn success" id="fm-ok">Facturer</button></div>');
+    var fr = fFree('C', ks.length), tot = 0, rowsH = ks.map(function (k, i) { var b = FBL[k], tt = fTot(b.lines, fRate(b.client)); tot += tt.ttc; return '<tr><td class="mono"><b style="font-weight:600">' + fNo('C', fr[i]) + '</b></td><td>' + esc(b.client) + '</td><td class="mono">' + esc(b.bl) + '</td><td class="num">' + nf2.format(tt.ttc) + '</td></tr>'; }).join('');
+    openModal('<h2>Tout facturer : ' + ks.length + ' facture' + (ks.length > 1 ? 's' : '') + '</h2><p class="m">Une facture par BL, telle qu’elle est après vos modifications. Un numéro libre (facture supprimée) est réutilisé ; celui d’une facture annulée ne l’est jamais.</p><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>N° de facture</th><th>Client</th><th>BL</th><th>Total TTC</th></tr></thead><tbody>' + rowsH + '</tbody>' + (ks.length > 1 ? '<tfoot><tr class="tot"><td colspan="3">Total TTC</td><td class="num">' + nf2.format(tot) + '</td></tr></tfoot>' : '') + '</table></div><div class="mact"><button type="button" class="btn" id="fm-x">Annuler</button><button type="button" class="btn success" id="fm-ok">Facturer</button></div>');
     $('fm-x').addEventListener('click', closeModal);
     $('fm-ok').addEventListener('click', function () { closeModal(); go(); });
   }
@@ -6657,6 +6657,7 @@ button.back { display: none !important; }
     if (!w) return;
     if ((b = e.target.closest('[data-finvedit]'))) return fInvEdit(invBy(b.dataset.finvedit));
     if ((b = e.target.closest('[data-finvann]'))) return fInvAnn(invBy(b.dataset.finvann));
+    if ((b = e.target.closest('[data-finvdel]'))) return fInvDel(invBy(b.dataset.finvdel));
     if ((b = e.target.closest('[data-fed]'))) { var s0 = FBL[b.dataset.fed]; fEdit = { bl: s0.bl, client: s0.client, plate: s0.plate, lines: s0.lines.map(function (l) { return { des: l.des, q: l.q, u: l.u, pu: l.pu * (1 + fRate(s0.client)) }; }) }; return renderFact(); }
     if (e.target.closest('[data-fecancel]')) { fEdit = null; return renderFact(); }
     if (e.target.closest('[data-feadd]')) { fEdit.lines.push({ des: '', q: 1, u: fEdit.lines[0] ? fEdit.lines[0].u : 'm³', pu: 0 }); return renderFact(); }

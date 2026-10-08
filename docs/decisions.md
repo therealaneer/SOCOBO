@@ -398,3 +398,10 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] Row 1: **Total ciment acheté** (all imported invoices, TTC), **Total ciment facturé** (cost of the cement in the bricks already billed = billed pieces × cement per piece × average price per tonne of the invoices attributed to that type), **Reste à facturer** (acheté − facturé, unattributed tonnes included), then **Total facturé** (sales of the factory, as before). The three cement cards are not affected by the period chips.
 - [D] Row 2: one thin card per brick type that has cement attributed: **Qté reste à facturer** (pieces) and, under a thin line, **Qté facturé**. Types without attributed cement show no card (they stay in the « Briques facturables » table).
 
+## 44. v64 — Supprimer une facture, ordre des sections Usine Agglos
+
+- [D] Every issued invoice (Carrière and Usine Agglos) has **Modifier · Annuler · Imprimer · Supprimer** (Historique for DG and Contrôle only). **Supprimer** is the permanent deletion, for **DG and Comptabilité**, with an explicit irreversible confirmation, also available on a cancelled invoice. It is written to Audit. The BL of a deleted invoice return to « à facturer » (Carrière); the billed pieces of a deleted factory invoice return to « Qté reste à facturer ».
+- [D] **Numbering**: the number of a **deleted** invoice is reused (the next invoice takes the smallest free number, per type); the number of a **cancelled** invoice is never reused. The list is ordered by invoice number.
+- [D] Usine Agglos page order: cards, **Factures de ciment importées**, then **Factures émises**. The « Briques facturables » table is removed (the thin cards replace it); a thin card **Non attribué** shows the tonnes still to attribute.
+- [D] Archiving a factory product returns its attributed cement tonnes to « Non attribué »; Paramètres › Usine (Ciment par pièce) and the Définir window follow the active factory products automatically.
+
