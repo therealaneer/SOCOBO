@@ -5,7 +5,7 @@ Living record of every design decision taken with the owner while the prototype 
 Convention: **[D]** = decided by the owner · **[A]** = assumption made by Claude, to confirm · **[?]** = open question.
 UI language: French. Amounts: 2 decimals, no "MAD" suffix.
 
-Prototype status: **v57** (one branch per version, stacked; `main` untouched). Phase: **design** (no Django code yet — see `CLAUDE.md` section 11).
+Prototype status: **v58** (one branch per version, stacked; `main` untouched). Phase: **design** (no Django code yet — see `CLAUDE.md` section 11).
 
 ---
 
@@ -193,7 +193,7 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] **Buttons**: no more black. Primary buttons, selected tabs and selected chips use a vivid blue (`--act`).
 - [D] **Key card**: in every statistics page the most important figure is shown in a colour card (blue gradient); alerts use the yellow card.
 - [D] **Periods**: every statistics page offers **Aujourd'hui · Ce mois · Mois précédent · Tout** (the older pages keep the global Période bar).
-- [D] **Print button under every page of statistics** ("Imprimer cette page"); since v56 it is the **only** print button: the one in the top bar was removed. It is also under Facturation, Personnel, Rentabilité and Banque, and **not** on Paramètres and Audit. The printout is organised: SOCOBO header, section title, subtitle with the tab and the period, date and user of printing, indicators, then the tables with their totals.
+- [D] **Print buttons (v58, replaces the page-level « Imprimer cette page » of v40–v56)**: there is **no print button for a whole page**. Instead a small « Imprimer » button sits **under every table that has a totals row** and **under every statistics card** (chart or bars). It prints **only that table or statistic**: SOCOBO header, page title, subtitle (tab, period, filter), the table title, then the table with its totals row and without the « Actions » column. It prints **all rows of the current filter**, not only the rows shown (« Afficher plus » is expanded first). KPI number cards have no button. Tables inside windows, line-entry tables of forms, Paramètres and Audit have none.
 
 - [D] **Chronological order (v56, principle for the whole application)**: every list, table and statement that is ordered by time or by number is shown **from the oldest to the newest** (invoice numbers 1, 2, 3…, dates increasing, statements with a running balance, audit log). Lists capped to the last N items (last 40 entries, last 30 BL…) keep the **latest N**, shown oldest first. Only rankings by amount or importance (best clients, biggest categories) and selectors (period chips) keep their own order.
 
@@ -353,6 +353,15 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] **« Tout vider »** (Facturation › Carrière, next to « Facturer la sélection » and « Tout facturer », red, shown only when un-invoiced BL are in the table): after a confirmation it removes all un-invoiced BL of the filter from the list (invoiced BL stay). The Point de vente is unchanged; the removed BL are under « Éléments retirés » with « Restaurer ». Written to Audit.
 - [D] **Alignment**: the fields of a form row (Client, N° de facture, Date…) all start on the same line whatever the hints under them; in the inline edit of a BL, the unit « m³ » sits beside the quantity and all fields share one centre line.
 - [?] Example value: Atlas Travaux SARL has an agreed price Gravette 8/16 at 190,00 TTC per m³ (normal 198,00).
+
+## 39. Facturation form, units, live totals, dates (v58)
+
+- [D] **« Créer une facture » (Carrière)**: the first field is **Mode de règlement** (Espèces, Chèque, Effet, Virement), then Client, N° de facture, Date on one line. The chosen mode shows its extra fields on a second line (cheque or effet: N°, Banque, Échéance; virement: référence). « + Ajouter un client » is replaced by a round **« + »** button beside the client list (tooltip « Ajouter un client »). Usine Agglos keeps Client, N° de facture, Date.
+- [D] **Close button**: a **×** at the top right of the form (and the Escape key) closes it and drops the draft. « Vider » empties the fields but keeps the form open.
+- [D] **Units in Facturation**: « m³ » and **« Unité »** (replaces « briques »: it covers bricks, hourdis and parpaings). Quantities by the piece read « 1 000 unités ». Usine Agglos defaults to Unité, Carrière to m³. The Caisse and the factory pages keep the word « briques ».
+- [D] **Live total**: while a BL is edited in the table, the line « Total TTC » and the table total change at every keystroke (decimal comma or point accepted).
+- [D] **Date fields**: typing a date by hand or picking it in the calendar works in the Jour / Période filter of Facturation and in the day field of the top bar (Présences, Saisie du jour, À contrôler, Dépense); the field is no longer redrawn while it is being typed.
+- [D] « Factures émises » gets a **totals row** (Total TTC of the non-cancelled invoices) so that its table can be printed.
 
 ## 21. Open questions
 

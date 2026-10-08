@@ -9,8 +9,8 @@ const { chromium } = require('playwright'); const L = require('./lib.js');
   const dup = [], none = [];
   for (const [k, s] of items) { await L.nav(p, k, s || undefined); await p.waitForTimeout(100);
     const tabs = await p.locator('section:visible [role="tab"]:visible, section:visible .tabs button:visible').count();
-    const n = await p.evaluate(() => [...document.querySelectorAll('main > section:not([hidden]) .printbar')].length);
-    if (n > 1) dup.push(k + ':' + s + '=' + n); if (!n) none.push(k + (s ? ':' + s : '')); }
+    const n = await p.evaluate(() => [...document.querySelectorAll('main > section:not([hidden]) .tprint')].length);
+    if (!n) none.push(k + (s ? ':' + s : '')); }
   console.log('Doublons :', dup.join(' | ') || 'aucun'); console.log('Sans bouton :', none.join(' | '));
   await b.close();
 })();

@@ -51,7 +51,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   // ---- Facturation Carrière
   await L.nav(p, 'facturation', 'Carrière'); await p.click('[data-fimp]'); await p.waitForTimeout(300);
   const th = await p.locator('#fa-body .sheet thead').first().innerText(); ok(/Prix unitaire TTC/.test(th) && /Total TTC/.test(th) && !/\bHT\b/.test(th), 'tableau BL : TTC, sans HT');
-  ok(/Total TTC · \d/.test(await txt('#fa-body tfoot')), 'ligne de total en TTC');
+  ok(/Total TTC · \d/.test(await txt('#fa-body .sheet tfoot >> nth=0')), 'ligne de total en TTC');
   ok(await p.locator('[data-fclr]').count() === 1, 'bouton Tout vider visible');
   const nb = await p.locator('[data-fsel]').count();
   await p.click('[data-fone]'); await p.waitForTimeout(250);

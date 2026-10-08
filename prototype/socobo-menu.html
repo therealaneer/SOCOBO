@@ -956,6 +956,9 @@ html.mlock, html.mlock body { overflow: hidden; }
 .ov, .modal { overscroll-behavior: contain; }
 /* un seul bouton Retour : celui de l'en-tête (les boutons internes restent actionnables par lui) */
 button.back { display: none !important; }
+/* v58 : un bouton Imprimer sous chaque tableau et chaque statistique */
+.tprint { display: flex; justify-content: flex-end; margin-top: 10px; }
+#modal .tprint, #dv .tprint { display: none; }
 /* v57 : champs alignés en haut, prix convenus du client */
 .row2 > .f, .row3 > .f { align-content: start; }
 .pxrow { display: grid; grid-template-columns: 1.5fr 0.9fr 0.9fr 1.7fr auto; gap: 12px; align-items: start; }
@@ -5026,24 +5029,47 @@ button.back { display: none !important; }
   $('pd-body').addEventListener('keydown', function (e) { var b = e.target.closest('[data-pdlist]'); if (b && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); b.click(); } });
   $('rows').addEventListener('click', function (e) { var b = e.target.closest('[data-blview]'); if (b && canDG()) openBL(b.dataset.blview); });
   /* Impression des statistiques de la page affichée (toujours disponible) */
-  function printView() {
-    var v = ALLV.map($).filter(function (el) { return el && !el.hidden; })[0]; if (!v) return;
-    var title = (v.querySelector('h1') || {}).textContent || document.title, sub = (v.querySelector('.head .sub') || {}).textContent || '';
-    var cards = [].slice.call(v.querySelectorAll('.kpi, .pd-card, .pd-prod, .dp-c')).filter(function (c) { return !c.closest('table') && !c.querySelector('table') && !c.querySelector('svg[role="img"]'); });
-    var h = '';
-    if (cards.length) h += '<h3>Indicateurs</h3><table><tbody>' + cards.map(function (c) { var l = c.innerText.split('\n').map(function (x) { return x.trim(); }).filter(Boolean); return '<tr><td style="width:36%"><b>' + esc(l[0] || '') + '</b></td><td>' + esc(l.slice(1).join(' · ')) + '</td></tr>'; }).join('') + '</tbody></table>';
-    [].slice.call(v.querySelectorAll('table')).forEach(function (t) {
-      if (t.closest('#modal')) return;
-      var cl = t.cloneNode(true), hd = [].slice.call(cl.querySelectorAll('thead th')), drop = [];
-      hd.forEach(function (th, i) { if (/^Actions?$/i.test(th.textContent.trim()) || th.querySelector('input')) drop.push(i); });
+  /* titre du tableau : le dernier titre qui le précède (ou celui de sa carte) */
+  function captionOf(wrap) {
+    var clean = function (n) { var c = n.cloneNode(true); [].slice.call(c.querySelectorAll('span, button')).forEach(function (x) { x.remove(); }); return c.textContent.trim(); };
+    if (wrap.dataset.pcap) return wrap.dataset.pcap;
+    for (var n = wrap; n && n.tagName !== 'SECTION'; n = n.parentElement) for (var p = n.previousElementSibling; p; p = p.previousElementSibling) if (/^H[23]$/.test(p.tagName) || p.classList.contains('sech')) return clean(p);
+    var host = wrap.closest('.pd-card, .box, .cardbox'), hc = host && host.querySelector('h3, .pd-lab, h2'); return hc ? clean(hc) : '';
+  }
+  /* imprime seulement le tableau ou la statistique du bouton ; toutes les lignes du filtre, pas seulement celles affichées */
+  function printBlock(btn) {
+    var bar = btn.closest('.tprint'), v = ALLV.map($).filter(function (el) { return el && !el.hidden; })[0]; if (!v || !bar) return;
+    var idx = [].slice.call(v.querySelectorAll('.tprint')).indexOf(bar), guard = 0, more;
+    while (guard++ < 80 && (more = v.querySelector('[data-chmore], [data-mgmore], #more:not([hidden])'))) more.click();
+    if (guard > 1) addPrintBtns(v);
+    bar = [].slice.call(v.querySelectorAll('.tprint'))[idx] || bar;
+    var title = (v.querySelector('h1') || {}).textContent || document.title, sub = (v.querySelector('.head .sub') || {}).textContent || '', h = '';
+    var wrap = bar.previousElementSibling && bar.previousElementSibling.classList.contains('tablewrap') ? bar.previousElementSibling : null;
+    if (wrap) {
+      var cl = wrap.querySelector('table').cloneNode(true), drop = [];
+      [].slice.call(cl.querySelectorAll('thead th')).forEach(function (th, i) { if (/^Actions?$/i.test(th.textContent.trim()) || th.querySelector('input')) drop.push(i); });
       [].slice.call(cl.querySelectorAll('tr')).forEach(function (tr) { var cs = [].slice.call(tr.children); drop.slice().reverse().forEach(function (i) { if (cs[i] && cs.length > 2) tr.removeChild(cs[i]); }); });
       [].slice.call(cl.querySelectorAll('.lnk-b')).forEach(function (n) { var sp = document.createElement('b'); sp.textContent = n.textContent; n.parentNode.replaceChild(sp, n); });
       [].slice.call(cl.querySelectorAll('button, input, select, .rowacts')).forEach(function (n) { n.parentNode && n.parentNode.removeChild(n); });
-      var host = t.closest('.pd-card, .box'), cap = host && host.querySelector('h3, .pd-lab, h2');
-      h += (cap ? '<h3>' + esc(cap.textContent) + '</h3>' : '') + cl.outerHTML;
-    });
-    docModal(title.trim(), (sub ? '<p class="pmute" style="margin:12px 0 0;font-size:15px">' + esc(sub.trim()) + '</p>' : '') + (h || '<div class="pmute">Rien à imprimer sur cette page.</div>'), COMPANY.nom + ' · ' + COMPANY.ville);
+      var cap = captionOf(wrap); h = (cap ? '<h3>' + esc(cap) + '</h3>' : '') + cl.outerHTML;
+    } else {
+      var card = bar.parentElement, c2 = card.cloneNode(true), hd = c2.querySelector('h3, .pd-lab, h2'), cp = hd ? hd.textContent.trim() : '';
+      if (hd) hd.remove(); [].slice.call(c2.querySelectorAll('.tprint, button')).forEach(function (n) { n.remove(); });
+      h = (cp ? '<h3>' + esc(cp) + '</h3>' : '') + c2.innerHTML;
+    }
+    docModal(title.trim(), (sub ? '<p class="pmute" style="margin:12px 0 0;font-size:15px">' + esc(sub.trim()) + '</p>' : '') + h, COMPANY.nom + ' · ' + COMPANY.ville);
   }
+  /* un bouton « Imprimer » sous chaque tableau avec ligne de total, et sous chaque carte de statistiques (graphique ou barres) */
+  function addPrintBtns(root) {
+    if (!root || root.nodeType !== 1 || root.closest('#modal, #dv, .paper, #ov')) return;
+    var sec = root.closest('main > section') || (root.tagName === 'SECTION' ? root : null); if (sec && (sec.id === 'view-params' || sec.id === 'view-soon')) return;
+    var btn = '<div class="tprint"><button type="button" class="btn mini" data-tprint>' + printerSvg + ' Imprimer</button></div>';
+    var wraps = [].slice.call(root.querySelectorAll('.tablewrap')); if (root.classList && root.classList.contains('tablewrap')) wraps.push(root);
+    wraps.forEach(function (w) { if (w.closest('#modal, #dv') || !w.querySelector('tr.tot') || (w.nextElementSibling && w.nextElementSibling.classList.contains('tprint'))) return; w.insertAdjacentHTML('afterend', btn); });
+    var cards = [].slice.call(root.querySelectorAll('.cardbox, .pd-card')); if (root.matches && root.matches('.cardbox, .pd-card')) cards.push(root);
+    cards.forEach(function (c) { if (c.closest('#modal, #dv') || !c.querySelector('svg[role="img"], .hb') || c.querySelector('.tablewrap') || c.querySelector(':scope > .tprint')) return; c.insertAdjacentHTML('beforeend', btn); });
+  }
+  document.addEventListener('click', function (e) { var b = e.target.closest('[data-tprint]'); if (b) printBlock(b); });
   VIEWHOOKS['view-hist'] = function () { render(); };
 
 
@@ -5303,8 +5329,7 @@ button.back { display: none !important; }
     CUST = { from: f, to: t }; custRefresh(b);
   });
   var perStr = function (rg) { if (rg.custom) return +rg.from === +rg.to ? 'Jour · ' + dfmt.format(rg.from) : 'Du ' + dfmt.format(rg.from) + ' au ' + dfmt.format(rg.to); return rg.lab === 'Tout' ? 'Toute la période' : rg.lab + ' · ' + (+rg.from === +rg.to ? dfmt.format(rg.from) : dfmt.format(rg.from) + ' au ' + dfmt.format(rg.to)); };
-  var printBar = function () { return '<div class="printbar"><button type="button" class="btn" data-doprint>' + printerSvg + ' Imprimer cette page</button></div>'; };
-  document.addEventListener('click', function (e) { if (e.target.closest('[data-doprint]')) printView(); });
+  var printBar = function () { return ''; };
   var sum2 = function (l, f) { return l.reduce(function (t, x) { return t + f(x); }, 0); };
   var DAYSLIST = function (from, to) { var l = [], d = new Date(from); while (d <= to) { l.push(new Date(d)); d = addDays(d, 1); } return l; };
   var MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -5977,7 +6002,14 @@ button.back { display: none !important; }
   });
 
   /* ---- Jour dans la barre du haut (Contrôle, Présences, Dépense, Usine) ---- */
-  function setTopDay(h) { $('top-day').innerHTML = h; $('top-day').hidden = !h; }
+  function setTopDay(h) {
+    var box = $('top-day'), live = box.querySelector('input[type="date"]:focus');
+    if (live && h) { /* date en cours de saisie : on garde le champ, on ne met à jour que l'étiquette d'état */
+      var tmp = document.createElement('div'); tmp.innerHTML = h;
+      if (tmp.querySelector('#' + live.id)) { var os = box.querySelector('.st'), ns = tmp.querySelector('.st'); if (os && ns) os.replaceWith(ns); return; }
+    }
+    box.innerHTML = h; box.hidden = !h;
+  }
   $('top-day').addEventListener('change', function (e) {
     var d = parseIso(e.target.value); if (!d || d > TODAY) return;
     if (e.target.id === 'co-date') { cDay = d; renderControle(); } else if (e.target.id === 'dp-date') { depDay = d; renderDepense(); } else if (e.target.id === 'pe-date') { peDate = d; peDraft = null; renderPersonnel(); } else if (e.target.id === 'sj-date') { sDate = d; renderUsine(); }
@@ -6266,7 +6298,7 @@ button.back { display: none !important; }
   var fNext = function (t) { return FPFX[t] + '-' + TODAY.getFullYear() + '-' + String(FSEQ[t] + 1).padStart(4, '0'); };
   var fTot = function (lines, rate) { var ht = lines.reduce(function (s, l) { return s + (num(l.q) > 0 ? num(l.q) * (+l.pu || 0) : 0); }, 0); return { ht: ht, tva: ht * rate, ttc: ht * (1 + rate) }; };
   var fRate = function (name) { var c = clients.filter(function (x) { return x.nom === name; })[0]; return c ? rateOf(c) : 0.2; };
-  var fQty = function (q, u) { return (u === 'briques' ? nf0 : nf2).format(q) + ' ' + u; };
+  var fQty = function (q, u) { return u === 'briques' || u === 'unité' ? nf0.format(q) + ' unité' + (q > 1 ? 's' : '') : nf2.format(q) + ' ' + u; };
   /* montant en lettres (français) */
   var FRU = ['zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'], FRD = ['', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante'];
   function fr99(n) { if (n < 20) return FRU[n]; var d = Math.floor(n / 10), u = n % 10; if (d < 7) return FRD[d] + (u === 1 ? ' et un' : (u ? '-' + FRU[u] : '')); if (d === 7) return 'soixante' + (u === 1 ? ' et onze' : '-' + FRU[10 + u]); if (d === 8) return 'quatre-vingt' + (u ? '-' + FRU[u] : 's'); return 'quatre-vingt-' + FRU[10 + u]; }
@@ -6280,7 +6312,7 @@ button.back { display: none !important; }
     var r0 = l[0], rate = fRate(r0.client);
     return { bl: bl, d: r0.date, time: r0.time || '', client: r0.client, plate: r0.plate, hid: false, inv: null, lines: l.map(function (r) {
       var ht = r.ttc / (1 + rate), q, u;
-      if (r.mille) { q = r.units || Math.round(r.qty * 1000); u = 'briques'; }
+      if (r.mille) { q = r.units || Math.round(r.qty * 1000); u = 'unité'; }
       else { var k = Object.keys(P).filter(function (x) { return P[x] === r.prod; })[0]; q = Math.round((r.mu === 'm3' ? r.qty : r.qty / (DENS[k] || 1.5)) * 100) / 100; u = 'm³'; }
       return { des: r.prod.n, q: q, u: u, pu: q > 0 ? ht / q : 0 };
     }) };
@@ -6327,12 +6359,12 @@ button.back { display: none !important; }
   };
   /* factures émises : de la plus ancienne à la plus récente */
   function fInvTable(t) {
-    var l = FINV.filter(function (x) { return x.t === t; }).sort(function (a, b) { return a.id - b.id; }).slice(-80), w = fCanW(), pc = t === 'C';
+    var l = FINV.filter(function (x) { return x.t === t; }).sort(function (a, b) { return a.id - b.id; }).slice(-80), w = fCanW(), pc = t === 'C', nv = l.filter(function (x) { return x.st !== 'Annulée'; }).length, tot = l.reduce(function (z, x) { return x.st === 'Annulée' ? z : z + fTot(x.lines, x.rate).ttc; }, 0);
     return '<div class="sheet" style="margin-top:22px"><section class="box"><h3 class="sech" style="margin-top:0">Factures émises<span>' + l.length + '</span></h3><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>N° de facture</th><th>Date</th><th>Client</th>' + (pc ? '<th>BL</th><th>Mode de règlement</th><th>N° de la pièce</th>' : '') + '<th>Total TTC</th><th>Statut</th><th>Actions</th></tr></thead><tbody>' + (l.length ? l.map(function (x) {
       var tt = fTot(x.lines, x.rate), ann = x.st === 'Annulée';
       return '<tr class="' + (ann ? 'rs-bad' : '') + '"><td class="mono"><b style="font-weight:600">' + esc(x.no) + '</b>' + (fSeeV() && x.v > 1 ? ' <span class="st warn" title="' + (x.v - 1) + ' modification(s)">v' + x.v + '</span>' : '') + '</td><td>' + dfmt.format(x.d) + '</td><td>' + esc(x.client) + '</td>' + (pc ? '<td class="mono">' + (x.bls.length ? esc(x.bls.join(', ')) : '—') + '</td><td>' + esc(x.pay ? x.pay.mode : '—') + '</td><td class="mono">' + esc(x.pay && x.pay.piece ? x.pay.piece : '—') + '</td>' : '') + '<td class="num"><b style="font-weight:600">' + nf2.format(tt.ttc) + '</b></td><td>' + fStatus(x) + '</td>' +
         '<td><div class="rowacts">' + (w && !ann ? '<button type="button" class="btn mini" data-finvedit="' + x.id + '">Modifier</button><button type="button" class="btn mini danger" data-finvann="' + x.id + '">Annuler</button>' : '') + '<button type="button" class="btn mini" data-finvprint="' + x.id + '">Imprimer</button>' + (fSeeV() && x.hist.length ? '<button type="button" class="btn mini" data-finvhist="' + x.id + '">Historique</button>' : '') + '</div></td></tr>';
-    }).join('') : '<tr><td colspan="' + (pc ? 9 : 6) + '" style="color:var(--ink-2)">Aucune facture pour le moment.</td></tr>') + '</tbody></table></div></section></div>';
+    }).join('') : '<tr><td colspan="' + (pc ? 9 : 6) + '" style="color:var(--ink-2)">Aucune facture pour le moment.</td></tr>') + '</tbody><tfoot><tr class="tot"><td colspan="' + (pc ? 6 : 3) + '">Total TTC · ' + nv + ' facture' + (nv > 1 ? 's' : '') + '</td><td class="num">' + nf2.format(tot) + '</td><td colspan="2"></td></tr></tfoot></table></div></section></div>';
   }
   /* cartes : totaux facturés (TTC) de la période choisie */
   function fPerBar() { return '<div class="tools-row" style="margin-top:16px">' + perTabs(faPer, 'data-faper') + '</div>'; }
@@ -6361,7 +6393,7 @@ button.back { display: none !important; }
       return src.lines.map(function (l, i) {
         var first = i === 0;
         return '<tr class="' + (b.inv ? 'rs-ok' : '') + '">' + (first ? '<td rowspan="' + rs + '" style="width:34px">' + (w && !b.inv && !ed ? '<input type="checkbox" data-fsel="' + esc(b.bl) + '"' + (fSel[b.bl] ? ' checked' : '') + '>' : '') + '</td><td rowspan="' + rs + '" class="mono"><b style="font-weight:600">' + esc(b.bl) + '</b><small>' + dfmt.format(b.d) + ' ' + esc(b.time) + '</small>' + (inv ? '<small><span class="st ok">' + esc(inv.no) + '</span></small>' : '') + '</td><td rowspan="' + rs + '">' + (ed ? '<select class="in" data-fe="client">' + clients.map(function (c) { return '<option' + (c.nom === src.client ? ' selected' : '') + '>' + esc(c.nom) + '</option>'; }).join('') + '</select>' : esc(src.client)) + '</td><td rowspan="' + rs + '" class="mono">' + (ed ? '<input class="in" data-fe="plate" value="' + esc(src.plate) + '" style="max-width:130px">' : esc(src.plate)) + '</td>' : '') +
-          (ed ? '<td><div style="display:flex;align-items:center;gap:8px"><input class="in" data-fl="' + i + '|q" inputmode="decimal" value="' + esc(String(l.q).replace('.', ',')) + '" style="width:84px;flex:none"><span>' + esc(l.u) + '</span></div></td><td><input class="in" data-fl="' + i + '|des" list="f-prods" value="' + esc(l.des) + '" style="min-width:110px"></td><td><input class="in" data-fl="' + i + '|pu" inputmode="decimal" value="' + esc(String(Math.round(l.pu * 1000) / 1000).replace('.', ',')) + '" style="max-width:100px"></td>' : '<td class="num">' + fQty(l.q, l.u) + '</td><td>' + esc(l.des) + '</td><td class="num">' + nf3.format(l.pu * k) + '</td>') + '<td class="num">' + nf2.format(num(l.q) * l.pu * k) + '</td>' +
+          (ed ? '<td><div style="display:flex;align-items:center;gap:8px"><input class="in" data-fl="' + i + '|q" inputmode="decimal" value="' + esc(String(l.q).replace('.', ',')) + '" style="width:84px;flex:none"><span>' + esc(l.u) + '</span></div></td><td><input class="in" data-fl="' + i + '|des" list="f-prods" value="' + esc(l.des) + '" style="min-width:110px"></td><td><input class="in" data-fl="' + i + '|pu" inputmode="decimal" value="' + esc(String(Math.round(l.pu * 1000) / 1000).replace('.', ',')) + '" style="max-width:100px"></td>' : '<td class="num">' + fQty(l.q, l.u) + '</td><td>' + esc(l.des) + '</td><td class="num">' + nf3.format(l.pu * k) + '</td>') + '<td class="num"' + (ed ? ' data-fet="' + i + '"' : '') + '>' + nf2.format(num(l.q) * l.pu * k) + '</td>' +
           (first ? '<td rowspan="' + rs + '"><div class="rowacts">' + (ed ? '<button type="button" class="btn mini primary" data-fesave>Enregistrer</button><button type="button" class="btn mini" data-fecancel>Annuler</button>' : (w && !b.inv ? '<button type="button" class="btn mini" data-fed="' + esc(b.bl) + '">Modifier</button><button type="button" class="btn mini danger" data-fdel="' + esc(b.bl) + '">Supprimer</button>' : '') + '<button type="button" class="btn mini" data-fbp="' + esc(b.bl) + '">Imprimer</button>' + (w && !b.inv ? '<button type="button" class="btn mini success" data-fone="' + esc(b.bl) + '">Facturer</button>' : '')) + '</div></td>' : '') + '</tr>';
       }).join('') + (ed ? '<tr><td></td><td colspan="2"></td><td colspan="5"><button type="button" class="btn mini" data-feadd>+ Ajouter une ligne</button></td></tr>' : '');
     }).join('');
@@ -6369,12 +6401,12 @@ button.back { display: none !important; }
     $('fa-s').textContent = 'Choisissez un jour ou une période, puis « Importer » : les copies des BL en espèces sont modifiables ici sans aucun effet sur le Point de vente, la recette du jour ni les quantités vendues';
     var acts = (w && hid.length ? '<button type="button" class="btn" data-fhid>' + (fHid ? 'Masquer' : 'Éléments retirés') + ' (' + hid.length + ')</button>' : '') + (w && todo.length ? '<button type="button" class="btn" data-fmk' + (ns ? '' : ' disabled') + '>Facturer la sélection' + (ns ? ' (' + ns + ')' : '') + '</button><button type="button" class="btn success" data-fall>Tout facturer (' + todo.length + ')</button><button type="button" class="btn danger" data-fclr>Tout vider (' + todo.length + ')</button>' : '');
     return fPerBar() + fCards('C') + (fNewOpen.C && w ? fForm('C') : '') +
-      '<div class="tools-row" style="margin-top:16px"><div class="seg" role="group" aria-label="Filtre"><button type="button" class="btn mini" data-fmode="jour" aria-pressed="' + (fMode === 'jour') + '">Jour</button><button type="button" class="btn mini" data-fmode="periode" aria-pressed="' + (fMode === 'periode') + '">Période</button></div>' +
+      '<div class="tools-row" id="f-filt" style="margin-top:16px"><div class="seg" role="group" aria-label="Filtre"><button type="button" class="btn mini" data-fmode="jour" aria-pressed="' + (fMode === 'jour') + '">Jour</button><button type="button" class="btn mini" data-fmode="periode" aria-pressed="' + (fMode === 'periode') + '">Période</button></div>' +
       (fMode === 'jour' ? '<label class="pf">Jour <input type="date" id="f-day" value="' + fDay + '" max="' + iso(TODAY) + '"></label>' : '<label class="pf">Du <input type="date" id="f-from" value="' + fFrom + '" max="' + iso(TODAY) + '"></label><label class="pf">Au <input type="date" id="f-to" value="' + fTo + '" max="' + iso(TODAY) + '"></label>') +
-      '<button type="button" class="btn mini" data-fdlast>Dernier jour avec BL</button>' + (w ? '<button type="button" class="btn primary" data-fimp>Importer</button><span class="sugg" style="margin:0">' + avail + ' BL en espèces au Point de vente sur ce filtre</span>' : '') + '</div>' +
+      '<button type="button" class="btn mini" data-fdlast>Dernier jour avec BL</button>' + (w ? '<button type="button" class="btn primary" data-fimp>Importer</button><span class="sugg" data-favail style="margin:0">' + avail + ' BL en espèces au Point de vente sur ce filtre</span>' : '') + '</div>' +
       (acts ? '<div class="tools-row" style="margin-top:10px"><span style="margin-left:auto"></span>' + acts + '</div>' : '') +
       (hid.length && fHid ? '<div class="cardbox" style="margin-top:12px"><h3>Éléments retirés</h3>' + hid.map(function (b) { return '<div style="display:flex;gap:12px;align-items:center;padding:6px 0"><span class="mono">' + esc(b.bl) + '</span><span>' + esc(b.client) + '</span><span class="num">' + nf2.format(fTot(b.lines, fRate(b.client)).ttc) + ' TTC</span>' + (w ? '<button type="button" class="btn mini" data-fres="' + esc(b.bl) + '">Restaurer</button>' : '') + '</div>'; }).join('') + '</div>' : '') +
-      '<div class="sheet" style="margin-top:14px"><div class="tablewrap"><table class="tbl-lite"><thead><tr><th></th><th>N° BL</th><th>Client</th><th>Immatriculation</th><th>Quantité</th><th>Désignation</th><th>Prix unitaire TTC</th><th>Total TTC</th><th>Actions</th></tr></thead><tbody>' + (rowsH || '<tr><td colspan="9" style="color:var(--ink-2)">' + (avail ? 'Cliquez sur « Importer » pour charger les ' + avail + ' BL en espèces de ce filtre.' : 'Aucun BL en espèces sur ce filtre.') + '</td></tr>') + '</tbody><tfoot><tr class="tot"><td colspan="7">Total TTC · ' + list.length + ' BL</td><td class="num">' + nf2.format(tot) + '</td><td></td></tr></tfoot></table></div><div class="foot"><span>« Tout facturer » et « Facturer » créent une facture par BL, telle qu’elle est après vos modifications ; « Facturer la sélection » regroupe les BL cochées par client. TVA et TTC figurent au pied de la facture.</span></div></div>' + prods + fInvTable('C');
+      '<div class="sheet" style="margin-top:14px"><div class="tablewrap" data-pcap="BL en espèces"><table class="tbl-lite"><thead><tr><th></th><th>N° BL</th><th>Client</th><th>Immatriculation</th><th>Quantité</th><th>Désignation</th><th>Prix unitaire TTC</th><th>Total TTC</th><th>Actions</th></tr></thead><tbody>' + (rowsH || '<tr><td colspan="9" style="color:var(--ink-2)">' + (avail ? 'Cliquez sur « Importer » pour charger les ' + avail + ' BL en espèces de ce filtre.' : 'Aucun BL en espèces sur ce filtre.') + '</td></tr>') + '</tbody><tfoot><tr class="tot"><td colspan="7">Total TTC · ' + list.length + ' BL</td><td class="num" id="f-tot">' + nf2.format(tot) + '</td><td></td></tr></tfoot></table></div><div class="foot"><span>« Tout facturer » et « Facturer » créent une facture par BL, telle qu’elle est après vos modifications ; « Facturer la sélection » regroupe les BL cochées par client. TVA et TTC figurent au pied de la facture.</span></div></div>' + prods + fInvTable('C');
   }
   /* ---- Usine Agglos : factures de ciment importées depuis Fournisseurs ---- */
   var fCiOk = function () { return sups.reduce(function (l, s) { if (s.cat !== 'Ciment') return l; return l.concat(s.achats.filter(function (a) { return !FCI.some(function (x) { return x.a === a; }); }).map(function (a) { return { s: s, a: a }; })); }, []).sort(function (x, y) { return x.a.date - y.a.date; }); };
@@ -6398,28 +6430,43 @@ button.back { display: none !important; }
     return fPerBar() + fCards('A') + (fNewOpen.A && fCanW() ? fForm('A') : '') + fInvTable('A') + fCiTable();
   }
   /* ---- formulaire de création (Carrière : tous les modes de règlement ; Usine Agglos) ---- */
-  function fDraft(t, keep) { var k = keep || {}; return { cid: k.cid || '', date: k.date || iso(TODAY), mode: k.mode || 'Espèces', piece: '', banque: k.banque || CHR_BANKS[0], ech: k.date || iso(TODAY), lines: [{ des: '', q: '', pu: '', u: t === 'A' ? 'briques' : 'm³' }] }; }
+  function fDraft(t, keep) { var k = keep || {}; return { cid: k.cid || '', date: k.date || iso(TODAY), mode: k.mode || 'Espèces', piece: '', banque: k.banque || CHR_BANKS[0], ech: k.date || iso(TODAY), lines: [{ des: '', q: '', pu: '', u: t === 'A' ? 'unité' : 'm³' }] }; }
   function fForm(t) {
     var d = FDR[t] || (FDR[t] = fDraft(t)), car = t === 'C', cash = car && d.mode === 'Espèces';
     var cl = clients.filter(function (c) { return !(car && !cash && c.comptant); }), cc = clients.filter(function (c) { return String(c.id) === String(d.cid); })[0], rate = cc ? rateOf(cc) : 0.2;
     var us = Object.keys(P).filter(function (k) { return t === 'A' ? P[k].site === 'Usine Agglos' : true; }).map(function (k) { return '<option value="' + esc(P[k].n) + '">'; }).join('');
     var tt = fTot(d.lines.map(function (l) { return { q: l.q, pu: num(l.pu) / (1 + rate) }; }), rate), pay = car && (d.mode === 'Chèque' || d.mode === 'Effet');
-    return '<div class="cardbox" style="margin-top:14px"><h3>Créer une facture</h3><div class="row3"><div class="f"><label for="fc-c">Client *</label><div style="display:flex;gap:8px"><select class="in" id="fc-c" data-ff="cid" style="flex:1"><option value="">— Choisir —</option>' + cl.map(function (c) { return '<option value="' + c.id + '"' + (String(c.id) === String(d.cid) ? ' selected' : '') + '>' + esc(c.nom) + '</option>'; }).join('') + '</select><button type="button" class="btn" data-fnewcli>+ Ajouter un client</button></div></div><div class="f"><label>N° de facture</label><div class="in" style="display:flex;align-items:center"><b class="mono">' + fNext(t) + '</b></div><small class="sugg">Attribué automatiquement</small></div><div class="f"><label for="fc-d">Date</label><input class="in" id="fc-d" type="date" data-ff="date" value="' + d.date + '" max="' + iso(TODAY) + '"></div></div>' +
-      (car ? '<div class="row3"><div class="f"><label for="fc-m">Mode de règlement *</label><select class="in" id="fc-m" data-ff="mode">' + FMODES.map(function (m) { return '<option' + (d.mode === m ? ' selected' : '') + '>' + m + '</option>'; }).join('') + '</select></div>' + (cash ? '<div class="f"></div><div class="f"></div>' : '<div class="f"><label for="fc-p">' + (d.mode === 'Chèque' ? 'N° du chèque *' : (d.mode === 'Effet' ? 'N° de l’effet *' : 'Référence du virement *')) + '</label><input class="in" id="fc-p" data-ff="piece" value="' + esc(d.piece) + '"></div>' + (pay ? '<div class="f"><label for="fc-b">Banque</label><select class="in" id="fc-b" data-ff="banque">' + CHR_BANKS.map(function (b) { return '<option' + (d.banque === b ? ' selected' : '') + '>' + b + '</option>'; }).join('') + '</select></div>' : '<div class="f"></div>')) + '</div>' + (pay ? '<div class="row3"><div class="f"><label for="fc-e">Échéance</label><input class="in" id="fc-e" type="date" data-ff="ech" value="' + d.ech + '"></div><div class="f"></div><div class="f"></div></div>' : '') : '') +
-      '<div class="tablewrap" style="margin-top:8px"><table class="tbl-lite"><thead><tr><th>Désignation</th><th>Quantité</th><th>Unité</th><th>Prix unitaire TTC</th><th>Total TTC</th><th></th></tr></thead><tbody>' + d.lines.map(function (l, i) { return '<tr><td><input class="in" list="fc-prods" data-fln="' + i + '|des" value="' + esc(l.des) + '" placeholder="Désignation"></td><td><input class="in" data-fln="' + i + '|q" inputmode="decimal" value="' + esc(l.q) + '" style="max-width:110px"></td><td><select class="in" data-fln="' + i + '|u">' + (t === 'A' ? ['briques', 'm³'] : ['m³', 'briques']).map(function (u) { return '<option' + (l.u === u ? ' selected' : '') + '>' + u + '</option>'; }).join('') + '</select></td><td><input class="in" data-fln="' + i + '|pu" inputmode="decimal" value="' + esc(l.pu) + '" style="max-width:130px"></td><td class="num" data-flt="' + i + '">' + nf2.format(num(l.q) * num(l.pu)) + '</td><td>' + (d.lines.length > 1 ? '<button type="button" class="btn mini danger" data-fld="' + i + '" aria-label="Retirer">×</button>' : '') + '</td></tr>'; }).join('') + '</tbody></table></div><datalist id="fc-prods">' + us + '</datalist>' +
+    var fCli = '<div class="f"><label for="fc-c">Client *</label><div style="display:flex;gap:8px"><select class="in" id="fc-c" data-ff="cid" style="flex:1;min-width:0"><option value="">— Choisir —</option>' + cl.map(function (c) { return '<option value="' + c.id + '"' + (String(c.id) === String(d.cid) ? ' selected' : '') + '>' + esc(c.nom) + '</option>'; }).join('') + '</select><button type="button" class="btn" data-fnewcli title="Ajouter un client" aria-label="Ajouter un client" style="width:50px;height:50px;padding:0;font-size:26px;line-height:1;flex:none">+</button></div></div>';
+    var fNo = '<div class="f"><label>N° de facture</label><div class="in" style="display:flex;align-items:center"><b class="mono">' + fNext(t) + '</b></div><small class="sugg">Attribué automatiquement</small></div>';
+    var fDt = '<div class="f"><label for="fc-d">Date</label><input class="in" id="fc-d" type="date" data-ff="date" value="' + d.date + '" max="' + iso(TODAY) + '"></div>';
+    var fMo = '<div class="f"><label for="fc-m">Mode de règlement *</label><select class="in" id="fc-m" data-ff="mode">' + FMODES.map(function (m) { return '<option' + (d.mode === m ? ' selected' : '') + '>' + m + '</option>'; }).join('') + '</select></div>';
+    var row1 = car ? '<div class="row3" style="grid-template-columns:0.9fr 1.7fr 1fr 1fr">' + fMo + fCli + fNo + fDt + '</div>' : '<div class="row3">' + fCli + fNo + fDt + '</div>';
+    var row2 = car && !cash ? '<div class="row3"><div class="f"><label for="fc-p">' + (d.mode === 'Chèque' ? 'N° du chèque *' : (d.mode === 'Effet' ? 'N° de l’effet *' : 'Référence du virement *')) + '</label><input class="in" id="fc-p" data-ff="piece" value="' + esc(d.piece) + '"></div>' + (pay ? '<div class="f"><label for="fc-b">Banque</label><select class="in" id="fc-b" data-ff="banque">' + CHR_BANKS.map(function (b) { return '<option' + (d.banque === b ? ' selected' : '') + '>' + b + '</option>'; }).join('') + '</select></div><div class="f"><label for="fc-e">Échéance</label><input class="in" id="fc-e" type="date" data-ff="ech" value="' + d.ech + '"></div>' : '<div class="f"></div><div class="f"></div>') + '</div>' : '';
+    return '<div class="cardbox" style="margin-top:14px;position:relative"><h3>Créer une facture</h3><button type="button" class="dx" data-fclose title="Fermer" aria-label="Fermer" style="position:absolute;top:10px;right:12px;width:34px;height:34px">' + svg2('x', 16) + '</button>' + row1 + row2 +
+      '<div class="tablewrap" style="margin-top:8px"><table class="tbl-lite"><thead><tr><th>Désignation</th><th>Quantité</th><th>Unité</th><th>Prix unitaire TTC</th><th>Total TTC</th><th></th></tr></thead><tbody>' + d.lines.map(function (l, i) { return '<tr><td><input class="in" list="fc-prods" data-fln="' + i + '|des" value="' + esc(l.des) + '" placeholder="Désignation"></td><td><input class="in" data-fln="' + i + '|q" inputmode="decimal" value="' + esc(l.q) + '" style="max-width:110px"></td><td><select class="in" data-fln="' + i + '|u">' + (t === 'A' ? [['unité', 'Unité'], ['m³', 'm³']] : [['m³', 'm³'], ['unité', 'Unité']]).map(function (u) { return '<option value="' + u[0] + '"' + (l.u === u[0] ? ' selected' : '') + '>' + u[1] + '</option>'; }).join('') + '</select></td><td><input class="in" data-fln="' + i + '|pu" inputmode="decimal" value="' + esc(l.pu) + '" style="max-width:130px"></td><td class="num" data-flt="' + i + '">' + nf2.format(num(l.q) * num(l.pu)) + '</td><td>' + (d.lines.length > 1 ? '<button type="button" class="btn mini danger" data-fld="' + i + '" aria-label="Retirer">×</button>' : '') + '</td></tr>'; }).join('') + '</tbody></table></div><datalist id="fc-prods">' + us + '</datalist>' +
       '<div class="tools-row" style="margin-top:8px;justify-content:space-between"><button type="button" class="btn" data-fladd>+ Ajouter une ligne</button><span id="fc-tot" class="sugg" style="margin:0"><b>Total TTC ' + nf2.format(tt.ttc) + '</b></span></div><p class="err" id="fc-err" hidden></p><div class="mact"><button type="button" class="btn" data-fclear>Vider</button><button type="button" class="btn success" data-fgo="' + t + '">Facturer</button></div></div>';
   }
-  function renderFact(sub) {
+  function renderFact(sub, keep) {
     if (sub && FSUB[sub]) { if (sub !== fSub) { fEdit = null; } fSub = sub; }
     var t = FSUB[fSub];
     $('fa-t').textContent = 'Facturation · ' + fSub;
     $('fa-a').innerHTML = fCanW() ? '<button type="button" class="btn primary" data-fnew>' + (fNewOpen[t] ? 'Fermer la nouvelle facture' : '+ Créer une facture') + '</button>' : '';
-    $('fa-body').innerHTML = t === 'C' ? fCar() : fAgg();
+    var html = t === 'C' ? fCar() : fAgg(), box = $('fa-body'), of = keep ? $('f-filt') : null;
+    if (!of) { box.innerHTML = html; return; }
+    /* le filtre de dates n'est pas redessiné : la saisie d'une date n'est jamais interrompue */
+    var tmp = document.createElement('div'); tmp.innerHTML = html; var nf = tmp.querySelector('#f-filt');
+    if (!nf) { box.innerHTML = html; return; }
+    var nodes = [].slice.call(tmp.children), ni = nodes.indexOf(nf);
+    [].slice.call(box.children).forEach(function (n) { if (n !== of) box.removeChild(n); });
+    nodes.slice(0, ni).forEach(function (n) { box.insertBefore(n, of); }); nodes.slice(ni + 1).forEach(function (n) { box.appendChild(n); });
+    var a1 = of.querySelector('[data-favail]'), a2 = nf.querySelector('[data-favail]'); if (a1 && a2) a1.textContent = a2.textContent;
   }
   VIEWHOOKS['view-fact'] = renderFact;
+  /* Échap ferme le formulaire de création (sauf si une fenêtre est ouverte par-dessus) */
+  document.addEventListener('keydown', function (e) { if (e.key !== 'Escape' || $('view-fact').hidden || !$('ov').hidden || !$('dv').hidden) return; var t = FSUB[fSub]; if (fNewOpen[t]) { fNewOpen[t] = false; FDR[t] = null; renderFact(); } }, true);
   /* éditeur et annulation d'une facture (les prix sont saisis hors TVA) */
   function fInvEdit(inv) {
-    var lines = inv.lines.map(function (l) { return { des: l.des, q: String(l.q).replace('.', ','), u: l.u, bl: l.bl, pu: String(Math.round(l.pu * (1 + inv.rate) * 1000) / 1000).replace('.', ',') }; }), cl = inv.client, dt = inv.d;
+    var lines = inv.lines.map(function (l) { return { des: l.des, q: String(l.q).replace('.', ','), u: l.u === 'briques' ? 'unité' : l.u, bl: l.bl, pu: String(Math.round(l.pu * (1 + inv.rate) * 1000) / 1000).replace('.', ',') }; }), cl = inv.client, dt = inv.d;
     var draw = function () {
       var rate = fRate(cl), tt = fTot(lines.map(function (l) { return { q: l.q, pu: num(l.pu) / (1 + rate) }; }), rate);
       $('fi-b').innerHTML = '<div class="row2"><div class="f"><label for="fi-c">Client</label><select class="in" id="fi-c">' + clients.map(function (c) { return '<option' + (c.nom === cl ? ' selected' : '') + '>' + esc(c.nom) + '</option>'; }).join('') + '</select></div><div class="f"><label for="fi-d">Date</label><input class="in" id="fi-d" type="date" value="' + iso(dt) + '" max="' + iso(TODAY) + '"></div></div><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Désignation</th><th>Quantité</th><th>Unité</th><th>Prix unitaire TTC</th><th>Total TTC</th><th></th></tr></thead><tbody>' + lines.map(function (l, i) { return '<tr><td><input class="in" data-fi="' + i + '|des" value="' + esc(l.des) + '"></td><td><input class="in" data-fi="' + i + '|q" value="' + esc(l.q) + '" inputmode="decimal" style="max-width:100px"></td><td><input class="in" data-fi="' + i + '|u" value="' + esc(l.u) + '" style="max-width:80px"></td><td><input class="in" data-fi="' + i + '|pu" value="' + esc(l.pu) + '" inputmode="decimal" style="max-width:120px"></td><td class="num">' + nf2.format(num(l.q) * num(l.pu)) + '</td><td>' + (lines.length > 1 ? '<button type="button" class="btn mini danger" data-fix="' + i + '">×</button>' : '') + '</td></tr>'; }).join('') + '</tbody></table></div><button type="button" class="btn mini" id="fi-add" style="margin-top:8px">+ Ajouter une ligne</button><p class="sugg"><b>Total TTC ' + nf2.format(tt.ttc) + '</b></p><div class="f"><label for="fi-m">Motif de la modification</label><input class="in" id="fi-m" placeholder="Facultatif"></div>';
@@ -6472,6 +6519,14 @@ button.back { display: none !important; }
     if (!made.length) return; fSel = {}; renderFact(); toast(made.length === 1 ? 'Facture ' + made[0].no + ' créée.' : made.length + ' factures créées (' + made[0].no + ' → ' + made[made.length - 1].no + ').');
   }
   /* « Tout vider » : retire de la liste toutes les BL non facturées du filtre (le Point de vente reste inchangé) */
+  /* total TTC d'une BL en cours de modification et total du tableau : mis à jour à chaque frappe */
+  function fLive() {
+    if (!fEdit) return;
+    var sl = function (lines) { return lines.reduce(function (t, l) { return t + (num(l.q) > 0 ? num(l.q) : 0) * (+l.pu || 0); }, 0); };
+    fEdit.lines.forEach(function (l, i) { var c = document.querySelector('[data-fet="' + i + '"]'); if (c) c.textContent = nf2.format((num(l.q) > 0 ? num(l.q) : 0) * (+l.pu || 0)); });
+    var t = 0; Object.keys(FBL).forEach(function (k) { var b = FBL[k]; if (b.hid || !fInR(b.d)) return; t += fEdit.bl === b.bl ? sl(fEdit.lines) : fTot(b.lines, fRate(b.client)).ttc; });
+    if ($('f-tot')) $('f-tot').textContent = nf2.format(t);
+  }
   function fClear() {
     var ks = Object.keys(FBL).filter(function (k) { var x = FBL[k]; return !x.hid && !x.inv && fInR(x.d); }); if (!ks.length) return;
     confirmDanger('Vider la liste de facturation ?', ks.length + ' BL non facturée' + (ks.length > 1 ? 's' : '') + ' seront retirées de cette liste. Le Point de vente reste inchangé, et vous pourrez les restaurer.', 'Tout vider', function () {
@@ -6527,23 +6582,24 @@ button.back { display: none !important; }
     if (e.target.closest('[data-fnewcli]')) return clientModal(null);
     if (e.target.closest('[data-fci]')) return fCiImport();
     if ((b = e.target.closest('[data-fcirm]'))) { var rm = FCI.splice(+b.dataset.fcirm, 1)[0]; audit('Facture de ciment retirée (Facturation)', rm.s.nom, (rm.a.piece || '—') + ' · reste dans le compte du fournisseur'); renderFact(); return toast('Facture retirée de la liste (elle reste chez le fournisseur).'); }
-    if (e.target.closest('[data-fladd]')) { FDR[t].lines.push({ des: '', q: '', pu: '', u: t === 'A' ? 'briques' : 'm³' }); return renderFact(); }
+    if (e.target.closest('[data-fladd]')) { FDR[t].lines.push({ des: '', q: '', pu: '', u: t === 'A' ? 'unité' : 'm³' }); return renderFact(); }
     if ((b = e.target.closest('[data-fld]'))) { FDR[t].lines.splice(+b.dataset.fld, 1); return renderFact(); }
-    if (e.target.closest('[data-fclear]')) { FDR[t] = null; fNewOpen[t] = false; return renderFact(); }
+    if (e.target.closest('[data-fclear]')) { FDR[t] = null; return renderFact(); }
+    if (e.target.closest('[data-fclose]')) { FDR[t] = null; fNewOpen[t] = false; return renderFact(); }
     if ((b = e.target.closest('[data-fgo]'))) return fGo(b.dataset.fgo);
   });
   $('view-fact').addEventListener('input', function (e) {
     var t = FSUB[fSub], a;
-    if (fEdit && (a = e.target.dataset.fl)) { var p = a.split('|'); fEdit.lines[+p[0]][p[1]] = p[1] === 'des' ? e.target.value : (p[1] === 'q' || p[1] === 'pu' ? num(e.target.value) : e.target.value); return; }
+    if (fEdit && (a = e.target.dataset.fl)) { var p = a.split('|'); fEdit.lines[+p[0]][p[1]] = p[1] === 'des' ? e.target.value : (p[1] === 'q' || p[1] === 'pu' ? num(e.target.value) : e.target.value); fLive(); return; }
     if (fEdit && e.target.dataset.fe) { fEdit[e.target.dataset.fe] = e.target.value; return; }
     if (FDR[t] && (a = e.target.dataset.fln)) { var q = a.split('|'); FDR[t].lines[+q[0]][q[1]] = e.target.value; var d = FDR[t], cc = clients.filter(function (c) { return String(c.id) === String(d.cid); })[0], rate = cc ? rateOf(cc) : 0.2; d.lines.forEach(function (l, i) { var c = document.querySelector('[data-flt="' + i + '"]'); if (c) c.textContent = nf2.format(num(l.q) * num(l.pu)); }); var tt = fTot(d.lines.map(function (l) { return { q: l.q, pu: num(l.pu) / (1 + rate) }; }), rate); $('fc-tot').innerHTML = '<b>Total TTC ' + nf2.format(tt.ttc) + '</b>'; return; }
     if (FDR[t] && (a = e.target.dataset.ff)) FDR[t][a] = e.target.value;
   });
   $('view-fact').addEventListener('change', function (e) {
     var t = FSUB[fSub], a;
-    if (e.target.id === 'f-day') { fDay = e.target.value || fDay; fFrom = fTo = fDay; return renderFact(); }
-    if (e.target.id === 'f-from') { fFrom = e.target.value || fFrom; return renderFact(); }
-    if (e.target.id === 'f-to') { fTo = e.target.value || fTo; return renderFact(); }
+    if (e.target.id === 'f-day') { fDay = e.target.value || fDay; fFrom = fTo = fDay; return renderFact(null, true); }
+    if (e.target.id === 'f-from') { fFrom = e.target.value || fFrom; return renderFact(null, true); }
+    if (e.target.id === 'f-to') { fTo = e.target.value || fTo; return renderFact(null, true); }
     if (e.target.dataset.fsel) { fSel[e.target.dataset.fsel] = e.target.checked; return renderFact(); }
     if (fEdit && e.target.dataset.fe === 'client') { fEdit.client = e.target.value; return renderFact(); }
     if (FDR[t] && (a = e.target.dataset.ff)) { FDR[t][a] = e.target.value; if (a === 'mode') { var cc = clients.filter(function (c) { return String(c.id) === String(FDR[t].cid); })[0]; if (cc && cc.comptant && e.target.value !== 'Espèces') FDR[t].cid = ''; } if (a === 'cid' || a === 'mode') renderFact(); return; }
@@ -6681,5 +6737,7 @@ button.back { display: none !important; }
   $('p-reset').addEventListener('click', function () { per = { from: DATA_START, to: TODAY }; refreshAll(); });
   rows.filter(function (r) { return r.statut === 'À facturer'; }).slice(0, 2).forEach(function (r) { picked[r.id] = true; });
   refreshAll();
+  new MutationObserver(function (ms) { ms.forEach(function (m) { m.addedNodes.forEach(function (n) { addPrintBtns(n); }); }); }).observe(document.querySelector('main'), { childList: true, subtree: true });
+  addPrintBtns(document.querySelector('main'));
 })();
 </script>

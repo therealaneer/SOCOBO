@@ -10,7 +10,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   ok(subs.join('|') === 'Carrière|Usine Agglos', 'sous-menu Facturation : Carrière | Usine Agglos');
   await L.nav(p, 'facturation', 'Carrière');
   ok(await p.locator('#print-view').count() === 0, 'plus de bouton Imprimer en haut');
-  ok(await p.locator('#view-fact .printbar').count() === 1, 'bouton Imprimer cette page en bas');
+  ok(await p.locator('#view-fact .printbar').count() === 0 && await p.locator('#view-fact .tprint').count() >= 1, 'boutons Imprimer sous les tableaux, pas de bouton de page');
   ok((await p.locator('#fa-a').innerText()).includes('Créer une facture'), 'bouton Créer une facture en haut');
   ok(await p.locator('#fc-c').count() === 0, 'formulaire fermé par défaut');
   const cards = (await p.locator('#fa-body .kpi .lab').allInnerTexts()).join('|');
@@ -53,11 +53,11 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   const cs = (await p.locator('#fa-body .kpi .pill').allInnerTexts()).map(s => s.replace(/\s/g, ''));
   ok(cs[3] === '400,00' && cs[2] === '900,00', 'cartes chèque (chèque + effet) et virement : ' + cs.join(' '));
   // vider ferme le formulaire
-  await p.click('[data-fclear]'); await p.waitForTimeout(150); ok(await p.locator('#fc-c').count() === 0, 'Vider ferme le formulaire');
+  await p.click('[data-fclear]'); await p.waitForTimeout(150); ok(await p.locator('#fc-c').count() === 1, 'Vider garde le formulaire ouvert'); await p.click('[data-fclose]'); await p.waitForTimeout(150);
   // client de passage : espèces uniquement
   await p.click('[data-fnew]'); await p.selectOption('#fc-m', 'Chèque'); await p.waitForTimeout(100);
   ok(!(await p.locator('#fc-c option').allInnerTexts()).includes('Client de passage'), 'client de passage absent pour un chèque');
-  await p.click('[data-fclear]');
+  await p.click('[data-fclose]'); await p.waitForTimeout(100);
   // annulation : le numéro reste, le suivant continue
   await p.locator('[data-finvann]').first().click(); await p.waitForTimeout(200); await p.click('#fa-ok'); await p.waitForTimeout(250);
   ok(await p.locator('#view-fact .st.mute:text("Annulée")').count() === 1, 'facture annulée conservée');

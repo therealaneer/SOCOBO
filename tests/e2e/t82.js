@@ -9,9 +9,10 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   const items = await p.evaluate(() => [...document.querySelectorAll('#nav [data-k]')].map(b => [b.dataset.k, b.dataset.s || '']));
   const miss = [], extra = [];
   for (const [k, s] of items) { await L.nav(p, k, s || undefined); await p.waitForTimeout(120);
-    const n = await p.locator('section:visible .printbar, div:visible > .printbar').count();
+    const n = await p.locator('main .tprint:visible').count(); if (await p.locator('.printbar').count()) ok(false, 'printbar de page présent : ' + k);
     if (await p.locator('#print-view').count()) ok(false, 'bouton du haut présent');
     if (k === 'parametres' || k === 'audit') { if (n) extra.push(k); } else if (!n) miss.push(k + (s ? ':' + s : '')); }
+  /* pages sans tableau à totaux ni statistiques : pas de bouton attendu */
   ok(extra.length === 0, 'Paramètres et Audit sans bouton Imprimer : ' + extra.join(','));
   console.log('Sans Imprimer en bas :', miss.join(' | ') || 'aucun');
   // ordre : relevé d’un fournisseur du plus ancien au plus récent
