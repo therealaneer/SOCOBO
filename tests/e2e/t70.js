@@ -1,0 +1,23 @@
+const { chromium } = require('playwright'); const L=require('./lib.js');
+(async () => {
+  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+  const p = await b.newPage({ viewport: { width: 1500, height: 1300 } });
+  p.on('pageerror', e => console.log('PAGEERR', e.message));
+  await p.goto('file://' + process.cwd() + '/socobo-menu.html'); await p.waitForTimeout(600);
+  await L.nav(p,'carriere','Ancien Machine'); console.log((await p.locator('#ca-kpis').innerText()).replace(/\n/g,' | '));
+  await p.screenshot({path:'sh70-carr.png'});
+  await p.click('[data-casaisie]'); await p.waitForTimeout(300);
+  await p.fill('#cs-d','2026-10-01'); await p.dispatchEvent('#cs-d','change'); await p.waitForTimeout(200);
+  console.log('rows', await p.locator('[data-tks]').count(), 'tot', await p.locator('#cs-tot').innerText());
+  await p.screenshot({path:'sh70-saisie.png'});
+  await p.click('#cs-addtk'); await p.waitForTimeout(100); console.log('rows', await p.locator('[data-tks]').count());
+  await p.selectOption('[data-tks="2"]','__new'); await p.waitForTimeout(150); await p.fill('#cs-nn','Camion alim. 99999-B-6'); await p.fill('#cs-nc','7'); await p.click('#cs-nk'); await p.waitForTimeout(150);
+  await p.fill('[data-tkn="2"]','5'); console.log('tot after', await p.locator('#cs-tot').innerText());
+  await p.click('#cs-mgr'); await p.waitForTimeout(150); await p.fill('#cs-np','Gravette 4/8'); await p.click('#cs-npadd'); await p.waitForTimeout(150); await p.screenshot({path:'sh70-mgr.png'});
+  const first = p.locator('[data-cmg$="|ancien"]').first(); await first.uncheck(); await p.click('#cs-mgrok'); await p.waitForTimeout(150);
+  console.log('chips', (await p.locator('#cs-prods button').allInnerTexts()).join(' | '));
+  await p.click('#mg-save'); await p.waitForTimeout(300); console.log('toast', await p.locator('#toast').innerText());
+  await L.nav(p,'parametres'); await p.click('[data-ptab="Carrière"]'); await p.waitForTimeout(150); console.log('params carrière', await p.locator('#pa2-body .sech').innerText());
+  await L.nav(p,'oued','Bouaanfir'); console.log('oued sources', (await p.locator('#view-oued').innerText()).includes('alim.'));
+  await b.close();
+})();

@@ -93,6 +93,8 @@ Permissions must be **enforced on the server**, never only hidden in the UI. Lat
 
 ## 9. Working agreement with the owner
 
+- **Session continuity: read `docs/handoff.md` first** (current state, protocol, architecture of the prototype, tests, backlog).
+
 - The owner sends notes in batches; **record them, propose, and apply only when he writes "طبق" / "TABBIK" / "NAFFID"**.
 - Ask for missing business facts (tariffs, recipes, product list, legal name on bank documents) instead of inventing them. Placeholder values must be visibly marked as such.
 - Open questions still pending: internal kWh tariff, drying days (7 assumed), final product list, legal company name on cheques/effets, real company details (address, ICE, RC, IF).

@@ -1,0 +1,1 @@
+exports.nav = async (p, k, s) => { await p.hover('#nav'); if (s) { const g = p.locator('#nav [data-g="'+k+'"]'); if (!(await p.locator('#nav [data-k="'+k+'"][data-s="'+s+'"]').isVisible())) await g.click(); await p.locator('#nav [data-k="'+k+'"][data-s="'+s+'"]').click(); } else await p.locator('#nav [data-k="'+k+'"]').first().click(); await p.waitForTimeout(250); };

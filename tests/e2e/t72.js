@@ -1,0 +1,20 @@
+const { chromium } = require('playwright'); const L=require('./lib.js');
+(async () => {
+  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+  const p = await b.newPage({ viewport: { width: 1500, height: 1000 } });
+  p.on('pageerror', e => console.log('PAGEERR', e.message));
+  await p.goto('file://' + process.cwd() + '/socobo-menu.html'); await p.waitForTimeout(600);
+  await L.nav(p,'personnel','Employés'); await p.waitForTimeout(200);
+  console.log((await p.locator('#pe-body thead').innerText()).replace(/\s+/g,' '));
+  const first = await p.locator('#pe-body tbody tr').first().innerText(); console.log(first.replace(/\s+/g,' ').slice(0,80));
+  await p.fill('#pe-q','M-0003'); await p.waitForTimeout(200); console.log('search rows', await p.locator('#pe-body tbody tr').count());
+  await p.fill('#pe-q','');
+  await p.click('[data-pnew]'); await p.waitForTimeout(250); console.log((await p.locator('#modal .sugg').first().innerText()).replace(/\s+/g,' '));
+  await p.fill('#em-n','Nouveau Test'); await p.fill('#em-cin','AB123456'); await p.fill('#em-tel','0612345678'); await p.fill('#em-p','Ouvrier'); await p.fill('#em-sal','3000');
+  await p.click('#em-save'); await p.waitForTimeout(300); console.log('err', await p.locator('#em-err').count() ? await p.locator('#em-err').innerText() : 'none', '|', await p.locator('#toast').innerText());
+  await p.waitForTimeout(100);
+  console.log('last row', (await p.locator('#pe-body tbody tr').last().innerText()).replace(/\s+/g,' ').slice(0,60));
+  await L.nav(p,'parametres'); await p.click('[data-ptab="Personnel"]'); await p.fill('#pf-mp','SOC-'); await p.click('[data-psave="Personnel"]'); await p.waitForTimeout(200); console.log('toast', await p.locator('#toast').innerText());
+  await L.nav(p,'personnel','Employés'); console.log((await p.locator('#pe-body tbody tr').first().innerText()).replace(/\s+/g,' ').slice(0,40));
+  await b.close();
+})();

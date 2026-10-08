@@ -290,6 +290,48 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] "Marquer vu" and "Approuver la journée" stay in À contrôler, for Contrôle only.
 - [A] Requests listed as "etc." (counter readings of machines, hours of rented machines, parts exits) are not tasks yet: rented machine hours are already in the Oued entry, parts exits are recorded by Caisse. To confirm.
 
+## 30. Carrière: products and tout-venant stock (v49)
+
+- [D] Carrière products are managed **per line** (add, rename, remove) in the Carrière entry.
+- [D] **Tout-venant consumed** is computed from the **feed trucks × number of loads** (the accountant picks the truck and types the number of loads). The **stock pile ("tas")** = Oued input − Carrière draw.
+
+## 31. Présences: hours and daily assignment (v50)
+
+- [D] The Présences table has a **Heures travaillées** column (replaces the H. sup ×1,25 column); the overtime column is simply **H. sup**.
+- [D] The default daily assignment is **Carrière**; **Atelier** is an extra option.
+
+## 32. Internal worker number (v51)
+
+- [D] Every worker has an **internal sequential number** (`M-0001`…), generated automatically, never typed. The CNSS number stays a separate field.
+
+## 33. Modal scroll lock (v52)
+
+- [D] While a dialog is open, the page behind it does not scroll (scroll lock on the page, `overscroll-behavior: contain` on the dialog).
+
+## 34. One back button (v53)
+
+- [D] Only the **global Retour** button exists; the in-page back buttons are hidden. Retour also closes an inner detail view first.
+
+## 35. Facturation (v54, refined in v55)
+
+- [D] A **Facturation** menu item (after Point de vente; visible to DG, Comptabilité, Contrôle) with three sub-sections: **Espèces**, **Chèque**, **Usine Agglos**. Invoices are a **document layer separate from sales**: nothing here changes the Caisse, the daily takings or sold quantities.
+- [D] Each sub-section has its own **automatic sequential numbering that continues across days, no gaps**: `FE-2026-0001`, `FC-2026-0001`, `FA-2026-0001`. A cancelled invoice keeps its number (never reused).
+- [D] Invoice lines show **HT**; **TVA and TTC are at the foot**. Amount in French words on the print; reprint is marked **Duplicata**.
+- [D] **Espèces**:
+  - Filter **Jour** or **Période (Du / Au)**; the table stays empty until **Importer** loads the cash BL copies of that filter. Importer never duplicates a BL already in the list and never re-imports an invoiced BL; a BL removed with **Supprimer** comes back (fresh, as issued by Caisse) at the next Importer. **Éléments retirés** still restores the edited copy.
+  - Columns: N° BL, Client, Immatriculation, Quantité, Désignation, Prix unitaire HT, Total HT. Buttons per row: **Modifier** (inline, all fields), **Supprimer** (only from Facturation), **Imprimer**, **Facturer** (one BL = one invoice, after a confirmation showing the number).
+  - **Tout facturer (n)**: one invoice **per BL, exactly as edited**, consecutive numbers, summary shown before confirming. **Facturer la sélection**: groups the ticked BL, one invoice per client.
+  - **Créer une facture**: a brand-new free invoice (client with "+ Ajouter un client", date, lines with unit and Prix HT), paid in cash by definition: **no payment fields** (no mode, no piece number).
+- [D] **Chèque**: create form with client (+ Ajouter un client), automatic number, date, lines (**Prix unitaire TTC**), payment mode **Chèque / Effet / Virement** and piece number entered **once**: for chèque and effet it is **created automatically in Banque › Chèques reçus** and the **Statut comes from Suivi des chèques** (never typed twice). The list shows N° facture, Date, Client, Mode de règlement, N° de la pièce, Statut, Modifier, Annuler, Imprimer.
+- [D] **Usine Agglos**: same pattern, quantities in briques (or m³ / t), no payment fields.
+- [D] After issue an invoice can be **edited** and **cancelled** by **DG and Comptabilité**. Each edit creates a version (v2, v3…) with history, **visible to DG and Contrôle only** (version badge and Historique). **Annuler** (reason required) keeps the invoice listed as "Annulée"; its BL return to "à facturer". Every change is audited. Caisse sees no Facturation.
+
+## 36. Caisse BL numbering and client receipt (v54)
+
+- [D] New BL use two series: **`BLE-2026-00001`** (espèces) and **`BLC-2026-00001`** (crédit), each starting at 1. Numbers on the demo data are symbolic.
+- [D] Every client payment (Encaissement) produces a **Reçu d'encaissement `REC-2026-00001`**: client and company copies, amount in digits and French words, mode and reference, **"Sous réserve d'encaissement"** for chèque and effet, balance remaining after the payment, **Duplicata** on reprint. A **Reçu** button sits on each payment in the client file.
+- [A] In the prototype the REC number is assigned lazily the first time a receipt is opened; in the real build it is assigned when the payment is recorded.
+
 ## 21. Open questions
 
 1. Legal name on bank documents.
