@@ -60,7 +60,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   await p.click('[data-fclose]'); await p.waitForTimeout(100);
   // annulation : le numéro reste, le suivant continue
   await p.locator('[data-finvann]').first().click(); await p.waitForTimeout(200); await p.click('#fa-ok'); await p.waitForTimeout(250);
-  ok(await p.locator('#view-fact .st.mute:text("Annulée")').count() === 1, 'facture annulée conservée');
+  ok(await p.locator('#view-fact tr.rs-bad', { hasText: 'FC-' }).count() === 1 && !(await p.locator('#view-fact thead').last().innerText()).match(/Statut|\bBL\b/), 'facture annulée conservée (ligne rouge), sans colonnes BL et Statut');
   await p.click('[data-fnew]'); await p.waitForTimeout(150); await fill('Espèces', '', '1', '10');
   ok(/FC-2026-0010/.test(await p.locator('#toast').innerText()), 'après annulation : 0010');
   // modification (prix HT)

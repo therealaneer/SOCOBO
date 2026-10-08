@@ -380,3 +380,7 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 ## 40. v59 — Saisie des dates au clavier
 
 - Les champs date (barre du haut : Présences, Saisie du jour, À contrôler, Dépense ; période « Personnalisé » ; filtre Facturation) restent actifs pendant la saisie : le champ n'est jamais redessiné tant que l'utilisateur tape. La période « Personnalisé » s'applique quand la saisie s'arrête (≈ 1 s), à la sortie du champ ou avec Entrée.
+
+## 41. v61 — Factures émises
+
+- Le tableau « Factures émises » n'a plus les colonnes **BL** et **Statut**. Une facture annulée reste visible en ligne rouge (et sans boutons Modifier/Annuler).
