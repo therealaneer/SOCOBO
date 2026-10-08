@@ -15,12 +15,12 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   const tot = (await p.locator('#fa-body .kpi .pill').first().innerText()).replace(/\s/g, ''); ok(tot !== '0,00', 'Total facturé = ' + tot);
   // import du ciment
   ok(await p.locator('[data-fcirm]').count() === 0, 'aucune facture de ciment au départ');
-  await p.click('[data-fci]'); await p.waitForTimeout(250); const c = await p.locator('[data-fcisel]').count(); ok(c > 0, c + ' factures de ciment à importer');
+  await p.click('[data-fci]'); await p.waitForTimeout(250); await p.click('#fci-b tr'); await p.waitForTimeout(200); const c = await p.locator('[data-fcisel]').count(); ok(c > 0, c + ' factures de ciment à importer');
   ok(await p.locator('#fci-ok').isDisabled(), 'Importer désactivé sans sélection');
   await p.locator('[data-fcisel]').nth(0).check(); await p.locator('[data-fcisel]').nth(1).check(); await p.click('#fci-ok'); await p.waitForTimeout(300);
   ok(await p.locator('[data-fcirm]').count() === 2, '2 factures importées');
   const ci = (await p.locator('#fa-body .kpi .pill').nth(1).innerText()).replace(/\s/g, ''); ok(ci === '129010,00', 'Total ciment acheté TTC = ' + ci);
-  await p.click('[data-fci]'); await p.waitForTimeout(250); ok(await p.locator('[data-fcisel]').count() === c - 2, 'pas de double import'); await p.click('#fci-x'); await p.waitForTimeout(150);
+  await p.click('[data-fci]'); await p.waitForTimeout(250); await p.click('#fci-b tr'); await p.waitForTimeout(200); ok(await p.locator('[data-fcisel]').count() === c - 2, 'pas de double import'); await p.click('#fci-x'); await p.waitForTimeout(150);
   await p.locator('[data-fcirm]').first().click(); await p.waitForTimeout(200); ok(await p.locator('[data-fcirm]').count() === 1, 'Retirer');
   // la facture reste chez le fournisseur
   await L.nav(p, 'fournisseurs'); ok((await p.locator('#view-fournisseurs').innerText()).includes('Ciments du Sud'), 'le fournisseur de ciment existe dans Fournisseurs');

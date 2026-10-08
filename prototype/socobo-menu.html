@@ -5944,7 +5944,7 @@ button.back { display: none !important; }
   }
   function pUsine() {
     var uk = usineKeys().filter(function (k) { return P[k].actif; });
-    return '<div class="sheet"><section class="box"><div class="row3">' + pfield('sech', 'Jours de séchage avant la vente', FC.sech, 'Entier de 0 à 60', 'inputmode="numeric"') + '</div><h3 class="sech">Malaxeur<span>capacité d’une gâchée</span></h3><div class="row3">' + pfield('mix', 'Capacité du malaxeur (kg)', MIX.cap, 'Total des matières hors eau, entre 100 et 5 000', 'inputmode="numeric"') + '</div><h3 class="sech">Stock initial des matières<span>au ' + dfmt.format(DATA_START) + ' (tonnes, adjuvant en kg)</span></h3><div class="row3">' + MATK.map(function (m) { return pfield('mo-' + m, matName(m) + ' (' + mU(m) + ')', pnum(MOPEN[m] || 0), '', 'inputmode="decimal"'); }).join('') + '</div><h3 class="sech">Stock initial des produits finis<span>briques prêtes à vendre</span></h3><div class="row3">' + uk.map(function (k) { return pfield('fo-' + k, P[k].n, FOPEN[k] || 0, '', 'inputmode="numeric"'); }).join('') + '</div>' + perr + psave('Usine') + '</section></div><div class="foot" style="margin-top:12px"><span>Les recettes par gâchée et le nombre de briques par gâchée se règlent dans la fiche de chaque produit de l’usine.</span><button type="button" class="btn mini" data-pgoto="pdv|Produits">Ouvrir Produits</button></div>';
+    return '<div class="sheet"><section class="box"><div class="row3">' + pfield('sech', 'Jours de séchage avant la vente', FC.sech, 'Entier de 0 à 60', 'inputmode="numeric"') + '</div><h3 class="sech">Malaxeur<span>capacité d’une gâchée</span></h3><div class="row3">' + pfield('mix', 'Capacité du malaxeur (kg)', MIX.cap, 'Total des matières hors eau, entre 100 et 5 000', 'inputmode="numeric"') + '</div><h3 class="sech">Stock initial des matières<span>au ' + dfmt.format(DATA_START) + ' (tonnes, adjuvant en kg)</span></h3><div class="row3">' + MATK.map(function (m) { return pfield('mo-' + m, matName(m) + ' (' + mU(m) + ')', pnum(MOPEN[m] || 0), '', 'inputmode="decimal"'); }).join('') + '</div><h3 class="sech">Stock initial des produits finis<span>briques prêtes à vendre</span></h3><div class="row3">' + uk.map(function (k) { return pfield('fo-' + k, P[k].n, FOPEN[k] || 0, '', 'inputmode="numeric"'); }).join('') + '</div><h3 class="sech">Ciment par pièce<span>kg de ciment dans une brique, pour la facturation de l’usine</span></h3><div class="row3">' + uk.map(function (k) { return pfield('cp-' + k, P[k].n + ' (kg)', P[k].cpp > 0 ? String(P[k].cpp).replace('.', ',') : '', P[k].cppInd ? 'EXAMPLE · à remplacer par la valeur réelle' : 'Vide : « À renseigner »', 'inputmode="decimal" placeholder="À renseigner"'); }).join('') + '</div>' + perr + psave('Usine') + '</section></div><div class="foot" style="margin-top:12px"><span>Les recettes par gâchée et le nombre de briques par gâchée se règlent dans la fiche de chaque produit de l’usine. Le ciment par pièce ci-dessus sert uniquement à calculer les briques facturables.</span><button type="button" class="btn mini" data-pgoto="pdv|Produits">Ouvrir Produits</button></div>';
   }
   function pPers() {
     return '<div class="sheet"><section class="box"><div class="row3">' + pfield('jm', 'Jours travaillés par mois', JOURS_MOIS, 'Sert au coût par jour (salaire ÷ jours)', 'inputmode="numeric"') + pfield('sh', 'Heures de travail par semaine', SEM_H, 'Taux horaire = salaire × 12 ÷ (52 × heures)', 'inputmode="numeric"') + pfield('hd', 'Heures d’une journée normale', pnum(HDAY), 'Valeur proposée dans Présences', 'inputmode="decimal"') + '</div><h3 class="sech">Matricule<span>numéro interne généré automatiquement</span></h3><div class="row3">' + pfield('mp', 'Préfixe', MATP, 'Ex. : M- ou SOC-') + pfield('md', 'Nombre de chiffres', MATD, 'Entre 3 et 6', 'inputmode="numeric"') + '<div class="f"><label>Prochain matricule</label><div class="in" style="display:flex;align-items:center"><b class="mono">' + matFmt(matSeq + 1) + '</b></div><small class="sugg">Les numéros déjà attribués ne changent jamais ; seule leur présentation suit le préfixe.</small></div></div><div class="row3">' + pfield('m1', 'Majoration des heures supplémentaires, jours ouvrables (×)', pnum(HSM.m1), '', 'inputmode="decimal"') + pfield('m2', 'Majoration dimanche, férié et nuit (×)', pnum(HSM.m2), '', 'inputmode="decimal"') + '<div class="f"></div></div><h3 class="sech">Délais d’alerte<span>jours avant l’échéance</span></h3><div class="row3">' + pfield('al-contrat', 'Fin de contrat', ALEAD.contrat, '', 'inputmode="numeric"') + pfield('al-essai', 'Fin de période d’essai', ALEAD.essai, '', 'inputmode="numeric"') + pfield('al-cin', 'Expiration de la CIN', ALEAD.cin, '', 'inputmode="numeric"') + '</div><div class="row3">' + pfield('al-permis', 'Permis de conduire', ALEAD.permis, '', 'inputmode="numeric"') + pfield('al-visite', 'Visite médicale', ALEAD.visite, '', 'inputmode="numeric"') + '<div class="f"></div></div>' + perr + psave('Personnel') + '</section></div>';
@@ -5979,7 +5979,8 @@ button.back { display: none !important; }
       var mo = {}, fo = {}, uk = usineKeys().filter(function (k) { return P[k].actif; }), bad = '';
       MATK.forEach(function (m) { var v = n('mo-' + m); if (!(v >= 0)) bad = 'Stock initial invalide (' + matName(m) + ').'; mo[m] = v; }); uk.forEach(function (k) { var v = n('fo-' + k); if (!(v >= 0) || v !== Math.floor(v)) bad = bad || 'Stock initial invalide (' + P[k].n + ').'; fo[k] = v; });
       var mx = n('mix'); if (!(mx >= 100 && mx <= 5000 && mx === Math.floor(mx))) return pfail('La capacité du malaxeur doit être un entier entre 100 et 5 000 kg.'); var big = usineKeys().filter(function (k) { return P[k].rec && recKg(P[k].rec) > mx; }); if (big.length) return pfail('La recette de « ' + P[big[0]].n + ' » dépasse cette capacité (' + nf0.format(recKg(P[big[0]].rec)) + ' kg).');
-      if (bad) return pfail(bad); MIX.cap = mx; FC.sech = sech; MOPEN = mo; uk.forEach(function (k) { FOPEN[k] = fo[k]; }); usRefresh();
+      var cpv = {}; uk.forEach(function (k) { var raw = g('cp-' + k); if (!raw) { cpv[k] = null; return; } var v = num(raw); if (!(v > 0 && v <= 50)) bad = bad || 'Ciment par pièce invalide (' + P[k].n + ') : un nombre entre 0 et 50 kg.'; cpv[k] = v; });
+      if (bad) return pfail(bad); uk.forEach(function (k) { if ((P[k].cpp || null) !== cpv[k]) { P[k].cpp = cpv[k]; P[k].cppInd = false; audit('Ciment par pièce modifié', P[k].n, cpv[k] == null ? 'À renseigner' : nf2.format(cpv[k]) + ' kg'); } }); MIX.cap = mx; FC.sech = sech; MOPEN = mo; uk.forEach(function (k) { FOPEN[k] = fo[k]; }); usRefresh();
     } else if (sec === 'Personnel') {
       var jm = n('jm'), sh = n('sh'), m1 = n('m1'), m2 = n('m2'), al = ['contrat', 'essai', 'cin', 'permis', 'visite'].map(function (k) { return n('al-' + k); });
       if (!(jm >= 20 && jm <= 31 && jm === Math.floor(jm))) return pfail('Les jours travaillés par mois : entier entre 20 et 31.'); if (!(sh >= 20 && sh <= 60)) return pfail('Les heures par semaine doivent être comprises entre 20 et 60.'); if (!(m1 >= 1) || !(m2 >= m1)) return pfail('Les majorations doivent être au moins ×1, et celle du dimanche au moins égale à l’autre.');
@@ -6428,21 +6429,90 @@ button.back { display: none !important; }
   function fCiTable() {
     var w = fCanW(), l = FCI.map(function (x, i) { return { x: x, i: i }; }).sort(function (p, q) { return p.x.a.date - q.x.a.date; }), tot = sum2(FCI, function (x) { return x.a.ttc; });
     return '<div class="sheet" style="margin-top:22px"><section class="box"><h3 class="sech" style="margin-top:0">Factures de ciment importées<span>' + l.length + '</span></h3>' + (w ? '<div class="tools-row" style="margin-bottom:10px"><button type="button" class="btn primary" data-fci>Importer facture fournisseur</button></div>' : '') +
-      '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>N° de facture</th><th>Date</th><th>Fournisseur</th><th>Désignation</th><th>Quantité</th><th>Total TTC</th><th>Statut</th><th>Actions</th></tr></thead><tbody>' + (l.length ? l.map(function (p) { var a = p.x.a, st = invStatus(a); return '<tr><td class="mono"><b style="font-weight:600">' + esc(a.piece || '—') + '</b></td><td>' + dfmt.format(a.date) + '</td><td>' + esc(p.x.s.nom) + '</td><td>' + esc(a.lib) + '</td><td class="num">' + (a.qt ? nf2.format(a.qt) + ' t' : '—') + '</td><td class="num">' + nf2.format(a.ttc) + '</td><td><span class="st ' + (invCls[st] || 'mute') + '">' + st + '</span></td><td><div class="rowacts">' + (w ? '<button type="button" class="btn mini danger" data-fcirm="' + p.i + '">Retirer</button>' : '') + '</div></td></tr>'; }).join('') : '<tr><td colspan="8" style="color:var(--ink-2)">Aucune facture de ciment importée.</td></tr>') + '</tbody><tfoot><tr class="tot"><td colspan="5">Total TTC · ' + l.length + ' facture' + (l.length > 1 ? 's' : '') + '</td><td class="num">' + nf2.format(tot) + '</td><td></td><td></td></tr></tfoot></table></div></section></div>';
+      '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>N° de facture</th><th>Date</th><th>Fournisseur</th><th>Désignation</th><th>Quantité</th><th>Type de brique</th><th>Total TTC</th><th>Statut</th><th>Actions</th></tr></thead><tbody>' + (l.length ? l.map(function (p) { var a = p.x.a, st = invStatus(a); return '<tr><td class="mono"><b style="font-weight:600">' + esc(a.piece || '—') + '</b></td><td>' + dfmt.format(a.date) + '</td><td>' + esc(p.x.s.nom) + '</td><td>' + esc(a.lib) + '</td><td class="num">' + (a.qt ? nf2.format(a.qt) + ' t' : '—') + '</td><td>' + fAllocTxt(p.x) + '</td><td class="num">' + nf2.format(a.ttc) + '</td><td><span class="st ' + (invCls[st] || 'mute') + '">' + st + '</span></td><td><div class="rowacts">' + (w && a.qt ? '<button type="button" class="btn mini" data-fcialloc="' + p.i + '">' + (fAllocT(p.x) ? 'Modifier' : 'Définir') + '</button>' : '') + (w ? '<button type="button" class="btn mini danger" data-fcirm="' + p.i + '">Retirer</button>' : '') + '</div></td></tr>'; }).join('') : '<tr><td colspan="9" style="color:var(--ink-2)">Aucune facture de ciment importée.</td></tr>') + '</tbody><tfoot><tr class="tot"><td colspan="6">Total TTC · ' + l.length + ' facture' + (l.length > 1 ? 's' : '') + '</td><td class="num">' + nf2.format(tot) + '</td><td></td><td></td></tr></tfoot></table></div></section></div>';
+  }
+  /* ---- ciment importé → briques facturables (le ciment par pièce vient de Paramètres › Usine) ---- */
+  var fAlloc = function (x) { return x.alloc || (x.alloc = []); };
+  var fAllocT = function (x) { return Math.round(fAlloc(x).reduce(function (t, y) { return t + y.t; }, 0) * 1000) / 1000; };
+  var fAllocTxt = function (x) {
+    if (!x.a.qt) return '<span style="color:var(--ink-2)">—</span>';
+    var al = fAlloc(x), rest = Math.round((x.a.qt - fAllocT(x)) * 1000) / 1000;
+    var h = al.map(function (y) { return esc(P[y.k] ? P[y.k].n : '—') + (al.length > 1 || rest > 0 ? ' · ' + nf2.format(y.t) + ' t' : ''); }).join('<br>');
+    return h + (rest > 0 ? (h ? '<br>' : '') + '<span class="st mute">À définir' + (al.length ? ' · ' + nf2.format(rest) + ' t' : '') + '</span>' : '');
+  };
+  var fUsK = function () { return usineKeys().filter(function (k) { return P[k].actif; }); };
+  function fCiStock() {
+    var rows = fUsK().map(function (k) {
+      var t = 0, bil = 0, cpp = P[k].cpp > 0 ? P[k].cpp : 0;
+      FCI.forEach(function (x) { fAlloc(x).forEach(function (y) { if (y.k === k) t += y.t; }); });
+      FINV.forEach(function (x) { if (x.t !== 'A' || x.st === 'Annulée') return; x.lines.forEach(function (l) { if (l.u === 'unité' && normTxt(l.des) === normTxt(P[k].n)) bil += num(l.q); }); });
+      var pos = cpp ? Math.floor(Math.round(t * 1e6) / 1e3 / cpp) : null;
+      return { k: k, t: Math.round(t * 1000) / 1000, cpp: cpp, pos: pos, bil: bil, rest: pos == null ? null : pos - bil };
+    }), un = 0;
+    FCI.forEach(function (x) { if (x.a.qt) un += Math.max(0, x.a.qt - fAllocT(x)); });
+    return { rows: rows, un: Math.round(un * 1000) / 1000 };
+  }
+  function fCiCard() {
+    var st = fCiStock(), tt = 0, tp = 0, tb = 0, tr = 0;
+    var body = st.rows.map(function (x) {
+      tt += x.t; tb += x.bil; if (x.pos != null) { tp += x.pos; tr += x.rest; }
+      return '<tr><td><b style="font-weight:600">' + esc(P[x.k].n) + '</b></td><td class="num">' + nf2.format(x.t) + '</td><td class="num">' + (x.cpp ? nf2.format(x.cpp) : '<span class="st warn">À renseigner</span>') + '</td><td class="num">' + (x.pos == null ? '—' : nf0.format(x.pos)) + '</td><td class="num">' + nf0.format(x.bil) + '</td><td class="num"><b style="font-weight:600;' + (x.rest != null && x.rest < 0 ? 'color:var(--bad-fg)' : '') + '">' + (x.rest == null ? '—' : nf0.format(x.rest)) + '</b></td></tr>';
+    }).join('');
+    if (st.un > 0) body += '<tr class="rs-warn"><td><b style="font-weight:600">Non attribué</b></td><td class="num">' + nf2.format(st.un) + '</td><td colspan="4" style="color:var(--ink-2)">Choisissez un type de brique dans le tableau des factures de ciment (bouton Définir).</td></tr>';
+    return '<div class="sheet" style="margin-top:22px"><section class="box"><h3 class="sech" style="margin-top:0">Briques facturables<span>d’après le ciment importé</span></h3><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Type de brique</th><th>Ciment attribué (t)</th><th>Ciment par pièce (kg)</th><th>Pièces facturables</th><th>Pièces facturées</th><th>Reste à facturer</th></tr></thead><tbody>' + (body || '<tr><td colspan="6" style="color:var(--ink-2)">Aucun produit de l’usine.</td></tr>') + '</tbody><tfoot><tr class="tot"><td>Total · ' + st.rows.length + ' type' + (st.rows.length > 1 ? 's' : '') + '</td><td class="num">' + nf2.format(tt + st.un) + '</td><td></td><td class="num">' + nf0.format(tp) + '</td><td class="num">' + nf0.format(tb) + '</td><td class="num">' + nf0.format(tr) + '</td></tr></tfoot></table></div><div class="foot"><span>Pièces facturables = ciment attribué ÷ ciment par pièce (Paramètres › Usine). Les pièces facturées viennent des factures de l’usine (unité « Unité », même désignation). Ce calcul concerne uniquement la facturation de l’usine.</span></div></section></div>';
+  }
+  function fCiAlloc(i) {
+    var x = FCI[i]; if (!x || !x.a.qt) return;
+    var qt = x.a.qt, uk = fUsK(), cur = {}; fAlloc(x).forEach(function (y) { cur[y.k] = y.t; });
+    var fv = function (v) { return v ? String(v).replace('.', ',') : ''; };
+    openModal('<h2>Type de brique</h2><p class="m">Facture ' + esc(x.a.piece || '—') + ' · ' + nf2.format(qt) + ' t de ciment. Répartissez les tonnes entre les types de brique ; ce qui reste peut être défini plus tard.</p><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Type de brique</th><th>Tonnes</th><th></th></tr></thead><tbody>' + uk.map(function (k) { return '<tr><td>' + esc(P[k].n) + '</td><td><input class="in" data-fcal="' + k + '" inputmode="decimal" placeholder="0" value="' + fv(cur[k]) + '" style="max-width:130px"></td><td><button type="button" class="btn mini" data-fcall="' + k + '">Tout le reste</button></td></tr>'; }).join('') + '</tbody></table></div><p class="sugg" id="fcal-r" style="margin:8px 0 0"></p><p class="err" id="fcal-err" hidden></p><div class="mact"><button type="button" class="btn" id="fcal-x">Annuler</button><button type="button" class="btn primary" id="fcal-ok">Enregistrer</button></div>');
+    var ins = [].slice.call($('modal').querySelectorAll('[data-fcal]')), val = function (c) { var v = c.value.trim(); return v ? num(v) : 0; };
+    var upd = function () { var t = ins.reduce(function (z, c) { return z + (val(c) > 0 ? val(c) : 0); }, 0); $('fcal-r').textContent = 'Attribué : ' + nf2.format(t) + ' t · Reste non attribué : ' + nf2.format(Math.max(0, qt - t)) + ' t'; $('fcal-err').hidden = true; return t; };
+    upd();
+    ins.forEach(function (c) { c.addEventListener('input', upd); });
+    $('modal').querySelectorAll('[data-fcall]').forEach(function (bt) { bt.addEventListener('click', function () { var c = $('modal').querySelector('[data-fcal="' + bt.dataset.fcall + '"]'); c.value = ''; var rest = Math.round((qt - upd()) * 1000) / 1000; c.value = rest > 0 ? fv(rest) : ''; upd(); }); });
+    $('fcal-x').addEventListener('click', closeModal);
+    $('fcal-ok').addEventListener('click', function () {
+      var bad = ins.some(function (c) { var v = c.value.trim(); return v && !(num(v) >= 0); });
+      if (bad) { $('fcal-err').textContent = 'Les tonnes doivent être des nombres positifs.'; $('fcal-err').hidden = false; return; }
+      var t = ins.reduce(function (z, c) { return z + val(c); }, 0);
+      if (t > qt + 0.0005) { $('fcal-err').textContent = 'Le total (' + nf2.format(t) + ' t) dépasse la quantité de la facture (' + nf2.format(qt) + ' t).'; $('fcal-err').hidden = false; return; }
+      x.alloc = ins.filter(function (c) { return val(c) > 0; }).map(function (c) { return { k: c.dataset.fcal, t: val(c) }; });
+      audit('Type de brique défini (ciment importé)', x.a.piece || '—', x.alloc.map(function (y) { return P[y.k].n + ' ' + nf2.format(y.t) + ' t'; }).join(', ') || 'Aucun');
+      closeModal(); renderFact(); toast('Type de brique enregistré.');
+    });
   }
   function fCiImport() {
-    var el = fCiOk(), sel = {};
-    openModal('<h2>Importer facture fournisseur</h2><p class="m">Factures des fournisseurs de ciment destinées à l’usine. L’importation ne copie rien : la facture reste dans le compte du fournisseur.</p><div class="tablewrap"><table class="tbl-lite"><thead><tr><th></th><th>N° de facture</th><th>Date</th><th>Fournisseur</th><th>Désignation</th><th>Total TTC</th><th>Statut</th></tr></thead><tbody>' + (el.length ? el.map(function (x, i) { var st = invStatus(x.a); return '<tr><td><input type="checkbox" data-fcisel="' + i + '"></td><td class="mono">' + esc(x.a.piece || '—') + '</td><td>' + dfmt.format(x.a.date) + '</td><td>' + esc(x.s.nom) + '</td><td>' + esc(x.a.lib) + '</td><td class="num">' + nf2.format(x.a.ttc) + '</td><td><span class="st ' + (invCls[st] || 'mute') + '">' + st + '</span></td></tr>'; }).join('') : '<tr><td colspan="7" style="color:var(--ink-2)">Aucune facture de ciment à importer.</td></tr>') + '</tbody></table></div><div class="mact"><button type="button" class="btn" id="fci-x">Annuler</button><button type="button" class="btn primary" id="fci-ok" disabled>Importer</button></div>', 'big');
-    $('fci-x').addEventListener('click', closeModal);
-    $('ov').querySelectorAll('[data-fcisel]').forEach(function (c) { c.addEventListener('change', function () { sel[c.dataset.fcisel] = c.checked; var n = Object.keys(sel).filter(function (k) { return sel[k]; }).length; $('fci-ok').disabled = !n; $('fci-ok').textContent = n ? 'Importer (' + n + ')' : 'Importer'; }); });
-    $('fci-ok').addEventListener('click', function () {
-      var ks = Object.keys(sel).filter(function (k) { return sel[k]; }); ks.forEach(function (k) { var x = el[+k]; FCI.push(x); audit('Facture de ciment importée (Facturation)', x.s.nom, (x.a.piece || '—') + ' · ' + nf2.format(x.a.ttc)); });
-      closeModal(); renderFact(); toast(ks.length + ' facture' + (ks.length > 1 ? 's' : '') + ' de ciment importée' + (ks.length > 1 ? 's' : '') + '.');
-    });
+    var sel = {}, su = null;
+    var sList = function () { return sups.filter(function (c) { return c.cat === 'Ciment'; }); };
+    var cnt = function (c) { return fCiOk().filter(function (x) { return x.s === c; }).length; };
+    function step1() {
+      var rowsH = function (q) { var l = sList().filter(function (c) { return !q || normTxt(c.nom).indexOf(normTxt(q)) >= 0; }); return l.length ? l.map(function (c) { var n = cnt(c); return '<tr class="clk" data-fcis="' + sups.indexOf(c) + '" style="cursor:pointer"><td><b style="font-weight:600">' + esc(c.nom) + '</b></td><td class="num">' + n + '</td><td><button type="button" class="btn mini" data-fcis="' + sups.indexOf(c) + '">Choisir</button></td></tr>'; }).join('') : '<tr><td colspan="3" style="color:var(--ink-2)">Aucun fournisseur de ciment.</td></tr>'; };
+      openModal('<h2>Importer facture fournisseur</h2><p class="m">Choisissez le fournisseur de ciment. L’importation ne copie rien : la facture reste dans le compte du fournisseur.</p><div class="f"><input class="in" id="fci-q" type="search" placeholder="Rechercher un fournisseur" aria-label="Rechercher un fournisseur"></div><div class="tablewrap" style="margin-top:10px"><table class="tbl-lite"><thead><tr><th>Fournisseur</th><th>Factures à importer</th><th></th></tr></thead><tbody id="fci-b">' + rowsH('') + '</tbody></table></div><div class="mact"><button type="button" class="btn" id="fci-x">Annuler</button></div>', 'big');
+      $('fci-x').addEventListener('click', closeModal);
+      $('fci-q').addEventListener('input', function () { $('fci-b').innerHTML = rowsH(this.value); });
+      $('fci-b').addEventListener('click', function (e) { var b = e.target.closest('[data-fcis]'); if (b) { su = sups[+b.dataset.fcis]; step2(); } });
+    }
+    function step2() {
+      sel = {}; var el = fCiOk().filter(function (x) { return x.s === su; }), uk = fUsK();
+      openModal('<h2>' + esc(su.nom) + '</h2><p class="m">Factures non encore importées. Une facture déjà importée n’apparaît plus ici.</p><div class="tablewrap"><table class="tbl-lite"><thead><tr><th><input type="checkbox" id="fci-all" aria-label="Tout sélectionner"' + (el.length ? '' : ' disabled') + '></th><th>N° de facture</th><th>Date</th><th>Désignation</th><th>Quantité</th><th>Total TTC</th><th>Statut</th></tr></thead><tbody>' + (el.length ? el.map(function (x, i) { var st = invStatus(x.a); return '<tr><td><input type="checkbox" data-fcisel="' + i + '"></td><td class="mono">' + esc(x.a.piece || '—') + '</td><td>' + dfmt.format(x.a.date) + '</td><td>' + esc(x.a.lib) + '</td><td class="num">' + (x.a.qt ? nf2.format(x.a.qt) + ' t' : '—') + '</td><td class="num">' + nf2.format(x.a.ttc) + '</td><td><span class="st ' + (invCls[st] || 'mute') + '">' + st + '</span></td></tr>'; }).join('') : '<tr><td colspan="7" style="color:var(--ink-2)">Toutes les factures de ce fournisseur sont déjà importées.</td></tr>') + '</tbody></table></div>' +
+        '<div class="f" style="margin-top:12px;max-width:340px"><label for="fci-t">Type de brique (facultatif)</label><select class="in" id="fci-t"><option value="">À définir</option>' + uk.map(function (k) { return '<option value="' + k + '">' + esc(P[k].n) + '</option>'; }).join('') + '</select><small class="sugg">Vous pourrez le définir ou le changer plus tard.</small></div>' +
+        '<div class="mact"><button type="button" class="btn" id="fci-back">‹ Fournisseurs</button><button type="button" class="btn" id="fci-x">Annuler</button><button type="button" class="btn primary" id="fci-ok" disabled>Importer</button></div>', 'big');
+      $('fci-x').addEventListener('click', closeModal); $('fci-back').addEventListener('click', step1);
+      var upd = function () { var n = Object.keys(sel).filter(function (k) { return sel[k]; }).length; $('fci-ok').disabled = !n; $('fci-ok').textContent = n ? 'Importer (' + n + ')' : 'Importer'; if ($('fci-all')) $('fci-all').checked = n === el.length && n > 0; };
+      $('ov').querySelectorAll('[data-fcisel]').forEach(function (c) { c.addEventListener('change', function () { sel[c.dataset.fcisel] = c.checked; upd(); }); });
+      if ($('fci-all')) $('fci-all').addEventListener('change', function () { var on = this.checked; $('ov').querySelectorAll('[data-fcisel]').forEach(function (c) { c.checked = on; sel[c.dataset.fcisel] = on; }); upd(); });
+      $('fci-ok').addEventListener('click', function () {
+        var ks = Object.keys(sel).filter(function (k) { return sel[k]; }), tk = $('fci-t').value;
+        ks.forEach(function (k) { var x = el[+k]; x.alloc = tk && x.a.qt ? [{ k: tk, t: x.a.qt }] : []; FCI.push(x); audit('Facture de ciment importée (Facturation)', x.s.nom, (x.a.piece || '—') + ' · ' + nf2.format(x.a.ttc) + (x.alloc.length ? ' · ' + P[tk].n : '')); });
+        closeModal(); renderFact(); toast(ks.length + ' facture' + (ks.length > 1 ? 's' : '') + ' de ciment importée' + (ks.length > 1 ? 's' : '') + '.');
+      });
+    }
+    step1();
   }
   function fAgg() {
     $('fa-s').textContent = 'Factures de l’usine : briques, hourdis et autres produits';
-    return fPerBar() + fCards('A') + (fNewOpen.A && fCanW() ? fForm('A') : '') + fInvTable('A') + fCiTable();
+    return fPerBar() + fCards('A') + (fNewOpen.A && fCanW() ? fForm('A') : '') + fInvTable('A') + fCiCard() + fCiTable();
   }
   /* ---- formulaire de création (Carrière : tous les modes de règlement ; Usine Agglos) ---- */
   function fDraft(t, keep) { var k = keep || {}; return { cid: k.cid || '', date: k.date || iso(TODAY), mode: k.mode || 'Espèces', piece: '', banque: k.banque || CHR_BANKS[0], ech: k.date || iso(TODAY), lines: [{ des: '', q: '', pu: '', u: t === 'A' ? 'unité' : 'm³' }] }; }
@@ -6596,6 +6666,7 @@ button.back { display: none !important; }
     if (e.target.closest('[data-fall]')) return fFact(Object.keys(FBL).filter(function (k) { var x = FBL[k]; return !x.hid && !x.inv && fInR(x.d); }).sort(function (a, c) { return (iso(FBL[a].d) + FBL[a].time + a) < (iso(FBL[c].d) + FBL[c].time + c) ? -1 : 1; }), false);
     if (e.target.closest('[data-fnewcli]')) return clientModal(null);
     if (e.target.closest('[data-fci]')) return fCiImport();
+    if ((b = e.target.closest('[data-fcialloc]'))) return fCiAlloc(+b.dataset.fcialloc);
     if ((b = e.target.closest('[data-fcirm]'))) { var rm = FCI.splice(+b.dataset.fcirm, 1)[0]; audit('Facture de ciment retirée (Facturation)', rm.s.nom, (rm.a.piece || '—') + ' · reste dans le compte du fournisseur'); renderFact(); return toast('Facture retirée de la liste (elle reste chez le fournisseur).'); }
     if (e.target.closest('[data-fladd]')) { FDR[t].lines.push({ des: '', q: '', pu: '', u: t === 'A' ? 'unité' : 'm³' }); return renderFact(); }
     if ((b = e.target.closest('[data-fld]'))) { FDR[t].lines.splice(+b.dataset.fld, 1); return renderFact(); }
@@ -6714,6 +6785,7 @@ button.back { display: none !important; }
     });
   }
 
+  usineKeys().forEach(function (k, i) { if (P[k].cpp == null) { P[k].cpp = [1.6, 1.9, 2.4, 2, 2][i % 5]; P[k].cppInd = true; } });
   fillCats();
   renderSups();
 

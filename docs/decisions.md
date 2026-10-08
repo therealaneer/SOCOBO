@@ -384,3 +384,12 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 ## 41. v61 — Factures émises
 
 - Le tableau « Factures émises » n'a plus les colonnes **BL** et **Statut**. Une facture annulée reste visible en ligne rouge (et sans boutons Modifier/Annuler).
+
+## 42. v62 — Importer facture fournisseur et briques facturables (Usine Agglos)
+
+- [D] **Importer facture fournisseur** works in two steps: (1) the list of **Ciment** suppliers with a search field and the number of invoices still to import; (2) the invoices of the chosen supplier, with a « select all » box and a back button. An invoice already imported is no longer offered, so it cannot be imported twice.
+- [D] At import, **Type de brique** is optional (default « À définir »). It can be defined or changed later with the **Définir / Modifier** button of the imported-invoices table; the tonnes of an invoice can be split between several brick types, the rest stays « Non attribué ». New column **Type de brique** in that table.
+- [D] **Ciment par pièce (kg)** is a per-product setting in Paramètres › Usine (empty = « À renseigner »). It is independent of the gâchée recipe, which stays for cost and stock only. [A] Example values are marked EXAMPLE until replaced.
+- [D] Cement is one pool: CPJ 55 and CPJ 65 are not distinguished here.
+- [D] New card **Briques facturables**: per brick type, cement attributed (t), cement per piece, **pieces billable = tonnes × 1000 ÷ cement per piece**, pieces billed, remaining. A factory invoice (page Usine Agglos only) line with unit « Unité » and the product name reduces the remainder immediately; cancelled invoices do not count. Unattributed tonnes are shown on a « Non attribué » row. Not affected by the period chips.
+
