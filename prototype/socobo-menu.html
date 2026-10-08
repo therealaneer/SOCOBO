@@ -216,6 +216,12 @@ h1 { margin: 0; font-weight: 300; font-size: clamp(34px, 5.4vw, 58px); letter-sp
 /* KPI pills */
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px 22px; margin-top: 26px; }
 .kpi { min-width: 0; }
+.kpi.kmini { min-height: 0; padding: 12px 16px; }
+.kpi.kmini .lab { font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+.kmini .kq { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 13px; color: var(--ink-2); }
+.kmini .kq b { font-size: 18px; font-weight: 600; color: var(--ink); }
+.kmini .kqb { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; }
+.kmini .kqb b { font-size: 15px; font-weight: 500; }
 .kpi .lab { font-size: 13px; color: var(--ink-2); margin-bottom: 6px; }
 .pill {
   display: flex; align-items: center; height: 46px; width: max(var(--w), 9.5rem); max-width: 100%;
@@ -6393,8 +6399,11 @@ button.back { display: none !important; }
     });
     var cap = perStr(rg) + ' · TTC', sub = function (c) { return c + ' · TTC'; };
     if (t === 'A') {
-      var ci = FCI.reduce(function (s, x) { return iso(x.a.date) >= f && iso(x.a.date) <= e ? s + x.a.ttc : s; }, 0);
-      return '<div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">' + kpiH('Total facturé', nf2.format(by.all), cap, false, true) + kpiH('Total ciment acheté', nf2.format(ci), 'Factures importées · TTC') + '</div>';
+      var ci = sum2(FCI, function (x) { return x.a.ttc; }), st = fCiStock(), fm = sum2(st.rows, function (x) { return x.mnt; });
+      var mini = st.rows.filter(function (x) { return x.t > 0; }).map(function (x) {
+        return '<div class="kpi kmini"><div class="lab">' + esc(P[x.k].n) + '</div><div class="kq"><span>Qté reste à facturer</span><b style="' + (x.rest != null && x.rest < 0 ? 'color:var(--bad-fg)' : '') + '">' + (x.rest == null ? 'À renseigner' : nf0.format(x.rest)) + '</b></div><div class="kq kqb"><span>Qté facturé</span><b>' + nf0.format(x.bil) + '</b></div></div>';
+      }).join('');
+      return '<div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">' + kpiH('Total ciment acheté', nf2.format(ci), 'Factures importées · TTC') + kpiH('Total ciment facturé', nf2.format(fm), 'Ciment des briques facturées · TTC') + kpiH('Reste à facturer', nf2.format(ci - fm), 'Ciment pas encore facturé · TTC') + kpiH('Total facturé', nf2.format(by.all), cap, false, true) + '</div>' + (mini ? '<div class="kpis kminis" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-top:16px">' + mini + '</div>' : '');
     }
     return '<div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">' + kpiH('Total facturé', nf2.format(by.all), cap, false, true) + kpiH('Total espèces facturé', nf2.format(by.esp), sub('Espèces')) + kpiH('Total chèque facturé', nf2.format(by.chq), sub('Chèque et effet')) + kpiH('Total virement facturé', nf2.format(by.vir), sub('Virement')) + '</div>';
   }
@@ -6446,8 +6455,10 @@ button.back { display: none !important; }
       var t = 0, bil = 0, cpp = P[k].cpp > 0 ? P[k].cpp : 0;
       FCI.forEach(function (x) { fAlloc(x).forEach(function (y) { if (y.k === k) t += y.t; }); });
       FINV.forEach(function (x) { if (x.t !== 'A' || x.st === 'Annulée') return; x.lines.forEach(function (l) { if (l.u === 'unité' && normTxt(l.des) === normTxt(P[k].n)) bil += num(l.q); }); });
-      var pos = cpp ? Math.floor(Math.round(t * 1e6) / 1e3 / cpp) : null;
-      return { k: k, t: Math.round(t * 1000) / 1000, cpp: cpp, pos: pos, bil: bil, rest: pos == null ? null : pos - bil };
+      var pos = cpp ? Math.floor(Math.round(t * 1e6) / 1e3 / cpp) : null, val = 0;
+      FCI.forEach(function (x) { fAlloc(x).forEach(function (y) { if (y.k === k && x.a.qt) val += y.t * x.a.ttc / x.a.qt; }); });
+      var avg = t > 0 ? val / t : 0;
+      return { k: k, t: Math.round(t * 1000) / 1000, cpp: cpp, pos: pos, bil: bil, rest: pos == null ? null : pos - bil, mnt: cpp ? bil * cpp / 1000 * avg : 0 };
     }), un = 0;
     FCI.forEach(function (x) { if (x.a.qt) un += Math.max(0, x.a.qt - fAllocT(x)); });
     return { rows: rows, un: Math.round(un * 1000) / 1000 };

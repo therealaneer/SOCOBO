@@ -44,6 +44,11 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   await p.fill('[data-fln="0|des"]', name); await p.fill('[data-fln="0|q"]', '1000'); await p.fill('[data-fln="0|pu"]', '1'); await p.click('[data-fgo="A"]'); await p.waitForTimeout(400);
   const after = await rowsC(); const rest1 = parseInt(after[5].replace(/\s|\u202f|\u00a0/g, ''), 10);
   ok(rest0 - rest1 === 1000, 'facture de 1000 unités : reste ' + rest0 + ' → ' + rest1);
+  // cartes : 3 cartes ciment + Total facturé, cartes fines par type attribué
+  const cards = async () => p.evaluate(() => [...document.querySelectorAll('#fa-body .kpis .kpi')].map(k => k.innerText.replace(/\s+/g, ' ')));
+  const cs = await cards(); ok(cs.length >= 5 && /Total ciment acheté/.test(cs[0]) && /Total ciment facturé/.test(cs[1]) && /Reste à facturer/.test(cs[2]) && /Total facturé/.test(cs[3]), 'ordre des cartes : ' + cs.slice(0, 4).map(c => c.split(' ').slice(0, 3).join(' ')).join(' | '));
+  ok(cs.slice(4).every(c => /Qté reste à facturer/.test(c) && /Qté facturé/.test(c)), 'cartes fines : Qté reste à facturer / Qté facturé');
+  const amt = c => parseFloat(c.replace(/[^\d,]/g, '').replace(',', '.'));
   // Paramètres : ciment par pièce
   await L.nav(p, 'parametres'); await p.locator('[data-ptab="Usine"]').click(); await p.waitForTimeout(250);
   ok(await p.locator('[id^="pf-cp-"]').count() >= 1 && /EXAMPLE/.test(await txt('#view-params')), 'Paramètres › Usine : ciment par pièce (EXAMPLE)');

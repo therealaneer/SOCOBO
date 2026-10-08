@@ -48,3 +48,4 @@ Read this file together with `CLAUDE.md` (company, roles, engineering rules) and
 - v59 : correctif des champs date (voir decisions §40) ; test `tests/e2e/t88.js`. Cause : Chrome met transitoirement `document.activeElement` à BODY pendant l'événement `change` d'un champ date, donc ne pas se fier à `:focus` pour décider de ne pas redessiner.
 
 - v62 : import fournisseur en 2 étapes, type de brique par facture de ciment (optionnel), « Ciment par pièce (kg) » dans Paramètres › Usine, carte « Briques facturables » (decisions §42) ; test `tests/e2e/t89.js`.
+- v63 : cartes Usine Agglos (ciment acheté / facturé / reste + Total facturé, cartes fines par type) — decisions §43.

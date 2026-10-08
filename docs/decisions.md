@@ -393,3 +393,8 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] Cement is one pool: CPJ 55 and CPJ 65 are not distinguished here.
 - [D] New card **Briques facturables**: per brick type, cement attributed (t), cement per piece, **pieces billable = tonnes × 1000 ÷ cement per piece**, pieces billed, remaining. A factory invoice (page Usine Agglos only) line with unit « Unité » and the product name reduces the remainder immediately; cancelled invoices do not count. Unattributed tonnes are shown on a « Non attribué » row. Not affected by the period chips.
 
+## 43. v63 — Cartes de la page Usine Agglos
+
+- [D] Row 1: **Total ciment acheté** (all imported invoices, TTC), **Total ciment facturé** (cost of the cement in the bricks already billed = billed pieces × cement per piece × average price per tonne of the invoices attributed to that type), **Reste à facturer** (acheté − facturé, unattributed tonnes included), then **Total facturé** (sales of the factory, as before). The three cement cards are not affected by the period chips.
+- [D] Row 2: one thin card per brick type that has cement attributed: **Qté reste à facturer** (pieces) and, under a thin line, **Qté facturé**. Types without attributed cement show no card (they stay in the « Briques facturables » table).
+
