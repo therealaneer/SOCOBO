@@ -376,3 +376,7 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 9. Real recipes, bricks per batch, mixer capacity, cement and adjuvant prices.
 10. Real spare-parts references, thresholds and opening stock.
 11. Real budgets per charge category, real rented fleet and prices per hour.
+
+## 40. v59 — Saisie des dates au clavier
+
+- Les champs date (barre du haut : Présences, Saisie du jour, À contrôler, Dépense ; période « Personnalisé » ; filtre Facturation) restent actifs pendant la saisie : le champ n'est jamais redessiné tant que l'utilisateur tape. La période « Personnalisé » s'applique quand la saisie s'arrête (≈ 1 s), à la sortie du champ ou avec Entrée.

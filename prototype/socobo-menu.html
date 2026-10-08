@@ -5315,13 +5315,21 @@ button.back { display: none !important; }
     return '<span class="pertabs">' + t + '</span>';
   };
   var custRefresh = function (el) { var b = el.closest('.pertabs').querySelector('[aria-selected="true"]'); if (b) b.click(); };
-  document.addEventListener('change', function (e) {
-    var i = e.target.closest && e.target.closest('[data-cust]'); if (!i || !i.value) return;
+  /* la saisie au clavier émet un « change » à chaque chiffre : on applique la date une fois la saisie terminée */
+  var custTimer = null;
+  var custApply = function (i) {
+    clearTimeout(custTimer); custTimer = null; if (!i.isConnected || !i.value) return;
     var d = new Date(i.value + 'T00:00:00'), f = i.dataset.cust === 'from' ? d : CUST.from, t = i.dataset.cust === 'to' ? d : CUST.to;
     if (d > TODAY) { toast('La date ne peut pas être dans le futur.', 'bad'); return custRefresh(i); }
     if (f > t) { if (i.dataset.cust === 'from') t = new Date(f); else { toast('« Au » doit être après « Du ».', 'bad'); return custRefresh(i); } }
     CUST = { from: f, to: t }; custRefresh(i);
+  };
+  document.addEventListener('change', function (e) {
+    var i = e.target.closest && e.target.closest('[data-cust]'); if (!i || !i.value) return;
+    clearTimeout(custTimer); custTimer = setTimeout(function () { custApply(i); }, 900);
   });
+  document.addEventListener('focusout', function (e) { var i = e.target.closest && e.target.closest('[data-cust]'); if (i && custTimer) custApply(i); });
+  document.addEventListener('keydown', function (e) { var i = e.target.closest && e.target.closest('[data-cust]'); if (i && e.key === 'Enter' && custTimer) { e.preventDefault(); custApply(i); } });
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-custstep]'); if (!b) return;
     var n = Math.round((CUST.to - CUST.from) / 864e5) + 1, k = +b.dataset.custstep * n, f = addDays(CUST.from, k), t = addDays(CUST.to, k);
@@ -6002,8 +6010,9 @@ button.back { display: none !important; }
   });
 
   /* ---- Jour dans la barre du haut (Contrôle, Présences, Dépense, Usine) ---- */
+  var tdKeep = null; /* champ date qui vient d'émettre « change » : Chrome le dit transitoirement sans focus pendant la saisie */
   function setTopDay(h) {
-    var box = $('top-day'), live = box.querySelector('input[type="date"]:focus');
+    var box = $('top-day'), live = (tdKeep && box.querySelector('#' + tdKeep)) || box.querySelector('input[type="date"]:focus');
     if (live && h) { /* date en cours de saisie : on garde le champ, on ne met à jour que l'étiquette d'état */
       var tmp = document.createElement('div'); tmp.innerHTML = h;
       if (tmp.querySelector('#' + live.id)) { var os = box.querySelector('.st'), ns = tmp.querySelector('.st'); if (os && ns) os.replaceWith(ns); return; }
@@ -6012,7 +6021,10 @@ button.back { display: none !important; }
   }
   $('top-day').addEventListener('change', function (e) {
     var d = parseIso(e.target.value); if (!d || d > TODAY) return;
-    if (e.target.id === 'co-date') { cDay = d; renderControle(); } else if (e.target.id === 'dp-date') { depDay = d; renderDepense(); } else if (e.target.id === 'pe-date') { peDate = d; peDraft = null; renderPersonnel(); } else if (e.target.id === 'sj-date') { sDate = d; renderUsine(); }
+    tdKeep = e.target.id;
+    try {
+      if (e.target.id === 'co-date') { cDay = d; renderControle(); } else if (e.target.id === 'dp-date') { depDay = d; renderDepense(); } else if (e.target.id === 'pe-date') { peDate = d; peDraft = null; renderPersonnel(); } else if (e.target.id === 'sj-date') { sDate = d; renderUsine(); }
+    } finally { tdKeep = null; }
   });
   $('top-day').addEventListener('click', function (e) {
     if (e.target.closest('#pe-prev')) { peDate = addDays(peDate, -1); peDraft = null; renderPersonnel(); } else if (e.target.closest('#pe-today')) { peDate = TODAY; peDraft = null; renderPersonnel(); }
