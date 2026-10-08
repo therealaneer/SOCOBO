@@ -8,6 +8,7 @@
   --frame: #f3f4f6;
   --glow: transparent;
   --sheet: #ffffff;
+  --calf: brightness(0);
   --ink: #1f2937;
   --ink-2: #5a5e70;
   --line: #c6cad8;
@@ -46,7 +47,7 @@
     --warn-bg: #4b3811; --warn-fg: #ffd98a;
     --bad-bg: #4b201a; --bad-fg: #ffb5a9;
     --mute-bg: #2b2e3b; --mute-fg: #cdd0df; --hatch: #4a4f6a;
-    color-scheme: dark;
+    color-scheme: dark; --calf: none;
   }
 }
 :root[data-theme="dark"] {
@@ -59,7 +60,7 @@
   --warn-bg: #4b3811; --warn-fg: #ffd98a;
   --bad-bg: #4b201a; --bad-fg: #ffb5a9;
   --mute-bg: #2b2e3b; --mute-fg: #cdd0df; --hatch: #4a4f6a;
-  color-scheme: dark;
+  color-scheme: dark; --calf: none;
 }
 
 * { box-sizing: border-box; }
@@ -347,6 +348,8 @@ input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--ink); }
 .top { gap: 14px; flex-wrap: wrap; }
 .period { display: flex; align-items: center; gap: 10px; background: var(--glass); border-radius: 12px; padding: 5px 6px 5px 14px; flex-wrap: wrap; }
 .period .pl { color: var(--ink-2); font-size: 13px; }
+input[type=date]::-webkit-calendar-picker-indicator { opacity: .8; cursor: pointer; filter: var(--calf); }
+input[type=date]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 .pf { display: flex; align-items: center; gap: 6px; color: var(--ink-2); font-size: 13px; }
 .pf input { height: 32px; border: 1px solid var(--line); border-radius: 8px; background: var(--chip); color: var(--ink); padding: 0 8px; }
 .pr { width: 32px; height: 32px; border: 0; border-radius: 8px; background: transparent; color: var(--ink-2); display: grid; place-items: center; }
