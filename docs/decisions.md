@@ -5,7 +5,7 @@ Living record of every design decision taken with the owner while the prototype 
 Convention: **[D]** = decided by the owner · **[A]** = assumption made by Claude, to confirm · **[?]** = open question.
 UI language: French. Amounts: 2 decimals, no "MAD" suffix.
 
-Prototype status: **v56** (one branch per version, stacked; `main` untouched). Phase: **design** (no Django code yet — see `CLAUDE.md` section 11).
+Prototype status: **v57** (one branch per version, stacked; `main` untouched). Phase: **design** (no Django code yet — see `CLAUDE.md` section 11).
 
 ---
 
@@ -324,7 +324,7 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] **Carrière cards** (TTC, period chips Aujourd'hui · Ce mois · Mois précédent · Tout · Personnalisé, default « Tout », by invoice date, cancelled invoices excluded): **Total facturé** (key card), **Total espèces facturé**, **Total chèque facturé** (chèque and effet), **Total virement facturé**.
 - [D] **Carrière payment modes**: Espèces, Chèque, Effet, Virement. Chèque and effet: the piece number is entered **once** and the cheque is **created automatically in Banque › Chèques reçus**, the **Statut comes from Suivi des chèques**. Virement: reference. Espèces: no payment field. « Client de passage » is offered for Espèces only.
 - [D] **Carrière › import of cash BL**: filter **Jour** or **Période (Du / Au)**; the BL table stays empty until **Importer** loads the cash BL copies of that filter. Importer never duplicates a BL already in the list and never re-imports an invoiced BL; a BL removed with **Supprimer** comes back (fresh, as issued by Caisse) at the next Importer. **Éléments retirés** restores the edited copy.
-  - Columns: N° BL, Client, Immatriculation, Quantité, Désignation, Prix unitaire HT, Total HT. Per row: **Modifier** (inline), **Supprimer** (only from Facturation), **Imprimer**, **Facturer** (one BL = one invoice, created directly, toast with the number).
+  - Columns: N° BL, Client, Immatriculation, Quantité, Désignation, Prix unitaire TTC, Total TTC (v57: prices are TTC on screen). Per row: **Modifier** (inline), **Supprimer** (only from Facturation), **Imprimer**, **Facturer** (one BL = one invoice, created directly, toast with the number).
   - **Tout facturer (n)**: one invoice **per BL, exactly as edited**, consecutive numbers, a confirmation lists them before creating. **Facturer la sélection**: groups the ticked BL, one invoice per client, created directly. **Both buttons are hidden while there is nothing left to invoice** (empty table or everything already invoiced); **Facturer la sélection** is disabled until a BL is ticked. Their invoices have payment mode Espèces.
 - [D] **Factures émises** (both sub-sections), oldest first: N° de facture, Date, Client, BL, Mode de règlement, N° de la pièce, Total HT, Total TTC, Statut, Actions (Carrière); the same without BL, mode and piece for Usine Agglos.
 - [D] **Usine Agglos cards**: **Total facturé** (key card) and **Total ciment acheté** (TTC, period chips). Quantities in briques (or m³).
@@ -342,6 +342,17 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 
 - [D] Facturation restructured into **Carrière** and **Usine Agglos** (§35). Top-bar print button removed; chronological order principle (§18). « Sable 0/4 » renamed « Sable lavé concassé 0/5 » (§7).
 - [D] **Factory cost, materials with a supplier invoice in TTC**: cement (CPJ 55, CPJ 65) and adjuvant are costed at the **invoice price TTC**. Paramètres › Prix et tarifs fields are labelled « TTC » and the cost lines of Usine and Rentabilité say « TTC ». Electricity, maintenance, labour and the sand and gravel transferred from the quarry are unchanged. [A] The example values (cement 1 050 per tonne…) are now read as TTC prices, not converted; replace them with the real invoice prices.
+
+## 38. Prices TTC, agreed client prices, Tout vider (v57)
+
+- [D] **Prices are shown and typed TTC everywhere on screen**: Produits (a single « Prix TTC » column replaces « Prix HT » and « Prix TTC (20 %) »; the product form takes the price TTC per t, per m³ or per brick), Caisse (cards show TTC per t and per m³ or per brick; the ticket shows only **Total TTC**, no HT or TVA lines; the brick price box reads « Prix TTC »), the printed A6 BL (columns Prix TTC and Total TTC, only the Total TTC sum), Historique des pesées, and all of Facturation (BL table, creation form, edit of a BL or an invoice, « Tout facturer » confirmation, BL print). The column « Total HT » is removed from the table « Factures émises ». Internally the HT price is still stored and derived (÷ 1,20, or ÷ 1,00 for an HT-exempt client) for VAT and accounting.
+- [D] **The printed invoice keeps HT, TVA and TTC** (a legal requirement); everything else on screen is TTC.
+- [D] **An HT-exempt client** (TVA mode « HT ») has TTC = HT: the Caisse shows him the price without VAT.
+- [D] **Agreed client prices (« Prix convenus »)**: in the client file (new-client form and a new tab « Prix convenus » of the client file). Each line = a product + a price **TTC**: per m³ and/or per t for quarry products (if only one is given the other is derived with the density), per brick for bricks. Button « + Ajouter un prix » adds another product, × removes a line. A product can appear once per client. **Only the DG sets and changes these prices**; Comptabilité and the others read them. Changes are written to Audit.
+- [D] **In the Caisse**, when the client is chosen, the cards, the quantity panel and the ticket use his agreed price, with a green « Prix client » tag on the card. Products without an agreed price keep the normal price. Past BL never change.
+- [D] **« Tout vider »** (Facturation › Carrière, next to « Facturer la sélection » and « Tout facturer », red, shown only when un-invoiced BL are in the table): after a confirmation it removes all un-invoiced BL of the filter from the list (invoiced BL stay). The Point de vente is unchanged; the removed BL are under « Éléments retirés » with « Restaurer ». Written to Audit.
+- [D] **Alignment**: the fields of a form row (Client, N° de facture, Date…) all start on the same line whatever the hints under them; in the inline edit of a BL, the unit « m³ » sits beside the quantity and all fields share one centre line.
+- [?] Example value: Atlas Travaux SARL has an agreed price Gravette 8/16 at 190,00 TTC per m³ (normal 198,00).
 
 ## 21. Open questions
 

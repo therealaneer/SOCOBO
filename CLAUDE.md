@@ -71,6 +71,7 @@ Permissions must be **enforced on the server**, never only hidden in the UI. Lat
 - Factory internal accounting: cost per mille = materials + labour (salary/26 × days assigned) + electricity (Δkwh × tariff) + factory machine maintenance + purchases tagged "Usine". No overhead allocation for now.
 - Products sold per tonne, per m³ (price per m³ derived), or per mille (bricks). Recipes per mille are placeholders until the owner confirms.
 - A day can be **closed** per workstation; closed days are locked; only the DG can reopen (audited).
+- **Prices**: every price and amount on screen is **TTC** (the only HT/TVA detail is on the printed invoice). A client can have **agreed prices** (TTC, set by the DG only) that replace the normal prices at the Caisse.
 - **Order**: every list or table ordered by time or number is shown **oldest first** (invoice numbers 1, 2, 3…, dates increasing). Rankings by amount are the only exception.
 - Colour/status conventions (Payé green, Émis orange, Annulé red, etc.), blue header rows and blue total rows: follow the prototype. **Every table with amounts has a totals row.**
 

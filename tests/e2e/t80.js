@@ -51,7 +51,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   const nos = (await p.locator('#view-fact tbody td.mono b').allInnerTexts()).filter(x => /^FC-/.test(x));
   ok(nos.join(',') === nos.slice().sort().join(',') && nos[0] === 'FC-2026-0001', 'factures émises de la plus ancienne à la plus récente : ' + nos.length);
   const cs = (await p.locator('#fa-body .kpi .pill').allInnerTexts()).map(s => s.replace(/\s/g, ''));
-  ok(cs[3] === '480,00' && cs[2] === '1080,00', 'cartes chèque (chèque + effet) et virement : ' + cs.join(' '));
+  ok(cs[3] === '400,00' && cs[2] === '900,00', 'cartes chèque (chèque + effet) et virement : ' + cs.join(' '));
   // vider ferme le formulaire
   await p.click('[data-fclear]'); await p.waitForTimeout(150); ok(await p.locator('#fc-c').count() === 0, 'Vider ferme le formulaire');
   // client de passage : espèces uniquement
@@ -64,7 +64,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   await p.click('[data-fnew]'); await p.waitForTimeout(150); await fill('Espèces', '', '1', '10');
   ok(/FC-2026-0010/.test(await p.locator('#toast').innerText()), 'après annulation : 0010');
   // modification (prix HT)
-  await p.locator('[data-finvedit]').first().click(); await p.waitForTimeout(250); ok(/Prix unitaire HT/.test(await p.locator('#modal').innerText()), 'édition en HT');
+  await p.locator('[data-finvedit]').first().click(); await p.waitForTimeout(250); ok(/Prix unitaire TTC/.test(await p.locator('#modal').innerText()), 'édition en TTC');
   await p.click('#fi-x'); await p.waitForTimeout(150);
   // le chèque est dans Banque
   await L.nav(p, 'banque', 'Chèques reçus'); ok((await p.locator('body').innerText()).includes('1234567'), 'chèque créé dans Chèques reçus');
