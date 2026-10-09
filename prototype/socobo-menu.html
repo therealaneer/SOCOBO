@@ -1179,7 +1179,7 @@ button.back { display: none !important; }
         </div>
         <div class="tablewrap">
           <table>
-            <thead><tr><th>Client</th><th>Montant facturé</th><th>Total encaissé</th><th>Reste dû</th><th>Prochaine échéance</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Client</th><th>Total vente</th><th>Total encaissé</th><th>Reste dû</th><th>Prochaine échéance</th><th>Actions</th></tr></thead>
             <tbody id="cl-rows"></tbody>
           </table>
         </div>
@@ -6401,13 +6401,13 @@ button.back { display: none !important; }
     FINV.push(inv); audit('Facture créée', inv.no, inv.client + ' · ' + mad(tt.ttc)); return inv;
   }
   function fPaper(inv) {
-    var c = clients.filter(function (x) { return x.nom === inv.client; })[0], tt = fTot(inv.lines, inv.rate), cp = inv.printed > 0, pm = inv.pay || null;
+    var c = clients.filter(function (x) { return x.nom === inv.client; })[0], tt = fTot(inv.lines, inv.rate), pm = inv.pay || null;
     var n2 = function (i) { return String(i + 1).padStart(2, '0'); };
     var reg = pm ? esc(pm.mode) + (pm.piece ? ' n° ' + esc(pm.piece) : '') + (pm.banque ? ' · ' + esc(pm.banque) : '') + (pm.ech ? ' · échéance ' + dfmt.format(pm.ech) : '') : '—';
     return '<div class="inv-sheet">' +
       '<div class="inv-top"><div><div class="inv-brand">' + esc(COMPANY.nom) + '</div><div class="inv-sub">' + esc(COMPANY.ville) + '</div></div>' +
       '<div class="inv-ti"><h1>FACTURE</h1><div><span>N°</span><b>' + esc(inv.no) + '</b></div><div class="inv-ed">Édité le ' + fdt(nowT()) + ' · ' + esc(USER) + '</div></div></div>' +
-      (cp ? '<div class="pcopy">DUPLICATA</div>' : '') + (inv.st === 'Annulée' ? '<div class="pcopy" style="color:#b42318">FACTURE ANNULÉE</div>' : '') +
+      (inv.st === 'Annulée' ? '<div class="pcopy" style="color:#b42318">FACTURE ANNULÉE</div>' : '') +
       '<div class="inv-co">' + esc(COMPANY.nom) + ' · ' + esc(COMPANY.adresse) + ', ' + esc(COMPANY.ville) + ' · Tél. ' + esc(COMPANY.tel) + '<br>ICE ' + esc(COMPANY.ice) + ' · RC ' + esc(COMPANY.rc) + ' · IF ' + esc(COMPANY.ifs) + '</div>' +
       '<div class="inv-mid"><div><span class="inv-l">Facturé à</span><b class="inv-cl">' + esc(inv.client) + '</b>' + (c && c.ice ? '<div>ICE ' + esc(c.ice) + '</div>' : '') + (c && c.ville ? '<div>' + esc(c.ville) + '</div>' : '') + '</div>' +
       '<dl class="inv-dl"><dt>Date</dt><dd>' + dfmt.format(inv.d) + '</dd><dt>Règlement</dt><dd>' + reg + '</dd></dl></div>' +

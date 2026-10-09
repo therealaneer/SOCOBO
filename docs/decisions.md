@@ -409,3 +409,8 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 
 - [D] The printed invoice (Carrière and Usine Agglos) is an **A4 portrait** sheet on one page: **SOCOBO** and the city at the left, large **FACTURE** with N° at the right; company line under a blue rule; **Facturé à** block beside Date and Règlement; table with blue header (N°, Désignation with the BL, Quantité, Prix unitaire HT, Total HT); totals at the right with **Total TTC** in a blue bar; amount in words; **Signature et cachet** box; footer (phone, address, ICE/RC/IF) at the bottom of the page. Unit price HT with 2 decimals. [A] Company details are examples; no logo, bank account or payment terms until provided.
 
+## 46. v68 — Facture sans DUPLICATA, colonne « Total vente »
+
+- [D] A reprinted invoice never carries a DUPLICATA mark (the owner stamps the paper himself). The print counter stays internal and in Audit (« Facture imprimée », with the print number). **FACTURE ANNULÉE** stays on a cancelled invoice. Caisse BL keep their own rule (printed once, COPIE for the DG).
+- [D] Clients table: the second column is **Total vente** (instead of « Montant facturé »), same figure as before.
+
