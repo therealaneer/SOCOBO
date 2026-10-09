@@ -405,3 +405,7 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] Usine Agglos page order: cards, **Factures de ciment importées**, then **Factures émises**. The « Briques facturables » table is removed (the thin cards replace it); a thin card **Non attribué** shows the tonnes still to attribute.
 - [D] Archiving a factory product returns its attributed cement tonnes to « Non attribué »; Paramètres › Usine (Ciment par pièce) and the Définir window follow the active factory products automatically.
 
+## 45. v65 — Facture imprimée en A4
+
+- [D] The printed invoice (Carrière and Usine Agglos) is an **A4 portrait** sheet on one page: **SOCOBO** and the city at the left, large **FACTURE** with N° at the right; company line under a blue rule; **Facturé à** block beside Date and Règlement; table with blue header (N°, Désignation with the BL, Quantité, Prix unitaire HT, Total HT); totals at the right with **Total TTC** in a blue bar; amount in words; **Signature et cachet** box; footer (phone, address, ICE/RC/IF) at the bottom of the page. Unit price HT with 2 decimals. [A] Company details are examples; no logo, bank account or payment terms until provided.
+

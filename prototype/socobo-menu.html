@@ -553,6 +553,39 @@ td .mono, .mono { font-size: 14px; }
 .duenone { color: var(--ink-2); }
 @media print { .dv { display: none !important; } }
 
+/* Facture A4 : en-tête, client, tableau, totaux, signature et pied de page */
+.paper .inv-sheet { display: flex; flex-direction: column; color: #111; }
+.inv-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.inv-brand { font-weight: 700; letter-spacing: 0.22em; font-size: 22px; color: #1b22a7; }
+.inv-sub { color: #555; font-size: 13px; margin-top: 2px; }
+.inv-ti { text-align: right; }
+.inv-ti h1 { margin: 0 0 6px; font-size: 34px; font-weight: 300; letter-spacing: 0.16em; color: #111; line-height: 1; }
+.inv-ti div { font-size: 14px; } .inv-ti span { color: #666; margin-right: 8px; } .inv-ti b { font-weight: 600; }
+.inv-ti .inv-ed { margin-top: 4px; font-size: 12px; color: #666; }
+.inv-co { margin: 18px 0 0; padding-top: 10px; border-top: 2px solid #1b22a7; font-size: 12.5px; color: #444; }
+.inv-mid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; margin: 22px 0 22px; align-items: start; }
+.inv-l { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #777; margin-bottom: 4px; }
+.inv-cl { font-size: 17px; font-weight: 600; display: block; }
+.inv-mid > div > div { font-size: 13.5px; color: #333; }
+.inv-dl { display: grid; grid-template-columns: auto 1fr; gap: 7px 18px; margin: 0; font-size: 13.5px; }
+.inv-dl dt { color: #777; } .inv-dl dd { margin: 0; font-weight: 500; }
+.paper .inv-tb { width: 100%; border-collapse: collapse; margin-top: 0; }
+.paper .inv-tb th { background: #1b22a7; color: #fff; font-size: 12.5px; padding: 9px 10px; text-align: left; border: 0; font-weight: 600; }
+.paper .inv-tb td { font-size: 13px; padding: 10px; border: 0; border-bottom: 1px solid #d5d8e6; background: #fff; vertical-align: top; }
+.paper .inv-tb .r { text-align: right; } .paper .inv-tb .mute { color: #777; }
+.paper .inv-tb small { display: block; color: #666; font-size: 11.5px; margin-top: 2px; }
+.inv-sum { align-self: flex-end; width: 46%; margin-top: 14px; }
+.inv-sum > div { display: flex; justify-content: space-between; padding: 6px 10px; font-size: 13.5px; }
+.inv-sum span { color: #555; }
+.inv-sum .inv-ttc { margin-top: 6px; background: #1b22a7; color: #fff; font-size: 15px; font-weight: 600; padding: 9px 10px; }
+.inv-sum .inv-ttc span { color: #fff; }
+.inv-words { margin: 18px 0 0; font-size: 13.5px; }
+.inv-bot { display: flex; justify-content: flex-end; margin-top: 26px; }
+.inv-sig { width: 240px; height: 96px; border: 1px solid #b9bdd2; display: flex; align-items: flex-start; padding: 8px 10px; }
+.inv-sig span { font-size: 12px; color: #666; }
+.inv-foot { display: flex; justify-content: space-between; gap: 12px; margin-top: 26px; padding-top: 8px; border-top: 1px solid #b9bdd2; font-size: 11.5px; color: #555; }
+@media print { .paper .inv-sheet { min-height: 268mm; } .inv-foot { margin-top: auto; } .inv-bot { margin-top: 18mm; } }
+
 /* Informations complémentaires, tableau des achats, carte à surveiller */
 .sep { border: 0; border-top: 1px solid var(--grid); margin: 20px 0 16px; }
 .sech { margin: 0 0 14px; font-size: 18px; font-weight: 500; }
@@ -4966,7 +4999,7 @@ button.back { display: none !important; }
   var PRINTED = {};
   function docModal(title, body, sub, after, opts) {
     var bl = opts && opts.bl, n = bl ? (PRINTED[bl] || 0) : 0, locked = bl && n > 0 && !canDG();
-    openModal('<div class="paper"><div class="pp"><div><div class="pbrand">SOCOBO</div><div class="pmute">' + esc(sub || 'Chichaoua') + '</div></div><div class="pr2"><b>' + esc(title) + '</b><br>Édité le ' + fdt(nowT()) + ' · ' + esc(USER) + '</div></div>' + (bl && n > 0 ? '<div class="pcopy">COPIE n° ' + (n + 1) + '</div>' : '') + body + '</div>' +
+    openModal('<div class="paper">' + (opts && opts.plain ? '' : '<div class="pp"><div><div class="pbrand">SOCOBO</div><div class="pmute">' + esc(sub || 'Chichaoua') + '</div></div><div class="pr2"><b>' + esc(title) + '</b><br>Édité le ' + fdt(nowT()) + ' · ' + esc(USER) + '</div></div>') + (bl && n > 0 ? '<div class="pcopy">COPIE n° ' + (n + 1) + '</div>' : '') + body + '</div>' +
       '<div class="mact"><button type="button" class="btn" id="dm-close">Fermer</button><button type="button" class="btn blue" id="dm-print"' + (locked ? ' disabled' : '') + '>' + printerSvg + ' ' + (locked ? 'BL déjà imprimé' : (bl && n > 0 ? 'Réimprimer (copie)' : 'Imprimer')) + '</button></div>', 'big');
     $('dm-close').addEventListener('click', function () { closeModal(); if (after) after(); });
     $('dm-print').addEventListener('click', function () {
@@ -6363,16 +6396,24 @@ button.back { display: none !important; }
     FINV.push(inv); audit('Facture créée', inv.no, inv.client + ' · ' + mad(tt.ttc)); return inv;
   }
   function fPaper(inv) {
-    var c = clients.filter(function (x) { return x.nom === inv.client; })[0], tt = fTot(inv.lines, inv.rate), cp = inv.printed > 0;
-    var pay = inv.pay ? '<p class="pmute">Règlement : ' + esc(inv.pay.mode) + (inv.pay.piece ? ' n° ' + esc(inv.pay.piece) : '') + (inv.pay.banque ? ' · ' + esc(inv.pay.banque) : '') + (inv.pay.ech ? ' · échéance ' + dfmt.format(inv.pay.ech) : '') + '</p>' : '';
-    return (cp ? '<div class="pcopy">DUPLICATA</div>' : '') + (inv.st === 'Annulée' ? '<div class="pcopy" style="color:var(--bad-fg)">FACTURE ANNULÉE</div>' : '') +
-      '<div class="pmute" style="margin:6px 0">' + esc(COMPANY.nom) + ' · ' + esc(COMPANY.adresse) + ', ' + esc(COMPANY.ville) + ' · Tél. ' + esc(COMPANY.tel) + '<br>ICE ' + esc(COMPANY.ice) + ' · RC ' + esc(COMPANY.rc) + ' · IF ' + esc(COMPANY.ifs) + '</div>' +
-      '<div style="display:flex;justify-content:space-between;gap:20px;margin:12px 0"><div><b>FACTURE n° ' + esc(inv.no) + '</b><br>Date : ' + dfmt.format(inv.d) + '</div><div style="text-align:right"><b>' + esc(inv.client) + '</b>' + (c && c.ice ? '<br>ICE ' + esc(c.ice) : '') + (c && c.ville ? '<br>' + esc(c.ville) : '') + '</div></div>' +
-      '<table class="tbl-lite"><thead><tr><th>Désignation</th><th>Quantité</th><th>Prix unitaire HT</th><th>Total HT</th></tr></thead><tbody>' + inv.lines.map(function (l) { return '<tr><td>' + esc(l.des) + (l.bl ? '<small>BL ' + esc(l.bl) + '</small>' : '') + '</td><td class="num">' + fQty(l.q, l.u) + '</td><td class="num">' + nf3.format(l.pu) + '</td><td class="num">' + nf2.format(l.q * l.pu) + '</td></tr>'; }).join('') + '</tbody><tfoot><tr class="tot"><td colspan="3">Total HT</td><td class="num">' + nf2.format(tt.ht) + '</td></tr><tr><td colspan="3">TVA ' + Math.round(inv.rate * 100) + ' %</td><td class="num">' + nf2.format(tt.tva) + '</td></tr><tr class="tot"><td colspan="3">Total TTC</td><td class="num">' + nf2.format(tt.ttc) + '</td></tr></tfoot></table>' +
-      '<p style="margin:12px 0 4px">Arrêtée la présente facture à la somme de : <b>' + madWords(tt.ttc) + '</b></p>' + pay;
+    var c = clients.filter(function (x) { return x.nom === inv.client; })[0], tt = fTot(inv.lines, inv.rate), cp = inv.printed > 0, pm = inv.pay || null;
+    var n2 = function (i) { return String(i + 1).padStart(2, '0'); };
+    var reg = pm ? esc(pm.mode) + (pm.piece ? ' n° ' + esc(pm.piece) : '') + (pm.banque ? ' · ' + esc(pm.banque) : '') + (pm.ech ? ' · échéance ' + dfmt.format(pm.ech) : '') : '—';
+    return '<div class="inv-sheet">' +
+      '<div class="inv-top"><div><div class="inv-brand">' + esc(COMPANY.nom) + '</div><div class="inv-sub">' + esc(COMPANY.ville) + '</div></div>' +
+      '<div class="inv-ti"><h1>FACTURE</h1><div><span>N°</span><b>' + esc(inv.no) + '</b></div><div class="inv-ed">Édité le ' + fdt(nowT()) + ' · ' + esc(USER) + '</div></div></div>' +
+      (cp ? '<div class="pcopy">DUPLICATA</div>' : '') + (inv.st === 'Annulée' ? '<div class="pcopy" style="color:#b42318">FACTURE ANNULÉE</div>' : '') +
+      '<div class="inv-co">' + esc(COMPANY.nom) + ' · ' + esc(COMPANY.adresse) + ', ' + esc(COMPANY.ville) + ' · Tél. ' + esc(COMPANY.tel) + '<br>ICE ' + esc(COMPANY.ice) + ' · RC ' + esc(COMPANY.rc) + ' · IF ' + esc(COMPANY.ifs) + '</div>' +
+      '<div class="inv-mid"><div><span class="inv-l">Facturé à</span><b class="inv-cl">' + esc(inv.client) + '</b>' + (c && c.ice ? '<div>ICE ' + esc(c.ice) + '</div>' : '') + (c && c.ville ? '<div>' + esc(c.ville) + '</div>' : '') + '</div>' +
+      '<dl class="inv-dl"><dt>Date</dt><dd>' + dfmt.format(inv.d) + '</dd><dt>Règlement</dt><dd>' + reg + '</dd></dl></div>' +
+      '<table class="inv-tb"><thead><tr><th style="width:44px">N°</th><th>Désignation</th><th class="r">Quantité</th><th class="r">Prix unitaire HT</th><th class="r">Total HT</th></tr></thead><tbody>' + inv.lines.map(function (l, i) { return '<tr><td class="mute">' + n2(i) + '</td><td><b>' + esc(l.des) + '</b>' + (l.bl ? '<small>BL ' + esc(l.bl) + '</small>' : '') + '</td><td class="r">' + fQty(l.q, l.u) + '</td><td class="r">' + nf2.format(l.pu) + '</td><td class="r">' + nf2.format(l.q * l.pu) + '</td></tr>'; }).join('') + '</tbody></table>' +
+      '<div class="inv-sum"><div><span>Total HT</span><b>' + nf2.format(tt.ht) + '</b></div><div><span>TVA ' + Math.round(inv.rate * 100) + ' %</span><b>' + nf2.format(tt.tva) + '</b></div><div class="inv-ttc"><span>Total TTC</span><b>' + nf2.format(tt.ttc) + '</b></div></div>' +
+      '<p class="inv-words">Arrêtée la présente facture à la somme de : <b>' + madWords(tt.ttc) + '</b></p>' +
+      '<div class="inv-bot"><div class="inv-sig"><span>Signature et cachet</span></div></div>' +
+      '<div class="inv-foot"><span>Tél. ' + esc(COMPANY.tel) + '</span><span>' + esc(COMPANY.adresse) + ', ' + esc(COMPANY.ville) + '</span><span>ICE ' + esc(COMPANY.ice) + ' · RC ' + esc(COMPANY.rc) + ' · IF ' + esc(COMPANY.ifs) + '</span></div></div>';
   }
   function fPrint(inv) {
-    docModal('Facture ' + inv.no, fPaper(inv), COMPANY.ville, function () { renderFact(); });
+    docModal('Facture ' + inv.no, fPaper(inv), COMPANY.ville, function () { renderFact(); }, { plain: true });
     $('dm-print').addEventListener('click', function () { inv.printed += 1; audit('Facture imprimée', inv.no, inv.printed > 1 ? 'Duplicata ' + inv.printed : ''); });
   }
   var fStatus = function (inv) {

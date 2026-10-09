@@ -50,3 +50,4 @@ Read this file together with `CLAUDE.md` (company, roles, engineering rules) and
 - v62 : import fournisseur en 2 étapes, type de brique par facture de ciment (optionnel), « Ciment par pièce (kg) » dans Paramètres › Usine, carte « Briques facturables » (decisions §42) ; test `tests/e2e/t89.js`.
 - v63 : cartes Usine Agglos (ciment acheté / facturé / reste + Total facturé, cartes fines par type) — decisions §43.
 - v64 : Supprimer une facture (numéro réutilisé), sections Usine Agglos réordonnées, tableau Briques facturables retiré, carte Non attribué — decisions §44 ; test `tests/e2e/t90.js`.
+- v65 : facture imprimée au format A4 (decisions §45). Non publié ni poussé sur GitHub à ce stade.
