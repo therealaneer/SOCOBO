@@ -3348,10 +3348,10 @@ button.back { display: none !important; }
   function pxEd(box, rows, rateFn) {
     var fld = function (i, f, lab, v) { return '<div class="f"><label>' + lab + '</label><input class="in" data-pxf="' + i + '|' + f + '" inputmode="decimal" value="' + esc(v == null ? '' : String(v).replace('.', ',')) + '"></div>'; };
     function draw() {
-      var f = 1 + rateFn();
+      var f = 1 + rateFn(), tl = f > 1 ? 'TTC' : 'HT';
       box.innerHTML = rows.map(function (r, i) {
         var mille = P[r.k].u === 'mille', opts = Object.keys(P).filter(function (k) { return P[k].actif !== false && (k === r.k || !rows.some(function (x) { return x.k === k; })); }).map(function (k) { return '<option value="' + k + '"' + (k === r.k ? ' selected' : '') + '>' + esc(P[k].n) + '</option>'; }).join('');
-        return '<div class="pxrow"><div class="f"><label>Produit</label><select class="in" data-pxk="' + i + '">' + opts + '</select></div>' + (mille ? fld(i, 'b', 'Prix TTC / brique', r.b) + '<div class="f"></div>' : fld(i, 'm3', 'Prix TTC / m³', r.m3) + fld(i, 't', 'Prix TTC / t', r.t)) + '<div class="f"><label>Prix normal TTC</label><div class="in pxnorm">' + pxNormal(r.k, f) + '</div></div><div class="f"><label>&nbsp;</label><button type="button" class="btn mini danger" data-pxdel="' + i + '" aria-label="Retirer ce prix">×</button></div></div>';
+        return '<div class="pxrow"><div class="f"><label>Produit</label><select class="in" data-pxk="' + i + '">' + opts + '</select></div>' + (mille ? fld(i, 'b', 'Prix ' + tl + ' / brique', r.b) + '<div class="f"></div>' : fld(i, 'm3', 'Prix ' + tl + ' / m³', r.m3) + fld(i, 't', 'Prix ' + tl + ' / t', r.t)) + '<div class="f"><label>Prix normal ' + tl + '</label><div class="in pxnorm">' + pxNormal(r.k, f) + '</div></div><div class="f"><label>&nbsp;</label><button type="button" class="btn mini danger" data-pxdel="' + i + '" aria-label="Retirer ce prix">×</button></div></div>';
       }).join('') || '<p class="sugg">Aucun prix convenu : les prix normaux s’appliquent à ce client.</p>';
     }
     box.addEventListener('input', function (e) { var a = e.target.dataset.pxf; if (a) { var q = a.split('|'); rows[+q[0]][q[1]] = e.target.value; } });
@@ -3385,12 +3385,12 @@ button.back { display: none !important; }
       });
     });
     return '<div class="tools-row">' + (canDG() ? '<button type="button" class="btn primary" data-editpx>Modifier les prix convenus</button>' : '') + '</div>' +
-      (rowsH.length ? '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Produit</th><th>Unité</th><th>Prix normal TTC</th><th>Prix convenu TTC</th><th>Écart</th></tr></thead><tbody>' + rowsH.join('') + '</tbody></table></div>' : '<div class="empty">Aucun prix convenu pour ce client : les prix normaux s’appliquent.</div>') +
+      (rowsH.length ? '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Produit</th><th>Unité</th><th>Prix normal ' + (f > 1 ? 'TTC' : 'HT') + '</th><th>Prix convenu ' + (f > 1 ? 'TTC' : 'HT') + '</th><th>Écart</th></tr></thead><tbody>' + rowsH.join('') + '</tbody></table></div>' : '<div class="empty">Aucun prix convenu pour ce client : les prix normaux s’appliquent.</div>') +
       '<div class="foot"><span>Au Point de vente, ces prix remplacent les prix normaux pour ce client. Les autres produits gardent leur prix normal. Seule la direction modifie les prix.</span></div>';
   }
   function prixModal(c) {
     var rows = pxCopy(c);
-    openModal('<h2>Prix convenus</h2><p class="m">' + esc(c.nom) + ' · prix TTC convenus avec ce client. Ils remplacent les prix normaux au Point de vente.</p><div id="px-box"></div><div><button type="button" class="btn" id="px-add">+ Ajouter un prix</button></div><p class="err" id="px-err" hidden></p><div class="mact"><button type="button" class="btn" id="px-cancel">Annuler</button><button type="button" class="btn primary" id="px-save">Enregistrer</button></div>', 'big');
+    openModal('<h2>Prix convenus</h2><p class="m">' + esc(c.nom) + ' · prix ' + (rateOf(c) ? 'TTC' : 'HT') + ' convenus avec ce client. Ils remplacent les prix normaux au Point de vente.</p><div id="px-box"></div><div><button type="button" class="btn" id="px-add">+ Ajouter un prix</button></div><p class="err" id="px-err" hidden></p><div class="mact"><button type="button" class="btn" id="px-cancel">Annuler</button><button type="button" class="btn primary" id="px-save">Enregistrer</button></div>', 'big');
     var ed = pxEd($('px-box'), rows, function () { return rateOf(c); });
     $('px-add').addEventListener('click', function () { if (!ed.add()) { $('px-err').textContent = 'Tous les produits ont déjà un prix convenu.'; $('px-err').hidden = false; } });
     $('px-cancel').addEventListener('click', closeModal);
@@ -3495,7 +3495,7 @@ button.back { display: none !important; }
       '<div class="f"><label for="nc-plaf">Plafond de crédit</label><input class="in" id="nc-plaf" inputmode="decimal" placeholder="Vide = sans plafond" value="' + (c && c.plafond ? String(c.plafond).replace('.', ',') : '') + '"></div></div>' +
       '<div class="row2"><div class="f"><label for="nc-mail">E-mail</label><input class="in" id="nc-mail" type="email" value="' + (edit ? cl(c.mail) : '') + '"></div><div class="f"><label for="nc-tel">Téléphone fixe</label><input class="in" id="nc-tel" value="' + (edit ? cl(c.tel) : '') + '"></div></div>' +
       '<div class="f"><label for="nc-note">Note pour l’équipe</label><textarea class="in" id="nc-note" rows="3" style="height:auto;padding:12px" placeholder="Facultatif : une information utile à toute l’équipe">' + (edit ? esc(c.note || '') : '') + '</textarea></div>' +
-      (canDG() ? '<hr class="sep"><h3 class="sech">Prix convenus<span>TTC · facultatif</span></h3><div id="nc-px"></div><div><button type="button" class="btn" id="nc-addpx">+ Ajouter un prix</button></div>' : '') +
+      (canDG() ? '<hr class="sep"><h3 class="sech">Prix convenus<span id="nc-pxu">' + (tva === 'HT' ? 'HT' : 'TTC') + ' · facultatif</span></h3><div id="nc-px"></div><div><button type="button" class="btn" id="nc-addpx">+ Ajouter un prix</button></div>' : '') +
       (edit ? '' : '<hr class="sep"><h3 class="sech">Camions du client<span>facultatif</span></h3><div id="nc-trucks"></div><div><button type="button" class="btn" id="nc-addtr">+ Ajouter un camion</button></div>') +
       '<p class="err" id="nc-err" hidden></p><div class="mact"><button type="button" class="btn" id="nc-cancel">Annuler</button><button type="button" class="btn primary" id="nc-save">Enregistrer</button></div>', 'big');
     var err = function (x) { $('nc-err').textContent = x; $('nc-err').hidden = false; };
@@ -3504,7 +3504,7 @@ button.back { display: none !important; }
     $('cm-t').addEventListener('click', function (e) { var b = e.target.closest('button[data-type]'); if (!b || b.dataset.type === type) return; vals[type === 'Société' ? 'ice' : 'cin'] = $('nc-id').value; type = b.dataset.type; $('cm-t').querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); syncType(); });
     var pxe = canDG() ? pxEd($('nc-px'), pxCopy(c), function () { return tva === 'HT' ? 0 : 0.2; }) : null;
     if (pxe) $('nc-addpx').addEventListener('click', function () { if (!pxe.add()) err('Tous les produits ont déjà un prix convenu.'); });
-    $('nc-tva').addEventListener('click', function (e) { var b = e.target.closest('button[data-tva]'); if (!b) return; tva = b.dataset.tva; $('nc-tva').querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); if (pxe) pxe.redraw(); });
+    $('nc-tva').addEventListener('click', function (e) { var b = e.target.closest('button[data-tva]'); if (!b) return; tva = b.dataset.tva; $('nc-tva').querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); if ($('nc-pxu')) $('nc-pxu').textContent = (tva === 'HT' ? 'HT' : 'TTC') + ' · facultatif'; if (pxe) pxe.redraw(); });
     if (!edit) {
       $('nc-addtr').addEventListener('click', function () { nTr += 1; $('nc-trucks').insertAdjacentHTML('beforeend', trRow(nTr)); });
       $('nc-trucks').addEventListener('click', function (e) { var b = e.target.closest('[data-rmtr]'); if (b) b.closest('.trrow').remove(); });

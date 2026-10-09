@@ -54,3 +54,4 @@ Read this file together with `CLAUDE.md` (company, roles, engineering rules) and
 - v67 : correctif — les `textarea` héritent maintenant la couleur et la police (le message de relance était illisible : texte clair sur fond clair).
 - v68 : plus de DUPLICATA sur la facture, colonne « Total vente » dans Clients (decisions §46) ; test `tests/e2e/t91.js`.
 - v69 : lot Clients/Facturation (decisions §47) — filtre période, fiche client (onglets BL/Factures, cartes, boutons), délais + « Sans échéance », notes, série unique de factures, factures mixtes, règlement enregistré → facture ; test `tests/e2e/t92.js` (t81, t86, t90 adaptés).
+- v70 : libellés Prix convenus HT/TTC selon la TVA du client (decisions §48) ; test `tests/e2e/t93.js`.

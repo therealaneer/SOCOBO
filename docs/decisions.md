@@ -426,3 +426,7 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] **Flux voulu** : on enregistre d'abord le règlement du client (Clients › Encaisser : chèque / effet / virement, avec banque), puis dans Facturation › Créer une facture, après le choix du client, la liste « **Règlements enregistrés de ce client** » (non encore rattachés) remplit automatiquement mode, n°, banque et échéance. **Le total TTC de la facture doit être égal au montant du règlement** : écart affiché, « Facturer » désactivé sinon. Le règlement rattaché n'est plus proposé ; il est libéré si la facture est annulée ou supprimée. Sans règlement choisi : saisie manuelle comme avant.
 - [A] Règlements de l'historique d'exemple considérés comme déjà rapprochés (non proposés).
 
+## 48. v70 — Prix convenus et TVA du client
+
+- [D] Dans le formulaire client, le choix **HT (sans TVA)** / **TVA 20 %** change aussitôt les libellés de « Prix convenus » : « Prix HT / m³ · / t · / brique », « Prix normal HT » et « HT · facultatif » (au lieu de TTC). Même logique dans la fiche et la fenêtre « Prix convenus » d'un client exonéré.
+
