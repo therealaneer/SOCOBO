@@ -504,6 +504,7 @@ td .mono, .mono { font-size: 14px; }
   body:has(#ov:not([hidden]) .paper) .modal > :not(.paper) { display: none !important; }
   .paper { box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; font-size: 14px; }
   .paper, .paper * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html:has(.paper), html.mlock, html.mlock body { overflow: visible !important; height: auto !important; }
   .paper thead { display: table-header-group; }
   .paper tr { break-inside: avoid; }
 }
@@ -590,6 +591,10 @@ td .mono, .mono { font-size: 14px; }
 .modal.big:has(.inv-sheet) { width: min(880px, 96vw); }
 .paper .inv-sheet { box-sizing: border-box; width: 210mm; max-width: 100%; aspect-ratio: 210 / 297; margin: 0 auto; padding: 14mm 14mm 12mm; background: #fff; box-shadow: 0 6px 24px rgba(20, 24, 60, 0.22); }
 .inv-foot { margin-top: auto; } .inv-bot { margin-top: 18mm; }
+.inv-day td { background: #eceefb; font-weight: 600; }
+.paper .inv-tb tfoot td { font-weight: 600; background: #f3f4fb; border-bottom: 0; }
+.paper .inv-tb tfoot tr:first-child td { border-top: 2px solid #1b22a7; }
+.inv-tb td small { white-space: normal; }
 @media print { .paper:has(.inv-sheet) { background: #fff !important; padding: 0 !important; } .paper .inv-sheet { width: auto; min-height: 268mm; padding: 0; box-shadow: none; margin: 0; } }
 
 /* Informations complémentaires, tableau des achats, carte à surveiller */
@@ -1226,7 +1231,7 @@ button.back { display: none !important; }
       <button type="button" class="back" id="back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg><span id="back-l">Fournisseurs</span></button>
       <div class="head">
         <div><h1 id="f-nom"></h1><p class="sub" id="f-sub"></p><div class="quick" id="f-quick"></div></div>
-        <div class="acts"><button type="button" class="btn primary" id="f-buy">+ Achat</button><button type="button" class="btn primary" id="f-pay">Payer</button><span class="gapx"></span><button type="button" class="btn" id="f-details"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg> <span id="f-det-l">Détails du fournisseur</span></button><button type="button" class="btn" id="f-print"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2M6 14h12v7H6z"/></svg> Imprimer</button><button type="button" class="btn" id="f-edit">Modifier</button><button type="button" class="btn" id="f-block" hidden>Bloquer le client</button></div>
+        <div class="acts"><button type="button" class="btn primary" id="f-buy">+ Achat</button><button type="button" class="btn primary" id="f-pay">Payer</button><span class="gapx"></span><button type="button" class="btn" id="f-details"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg> <span id="f-det-l">Détails du fournisseur</span></button><button type="button" class="btn" id="f-print"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2M6 14h12v7H6z"/></svg> Relevé de compte</button><button type="button" class="btn" id="f-edit">Modifier</button><button type="button" class="btn" id="f-block" hidden>Bloquer le client</button></div>
       </div>
       <div id="f-alerts"></div>
       <div class="kpis" id="f-kpis"></div>
@@ -2376,8 +2381,8 @@ button.back { display: none !important; }
     return ev;
   }
   function yearOpts() { var o = ''; for (var y = TODAY.getFullYear(); y >= DATA_START.getFullYear(); y--) o += '<option value="' + y + '">' + y + '</option>'; return o; }
-  function printModal(s) {
-    openModal('<h2>Imprimer relevé ' + (s.isClient ? 'client' : 'fournisseur') + '</h2><p class="m">' + esc(s.nom) + '</p>' +
+  function printModal(s, onGo, title) {
+    openModal('<h2>' + (title || 'Relevé de compte') + '</h2><p class="m">' + esc(s.nom) + '</p>' +
       '<div class="f"><label for="pm-year">Année</label><select class="in" id="pm-year"><option value="all">Toute la période</option>' + yearOpts() + '<option value="">Personnalisée</option></select></div>' +
       '<div class="f"><label for="pm-from">Période du *</label><input class="in" id="pm-from" type="date" min="' + iso(DATA_START) + '" max="' + iso(TODAY) + '" value="' + iso(DATA_START) + '"></div>' +
       '<div class="f"><label for="pm-to">Période au *</label><input class="in" id="pm-to" type="date" min="' + iso(DATA_START) + '" max="' + iso(TODAY) + '" value="' + iso(TODAY) + '"></div>' +
@@ -2395,7 +2400,7 @@ button.back { display: none !important; }
       var a = parseIso($('pm-from').value), b = parseIso($('pm-to').value);
       if (!a || !b) return err('Les deux dates sont obligatoires.');
       if (a > b) return err('La date de début doit précéder la date de fin.');
-      previewDoc(s, a, b);
+      (onGo || previewDoc)(s, a, b);
     });
   }
   function previewDoc(s, from, to) {
@@ -3317,6 +3322,47 @@ button.back { display: none !important; }
     $('f-main').innerHTML = curTab === 'bl' ? blTab(c) : achats(c);
     if (!$('dv').hidden) { $('dtitle').textContent = c.nom; $('dbody').innerHTML = cDrawerHtml(c); }
   }
+  /* Situations du client (feuille A4) : journalière (un total par jour, solde cumulé) et détaillée (tous les BL de chaque jour) */
+  var qtyTxt = function (r) { if (r.qty == null && !r.units) return '—'; if (r.mu === 'm3') return nf2.format(r.qty) + ' m³'; if (r.units) return nf0.format(r.units) + ' briques'; if (r.mille) return nf2.format(r.qty) + ' mille'; return nf2.format(r.qty) + ' t'; };
+  function sitData(c, a, b) {
+    var bl = rows.filter(function (r) { return r.client === c.nom && r.ttc != null; }), pay = paidList(c).map(function (p) { return { d: p.ech, p: p }; });
+    var sB = function (f) { return bl.filter(f).reduce(function (t, r) { return t + r.ttc; }, 0); }, sP = function (f) { return pay.filter(f).reduce(function (t, x) { return t + x.p.montant; }, 0); };
+    var all = function () { return true; }, offset = c.solde - (sB(all) - sP(all));
+    var open = offset + sB(function (r) { return r.date < a; }) - sP(function (x) { return x.d < a; }), keys = {};
+    bl.forEach(function (r) { if (r.date >= a && r.date <= b) keys[+r.date] = 1; }); pay.forEach(function (x) { if (x.d >= a && x.d <= b) keys[+x.d] = 1; });
+    var cum = open, days = Object.keys(keys).map(Number).sort(function (x, y) { return x - y; }).map(function (k) {
+      var l = bl.filter(function (r) { return +r.date === k; }).sort(function (x, y) { return x.time < y.time ? -1 : (x.time > y.time ? 1 : 0); }), ps = pay.filter(function (x) { return +x.d === k; }).map(function (x) { return x.p; });
+      var v = l.reduce(function (t, r) { return t + r.ttc; }, 0), pm = ps.reduce(function (t, q) { return t + q.montant; }, 0); cum += v - pm;
+      return { d: new Date(k), l: l, ps: ps, v: v, pm: pm, cum: cum };
+    });
+    return { open: open, days: days, nbl: days.reduce(function (t, x) { return t + x.l.length; }, 0), vente: days.reduce(function (t, x) { return t + x.v; }, 0), paid: days.reduce(function (t, x) { return t + x.pm; }, 0), rest: cum };
+  }
+  function sitSheet(c, a, b, kind) {
+    var d = sitData(c, a, b), det = kind === 'det', cols = det ? 6 : 5, N = nf2;
+    var head = det ? '<th style="width:140px">N° BL</th><th>Camion</th><th>Désignation</th><th class="r">Quantité</th><th>Mode</th><th class="r">Montant TTC</th>' : '<th>Date</th><th class="r">Nombre de BL</th><th class="r">Total BL du jour</th><th class="r">Paiements du jour</th><th class="r">Reste cumulé</th>';
+    var body = Math.abs(d.open) > 0.005 ? '<tr class="inv-day"><td colspan="' + (cols - 1) + '">Solde à l’ouverture de la période</td><td class="r">' + N.format(d.open) + '</td></tr>' : '';
+    d.days.forEach(function (x) {
+      if (!det) { body += '<tr><td>' + dfmt.format(x.d) + '</td><td class="r">' + (x.l.length || '—') + '</td><td class="r">' + (x.l.length ? N.format(x.v) : '—') + '</td><td class="r">' + (x.ps.length ? N.format(x.pm) + '<small>' + x.ps.map(function (q) { return esc(q.mode); }).join(', ') + '</small>' : '—') + '</td><td class="r"><b style="font-weight:600">' + N.format(x.cum) + '</b></td></tr>'; return; }
+      body += '<tr class="inv-day"><td colspan="' + (cols - 1) + '"><b>' + dfmt.format(x.d) + '</b> · total BL ' + N.format(x.v) + (x.pm ? ' · paiements ' + N.format(x.pm) : '') + '</td><td class="r">Reste cumulé ' + N.format(x.cum) + '</td></tr>';
+      x.l.forEach(function (r) { body += '<tr><td class="mono">' + esc(r.bl) + '<small>' + esc(r.time) + '</small></td><td class="mono">' + esc(r.plate || '—') + '</td><td>' + esc(r.prod.n) + '</td><td class="r">' + qtyTxt(r) + '</td><td>' + esc(payOf(r)) + '</td><td class="r">' + N.format(r.ttc) + '</td></tr>'; });
+      x.ps.forEach(function (q) { body += '<tr><td colspan="' + (cols - 2) + '" style="color:#555">Paiement · ' + esc(q.mode) + ' ' + esc(q.ref) + '</td><td></td><td class="r">− ' + N.format(q.montant) + '</td></tr>'; });
+    });
+    if (!d.days.length) body += '<tr><td colspan="' + cols + '" style="color:#777">Aucun mouvement sur cette période.</td></tr>';
+    var foot = det ? '<tr class="inv-tot"><td colspan="' + (cols - 1) + '">Total BL · ' + d.nbl + '</td><td class="r">' + N.format(d.vente) + '</td></tr><tr class="inv-tot"><td colspan="' + (cols - 1) + '">Total paiements</td><td class="r">− ' + N.format(d.paid) + '</td></tr><tr class="inv-tot"><td colspan="' + (cols - 1) + '">Reste dû</td><td class="r">' + N.format(d.rest) + '</td></tr>'
+      : '<tr class="inv-tot"><td>Total</td><td class="r">' + d.nbl + '</td><td class="r">' + N.format(d.vente) + '</td><td class="r">' + N.format(d.paid) + '</td><td class="r">' + N.format(d.rest) + '</td></tr>';
+    return '<div class="inv-sheet"><div class="inv-top"><div><div class="inv-brand">' + esc(COMPANY.nom) + '</div><div class="inv-sub">' + esc(COMPANY.ville) + '</div></div>' +
+      '<div class="inv-ti"><h1 style="font-size:24px">' + (det ? 'SITUATION DÉTAILLÉE' : 'SITUATION JOURNALIÈRE') + '</h1><div><span>Période</span><b>du ' + dfmt.format(a) + ' au ' + dfmt.format(b) + '</b></div><div class="inv-ed">Édité le ' + fdt(nowT()) + ' · ' + esc(USER) + '</div></div></div>' +
+      '<div class="inv-co">' + esc(COMPANY.nom) + ' · ' + esc(COMPANY.adresse) + ', ' + esc(COMPANY.ville) + ' · Tél. ' + esc(COMPANY.tel) + '<br>ICE ' + esc(COMPANY.ice) + ' · RC ' + esc(COMPANY.rc) + ' · IF ' + esc(COMPANY.ifs) + '</div>' +
+      '<div class="inv-mid"><div><span class="inv-l">Client</span><b class="inv-cl">' + esc(c.nom) + '</b>' + (c.ice ? '<div>ICE ' + esc(c.ice) + '</div>' : '') + (c.ville ? '<div>' + esc(c.ville) + '</div>' : '') + '</div><dl class="inv-dl"><dt>Reste dû actuel</dt><dd>' + N.format(c.solde) + '</dd></dl></div>' +
+      '<table class="inv-tb"><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody><tfoot>' + foot + '</tfoot></table>' +
+      '<div class="inv-foot"><span>Tél. ' + esc(COMPANY.tel) + '</span><span>' + esc(COMPANY.adresse) + ', ' + esc(COMPANY.ville) + '</span><span>ICE ' + esc(COMPANY.ice) + ' · RC ' + esc(COMPANY.rc) + ' · IF ' + esc(COMPANY.ifs) + '</span></div></div>';
+  }
+  function sitModal(c, kind) {
+    printModal(c, function (s, a, b) {
+      docModal('Situation', sitSheet(c, a, b, kind), COMPANY.ville, null, { plain: true });
+      $('dm-print').addEventListener('click', function () { audit('Situation imprimée', c.nom, (kind === 'det' ? 'Détaillée' : 'Journalière') + ' · ' + dfmt.format(a) + ' → ' + dfmt.format(b)); });
+    }, kind === 'det' ? 'Situation détaillée' : 'Situation journalière');
+  }
   /* Onglet BL : tous les BL émis à la Caisse au nom du client (consultation) */
   var blQ = '';
   function blRows(c) {
@@ -3331,7 +3377,7 @@ button.back { display: none !important; }
     }).join('') + '</tbody><tfoot><tr class="tot"><td colspan="5">Total · ' + nf0.format(l.length) + ' BL</td><td class="num">' + nf2.format(tot) + '</td><td></td><td></td></tr></tfoot></table></div>';
   }
   function blTab(c) {
-    return '<div class="tools-row"><label class="search" for="bl-q"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="bl-q" type="search" placeholder="Rechercher un BL, un camion ou un produit" value="' + esc(blQ) + '"></label></div><div id="bl-tbl">' + blTbl(c) + '</div>';
+    return '<div class="tools-row"><button type="button" class="btn" data-blsit="day">' + printerSvg + ' Imprimer situation journalière</button><button type="button" class="btn" data-blsit="det">' + printerSvg + ' Imprimer situation détaillée</button><label class="search" for="bl-q"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="bl-q" type="search" placeholder="Rechercher un BL, un camion ou un produit" value="' + esc(blQ) + '"></label></div><div id="bl-tbl">' + blTbl(c) + '</div>';
   }
   $('f-main').addEventListener('input', function (e) { if (e.target.id === 'bl-q' && curSup && curSup.isClient) { blQ = e.target.value; $('bl-tbl').innerHTML = blTbl(curSup); } });
   function camionsTab(c) {
@@ -3424,6 +3470,7 @@ button.back { display: none !important; }
   function cFicheClick(e) {
     var c = curSup; if (!c || !c.isClient) return;
     var b;
+    if ((b = e.target.closest('[data-blsit]'))) { sitModal(c, b.dataset.blsit); return; }
     if (e.target.closest('[data-addcam]')) { camModal(c, null); return; }
     if (e.target.closest('[data-editpx]') && canDG()) { prixModal(c); return; }
     if ((b = e.target.closest('[data-editcam]'))) { camModal(c, c.camions.filter(function (t) { return t.id === b.dataset.editcam; })[0]); return; }

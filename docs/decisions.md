@@ -430,3 +430,8 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 
 - [D] Dans le formulaire client, le choix **HT (sans TVA)** / **TVA 20 %** change aussitôt les libellés de « Prix convenus » : « Prix HT / m³ · / t · / brique », « Prix normal HT » et « HT · facultatif » (au lieu de TTC). Même logique dans la fiche et la fenêtre « Prix convenus » d'un client exonéré.
 
+## 49. v71 — Relevé de compte et situations du client
+
+- [D] Le bouton « Imprimer » des fiches client et fournisseur devient **« Relevé de compte »** ; la fenêtre porte le même titre (période par défaut : toute la période).
+- [D] **Onglet BL de la fiche client** : deux boutons en haut à gauche, au-dessus du tableau. **Imprimer situation journalière** : feuille A4, une ligne par jour avec Nombre de BL, **Total BL du jour**, **Paiements du jour** (chèques, effets, virements, espèces) et **Reste cumulé** (solde de l'ouverture de la période en première ligne ; le dernier reste cumulé = Reste dû actuel). **Imprimer situation détaillée** : pour chaque jour, tous les BL (N° BL, camion, désignation, quantité, mode, montant) et les paiements du jour, avec le reste cumulé du jour et les totaux (Total BL, Total paiements, Reste dû). Les BL en espèces sont inclus. Chaque bouton ouvre le choix de période (toute la période par défaut), puis l'aperçu A4 ; l'impression est tracée dans Audit. Les situations longues s'impriment sur plusieurs pages (en-tête de tableau répété).
+
