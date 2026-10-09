@@ -26,13 +26,13 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   await p.click('#pdv-go'); await p.waitForTimeout(300); const bl = await txt('#modal');  ok(/PRIX TTC/.test(bl) && /Total TTC/.test(bl) && !/Sous-total HT|TVA/i.test(bl), 'BL A6 : colonnes TTC, sans HT ni TVA'); await p.keyboard.press('Escape'); await p.waitForTimeout(200);
   // ---- Fiche client : prix convenus
   await L.nav(p, 'clients'); await p.locator('#view-clients tbody tr', { hasText: 'Atlas Travaux' }).first().click(); await p.waitForTimeout(300);
-  await p.locator('[data-tab="prix"]').click(); await p.waitForTimeout(200); const pt = await txt('#f-main');
+  await p.click('#f-details'); await p.waitForTimeout(250); const pt = await txt('#dbody');
   ok(/Gravette 8\/16/.test(pt) && /190,00/.test(pt) && /198,00/.test(pt) && /-4,04 %/.test(pt), 'onglet Prix convenus : 198,00 → 190,00 (-4,04 %)');
   await p.click('[data-editpx]'); await p.waitForTimeout(200); ok(await p.locator('.pxrow').count() === 1, 'éditeur : une ligne');
   await p.click('#px-add'); await p.waitForTimeout(150); ok(await p.locator('.pxrow').count() === 2, '+ Ajouter un prix');
   await p.click('#px-save'); await p.waitForTimeout(150); ok(/Indiquez un prix/.test(await txt('#px-err')), 'ligne vide refusée');
   await p.locator('[data-pxk]').nth(1).selectOption('sa'); await p.fill('[data-pxf="1|m3"]', '100'); await p.click('#px-save'); await p.waitForTimeout(300);
-  ok(/Sable lavé concassé 0\/5/.test(await txt('#f-main')) && /100,00/.test(await txt('#f-main')), 'second prix enregistré');
+  ok(/Sable lavé concassé 0\/5/.test(await txt('#dbody')) && /100,00/.test(await txt('#dbody')), 'second prix enregistré'); await p.click('#dclose'); await p.waitForTimeout(150);
   // le prix de t est dérivé de m³ : sable 100 / 1,6 = 62,50
   await L.nav(p, 'pdv', 'Caisse'); await p.click('[data-pcl="101"]'); await p.click('[data-ptr="48217-B-6"]'); await p.waitForTimeout(150); ok(/100,00 \/ m³/.test(await txt('[data-pprod="sa"]')), 'Caisse : sable à 100,00 / m³');
   await p.click('#pdv-clear'); await p.waitForTimeout(100);
@@ -43,10 +43,10 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   await p.click('#pdv-clear').catch(() => {}); await L.nav(p, 'clients'); await p.click('#new-client'); await p.waitForTimeout(200);
   ok(await p.locator('#nc-addpx').count() === 1, 'nouveau client : bouton + Ajouter un prix');
   await p.fill('#nc-nom', 'Test Prix SARL'); await p.click('#nc-addpx'); await p.fill('[data-pxf="0|m3"]', '90'); await p.click('#nc-save'); await p.waitForTimeout(300);
-  await p.locator('#view-clients tbody tr', { hasText: 'Test Prix SARL' }).first().click(); await p.waitForTimeout(250); await p.locator('[data-tab="prix"]').click(); await p.waitForTimeout(150); ok(/90,00/.test(await txt('#f-main')), 'prix saisi à la création enregistré');
+  await p.locator('#view-clients tbody tr', { hasText: 'Test Prix SARL' }).first().click(); await p.waitForTimeout(250); await p.click('#f-details'); await p.waitForTimeout(250); ok(/90,00/.test(await txt('#dbody')), 'prix saisi à la création enregistré'); await p.click('#dclose'); await p.waitForTimeout(150);
   // droits : seul le DG modifie
-  await p.click('#role-chip'); await p.click('[data-setrole="compta"]'); await p.waitForTimeout(300); await L.nav(p, 'clients'); await p.locator('#view-clients tbody tr', { hasText: 'Atlas Travaux' }).first().click(); await p.waitForTimeout(250); await p.locator('[data-tab="prix"]').click(); await p.waitForTimeout(150);
-  ok(await p.locator('[data-editpx]').count() === 0 && /190,00/.test(await txt('#f-main')), 'Comptabilité : lecture seule');
+  await p.click('#role-chip'); await p.click('[data-setrole="compta"]'); await p.waitForTimeout(300); await L.nav(p, 'clients'); await p.locator('#view-clients tbody tr', { hasText: 'Atlas Travaux' }).first().click(); await p.waitForTimeout(250); await p.click('#f-details'); await p.waitForTimeout(250);
+  ok(await p.locator('[data-editpx]').count() === 0 && /190,00/.test(await txt('#dbody')), 'Comptabilité : lecture seule'); await p.click('#dclose'); await p.waitForTimeout(150);
   await p.click('#role-chip'); await p.click('[data-setrole="dg"]'); await p.waitForTimeout(300);
   // ---- Facturation Carrière
   await L.nav(p, 'facturation', 'Carrière'); await p.click('[data-fimp]'); await p.waitForTimeout(300);
