@@ -56,3 +56,4 @@ Read this file together with `CLAUDE.md` (company, roles, engineering rules) and
 - v69 : lot Clients/Facturation (decisions §47) — filtre période, fiche client (onglets BL/Factures, cartes, boutons), délais + « Sans échéance », notes, série unique de factures, factures mixtes, règlement enregistré → facture ; test `tests/e2e/t92.js` (t81, t86, t90 adaptés).
 - v70 : libellés Prix convenus HT/TTC selon la TVA du client (decisions §48) ; test `tests/e2e/t93.js`.
 - v71 : « Relevé de compte » + situations journalière / détaillée du client (decisions §49) ; test `tests/e2e/t94.js` ; l'impression multi-pages d'un document en fenêtre fonctionne (html.mlock en overflow visible à l'impression). v70 conservé par défaut (décision en attente du propriétaire).
+- v72 : disposition de l'onglet BL et en-têtes de la situation journalière (decisions §50).

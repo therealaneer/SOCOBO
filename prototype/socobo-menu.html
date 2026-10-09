@@ -1237,7 +1237,7 @@ button.back { display: none !important; }
       <div class="kpis" id="f-kpis"></div>
       <div class="sheet">
         <section class="box">
-          <div class="tabs" role="tablist" id="f-tabs"></div>
+          <div class="tabrow" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div class="tabs" role="tablist" id="f-tabs"></div><div class="quick" id="f-tabx" style="margin:0"></div></div>
           <div id="f-main"></div>
         </section>
       </div>
@@ -3281,7 +3281,7 @@ button.back { display: none !important; }
 
   /* --- Fiche client --- */
   function resetFicheSup() {
-    $('f-tabs').hidden = true; $('f-alerts').innerHTML = ''; $('f-kpis').classList.remove('five'); $('back-l').textContent = 'Fournisseurs';
+    $('f-tabs').hidden = true; $('f-tabx').innerHTML = ''; $('f-alerts').innerHTML = ''; $('f-kpis').classList.remove('five'); $('back-l').textContent = 'Fournisseurs';
     $('f-buy').hidden = false; $('f-buy').textContent = '+ Achat'; $('f-pay').textContent = 'Payer'; $('f-block').hidden = true; $('dsub').textContent = 'Détails du fournisseur'; $('f-det-l').textContent = 'Détails du fournisseur';
   }
   function renderCFiche() {
@@ -3319,6 +3319,7 @@ button.back { display: none !important; }
       $('f-tabs').hidden = false;
       $('f-tabs').innerHTML = [['bl', 'BL'], ['achats', 'Factures']].map(function (t) { return '<button type="button" role="tab" data-tab="' + t[0] + '" aria-selected="' + (curTab === t[0]) + '">' + t[1] + '</button>'; }).join('');
     }
+    $('f-tabx').innerHTML = curTab === 'bl' ? '<button type="button" class="btn" data-blsit="day">' + printerSvg + ' Imprimer situation journalière</button><button type="button" class="btn" data-blsit="det">' + printerSvg + ' Imprimer situation détaillée</button>' : '';
     $('f-main').innerHTML = curTab === 'bl' ? blTab(c) : achats(c);
     if (!$('dv').hidden) { $('dtitle').textContent = c.nom; $('dbody').innerHTML = cDrawerHtml(c); }
   }
@@ -3339,7 +3340,7 @@ button.back { display: none !important; }
   }
   function sitSheet(c, a, b, kind) {
     var d = sitData(c, a, b), det = kind === 'det', cols = det ? 6 : 5, N = nf2;
-    var head = det ? '<th style="width:140px">N° BL</th><th>Camion</th><th>Désignation</th><th class="r">Quantité</th><th>Mode</th><th class="r">Montant TTC</th>' : '<th>Date</th><th class="r">Nombre de BL</th><th class="r">Total BL du jour</th><th class="r">Paiements du jour</th><th class="r">Reste cumulé</th>';
+    var head = det ? '<th style="width:140px">N° BL</th><th>Camion</th><th>Désignation</th><th class="r">Quantité</th><th>Mode</th><th class="r">Montant TTC</th>' : '<th>Date</th><th class="r">Nombre de BL</th><th class="r">Total BL</th><th class="r">Paiements</th><th class="r">Reste cumulé</th>';
     var body = Math.abs(d.open) > 0.005 ? '<tr class="inv-day"><td colspan="' + (cols - 1) + '">Solde à l’ouverture de la période</td><td class="r">' + N.format(d.open) + '</td></tr>' : '';
     d.days.forEach(function (x) {
       if (!det) { body += '<tr><td>' + dfmt.format(x.d) + '</td><td class="r">' + (x.l.length || '—') + '</td><td class="r">' + (x.l.length ? N.format(x.v) : '—') + '</td><td class="r">' + (x.ps.length ? N.format(x.pm) + '<small>' + x.ps.map(function (q) { return esc(q.mode); }).join(', ') + '</small>' : '—') + '</td><td class="r"><b style="font-weight:600">' + N.format(x.cum) + '</b></td></tr>'; return; }
@@ -3377,7 +3378,7 @@ button.back { display: none !important; }
     }).join('') + '</tbody><tfoot><tr class="tot"><td colspan="5">Total · ' + nf0.format(l.length) + ' BL</td><td class="num">' + nf2.format(tot) + '</td><td></td><td></td></tr></tfoot></table></div>';
   }
   function blTab(c) {
-    return '<div class="tools-row"><button type="button" class="btn" data-blsit="day">' + printerSvg + ' Imprimer situation journalière</button><button type="button" class="btn" data-blsit="det">' + printerSvg + ' Imprimer situation détaillée</button><label class="search" for="bl-q"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="bl-q" type="search" placeholder="Rechercher un BL, un camion ou un produit" value="' + esc(blQ) + '"></label></div><div id="bl-tbl">' + blTbl(c) + '</div>';
+    return '<div class="tools-row"><label class="search" for="bl-q"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="bl-q" type="search" placeholder="Rechercher un BL, un camion ou un produit" value="' + esc(blQ) + '"></label></div><div id="bl-tbl">' + blTbl(c) + '</div>';
   }
   $('f-main').addEventListener('input', function (e) { if (e.target.id === 'bl-q' && curSup && curSup.isClient) { blQ = e.target.value; $('bl-tbl').innerHTML = blTbl(curSup); } });
   function camionsTab(c) {
@@ -3470,13 +3471,13 @@ button.back { display: none !important; }
   function cFicheClick(e) {
     var c = curSup; if (!c || !c.isClient) return;
     var b;
-    if ((b = e.target.closest('[data-blsit]'))) { sitModal(c, b.dataset.blsit); return; }
     if (e.target.closest('[data-addcam]')) { camModal(c, null); return; }
     if (e.target.closest('[data-editpx]') && canDG()) { prixModal(c); return; }
     if ((b = e.target.closest('[data-editcam]'))) { camModal(c, c.camions.filter(function (t) { return t.id === b.dataset.editcam; })[0]); return; }
     if ((b = e.target.closest('[data-blkcam]'))) { var t = c.camions.filter(function (x) { return x.id === b.dataset.blkcam; })[0]; if (t.bloque) unblockModal(c, t); else blockModal(c, t); }
   }
   $('f-main').addEventListener('click', cFicheClick); $('dbody').addEventListener('click', cFicheClick);
+  $('f-tabx').addEventListener('click', function (e) { var b = e.target.closest('[data-blsit]'); if (b && curSup && curSup.isClient) sitModal(curSup, b.dataset.blsit); });
 
   /* --- Camions --- */
   function plateTaken(plate, except) {

@@ -435,3 +435,7 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] Le bouton « Imprimer » des fiches client et fournisseur devient **« Relevé de compte »** ; la fenêtre porte le même titre (période par défaut : toute la période).
 - [D] **Onglet BL de la fiche client** : deux boutons en haut à gauche, au-dessus du tableau. **Imprimer situation journalière** : feuille A4, une ligne par jour avec Nombre de BL, **Total BL du jour**, **Paiements du jour** (chèques, effets, virements, espèces) et **Reste cumulé** (solde de l'ouverture de la période en première ligne ; le dernier reste cumulé = Reste dû actuel). **Imprimer situation détaillée** : pour chaque jour, tous les BL (N° BL, camion, désignation, quantité, mode, montant) et les paiements du jour, avec le reste cumulé du jour et les totaux (Total BL, Total paiements, Reste dû). Les BL en espèces sont inclus. Chaque bouton ouvre le choix de période (toute la période par défaut), puis l'aperçu A4 ; l'impression est tracée dans Audit. Les situations longues s'impriment sur plusieurs pages (en-tête de tableau répété).
 
+## 50. v72 — Disposition de l'onglet BL
+
+- [D] Fiche client : les boutons **Imprimer situation journalière / détaillée** sont à l'extrême **droite** de la ligne des onglets (BL · Factures), visibles dans l'onglet BL seulement ; la ligne suivante ne contient que la **recherche**, au-dessus du tableau. Situation journalière : en-têtes **Date · Nombre de BL · Total BL · Paiements · Reste cumulé** (sans « du jour »).
+
