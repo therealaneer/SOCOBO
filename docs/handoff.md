@@ -62,3 +62,4 @@ Read this file together with `CLAUDE.md` (company, roles, engineering rules) and
 - v75 : recherche Magasin, N° de pièce, Bon de sortie, facture fournisseur à lignes sans destination (decisions §53).
 - v76 : vocabulaire Gasoil / Huiles / Pièces dans la Sortie et le Bon, « Remis par » depuis Paramètres › Magasin (decisions §54).
 - v77 : nouveau menu latéral : sections, groupes sans cadre, fiche utilisateur (decisions §55).
+- v78 : page Documents : devis, bons de commande (réception → stock → facture), registre, envoi e-mail / WhatsApp (decisions §56).

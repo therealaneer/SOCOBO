@@ -1425,6 +1425,12 @@ button.back { display: none !important; }
       <div id="dp-body"></div>
     </section>
 
+    <section id="view-docs" hidden>
+      <div class="head"><div><h1>Documents</h1><p class="sub" id="docs-s"></p></div><div class="hbtns" id="docs-a"></div></div>
+      <div class="tabs" id="docs-tabs" role="tablist" style="margin-bottom:14px"></div>
+      <div id="docs-body"></div>
+    </section>
+
     <section id="view-soon" hidden>
       <div class="head"><div><h1 id="soon-title"></h1><p class="sub">Module à concevoir</p></div></div>
       <div class="sheet" id="soon-box"><div class="soon"><b>Ce module sera construit à son tour.</b>Le menu et la mise en page sont prêts. On valide d’abord les écrans, puis on branche les données.</div></div>
@@ -1556,7 +1562,7 @@ button.back { display: none !important; }
     }).join('');
   }
   var SOON_HTML = '';
-  var ALLV = ['view-dashboard', 'view-pesees', 'view-produits', 'view-fournisseurs', 'view-clients', 'view-fiche', 'view-cheques', 'view-machines', 'view-machine', 'view-usine', 'view-personnel', 'view-stockp', 'view-mag', 'view-params', 'view-rent', 'view-charges', 'view-location', 'view-chrec', 'view-oued', 'view-carr', 'view-asaisir', 'view-controle', 'view-users', 'view-fsaisie', 'view-pdvdash', 'view-hist', 'view-fact', 'view-depense', 'view-reglement', 'view-soon'];
+  var ALLV = ['view-dashboard', 'view-pesees', 'view-produits', 'view-fournisseurs', 'view-clients', 'view-fiche', 'view-cheques', 'view-machines', 'view-machine', 'view-usine', 'view-personnel', 'view-stockp', 'view-mag', 'view-params', 'view-rent', 'view-charges', 'view-location', 'view-chrec', 'view-oued', 'view-carr', 'view-asaisir', 'view-controle', 'view-users', 'view-fsaisie', 'view-pdvdash', 'view-hist', 'view-fact', 'view-depense', 'view-reglement', 'view-docs', 'view-soon'];
   var PERV = ['view-dashboard', 'view-hist', 'view-fournisseurs', 'view-fiche', 'view-fsaisie', 'view-clients'];
   var VIEWHOOKS = {}, PRINTV = ['view-dashboard', 'view-pdvdash', 'view-clients', 'view-fournisseurs', 'view-produits', 'view-machines', 'view-usine', 'view-stockp', 'view-depense', 'view-cheques', 'view-hist', 'view-controle', 'view-rent', 'view-fact'];
   /* --- Historique et bouton Retour --- */
@@ -1588,7 +1594,7 @@ button.back { display: none !important; }
     if (!navBack && (k !== cur.k || (sub || null) !== (cur.sub || null) || !$('view-fiche').hidden || !$('view-machine').hidden)) navPush();
     cur = { k: k, sub: sub || null };
     var m = menu.filter(function (x) { return x.k === k; })[0];
-    var vm = { dashboard: 'view-dashboard', parametres: 'view-params', rentabilite: 'view-rent', charges: 'view-charges', location: 'view-location', oued: 'view-oued', carriere: 'view-carr', pdv: 'view-pesees', fournisseurs: 'view-fournisseurs', clients: 'view-clients', machines: 'view-machines', agglos: 'view-usine', personnel: 'view-personnel', asaisir: 'view-asaisir', controle: 'view-controle', utilisateurs: 'view-users', historique: 'view-hist', facturation: 'view-fact', depense: 'view-depense' }, target = vm[k] || 'view-soon';
+    var vm = { dashboard: 'view-dashboard', parametres: 'view-params', rentabilite: 'view-rent', charges: 'view-charges', location: 'view-location', oued: 'view-oued', carriere: 'view-carr', pdv: 'view-pesees', documents: 'view-docs', fournisseurs: 'view-fournisseurs', clients: 'view-clients', machines: 'view-machines', agglos: 'view-usine', personnel: 'view-personnel', asaisir: 'view-asaisir', controle: 'view-controle', utilisateurs: 'view-users', historique: 'view-hist', facturation: 'view-fact', depense: 'view-depense' }, target = vm[k] || 'view-soon';
     if (k === 'fournisseurs' && typeof ROLE !== 'undefined' && ROLE === 'compta') target = 'view-fsaisie';
     if (k === 'dashboard' && typeof ROLE !== 'undefined' && ROLE === 'pdv') target = 'view-pdvdash';
     if (k === 'banque') target = sub === 'Chèques reçus' ? 'view-chrec' : 'view-cheques';
@@ -2355,8 +2361,8 @@ button.back { display: none !important; }
     if (CATS.indexOf(cur) >= 0) $('sf-cat').value = cur;
   }
   function pieceTxt(a) { return a.piece || (a.bl ? 'BL ' + a.bl : '—'); }
-  function buyModal(s) {
-    var dirty = false, LN = [{ i: '', q: '', p: '', d: '' }];
+  function buyModal(s, pre) {
+    var dirty = false, LN = pre && pre.lines && pre.lines.length ? pre.lines.map(function (l) { return { i: l.i, q: l.q, p: l.p, d: l.d || '' }; }) : [{ i: '', q: '', p: '', d: '' }];
     openModal('<h2>Nouvel achat</h2><p class="m">' + esc(s.nom) + ' · délai de paiement : ' + delaiTxt(s.delai).toLowerCase() + '</p>' +
       '<div class="row2"><div class="f"><label for="bm-piece">N° de la facture</label><input class="in" id="bm-piece" placeholder="Facultatif"></div>' +
       '<div class="f"><label for="bm-bl">N° du bon de livraison</label><input class="in" id="bm-bl" placeholder="Facultatif"></div></div>' +
@@ -2389,6 +2395,7 @@ button.back { display: none !important; }
     };
     $('bm-amt').addEventListener('input', calcHt); $('bm-tva').addEventListener('change', function () { calcHt(); if (parts()) lnSync(); });
     lnToggle();
+    if (pre && pre.lib) $('bm-lib').value = pre.lib; if (pre && [10, 14, 20].indexOf(+pre.tva) >= 0) { $('bm-tva').value = pre.tva; lnSync(); }
     $('bm-date').addEventListener('change', sync);
     $('bm-ech').addEventListener('input', function () { dirty = true; });
     $('bm-cancel').addEventListener('click', closeModal);
@@ -2408,11 +2415,11 @@ button.back { display: none !important; }
       if (!ech) return err('Choisissez une date d’échéance.');
       if (ech < dt) return err('L’échéance ne peut pas précéder la date de l’achat.');
       var na = { date: dt, piece: $('bm-piece').value.trim(), bl: $('bm-bl').value.trim(), lib: $('bm-lib').value.trim() || (ok.length === 1 ? (ok[0].i === 'svc' ? ok[0].d.trim() : magItem(ok[0].i).nom) : 'Achat (' + ok.length + ' lignes)'), tva: +$('bm-tva').value, ttc: amt, ech: ech, dest: 'Général' }; na.lines = ok.filter(function (l) { return l.i !== 'svc'; }).map(function (l) { return { item: +l.i, q: num(l.q), px: num(l.p) }; }); na.svc = ok.filter(function (l) { return l.i === 'svc'; }).map(function (l) { return { d: l.d.trim(), q: num(l.q), px: num(l.p) }; }); s.achats.push(na);
-      { var over = na.lines.filter(function (l) { var it = magItem(l.item); return it.cap && magCalc()[it.id].q + l.q > it.cap; })[0]; if (over) { s.achats.pop(); return err('La citerne déborderait : capacité ' + nf0.format(magItem(over.item).cap) + ' L.'); } }
-      { na.lines.forEach(function (l) { magSave(magItem(l.item), { type: 'in', d: dt, q: l.q, px: l.px, sup: s.nom, ref: na.piece || na.bl || '' }); }); audit('Facture d’achat', s.nom, (na.lines.length + na.svc.length) + ' ligne' + (na.lines.length + na.svc.length > 1 ? 's' : '') + ' · ' + nf2.format(amt)); if (!$('view-mag').hidden) renderMag(); } if (typeof onBuy === 'function') onBuy(s, na);
+      { var over = !(pre && pre.noStock) && na.lines.filter(function (l) { var it = magItem(l.item); return it.cap && magCalc()[it.id].q + l.q > it.cap; })[0]; if (over) { s.achats.pop(); return err('La citerne déborderait : capacité ' + nf0.format(magItem(over.item).cap) + ' L.'); } }
+      { if (!(pre && pre.noStock)) na.lines.forEach(function (l) { magSave(magItem(l.item), { type: 'in', d: dt, q: l.q, px: l.px, sup: s.nom, ref: na.piece || na.bl || '' }); }); audit('Facture d’achat', s.nom, (na.lines.length + na.svc.length) + ' ligne' + (na.lines.length + na.svc.length > 1 ? 's' : '') + ' · ' + nf2.format(amt)); if (!$('view-mag').hidden) renderMag(); } if (typeof onBuy === 'function') onBuy(s, na);
       s.achats.sort(function (a, b) { return a.date - b.date; });
       closeModal(); renderSups(); if (!$('view-fiche').hidden && curSup === s) renderFiche();
-      toast('Achat enregistré.');
+      toast('Achat enregistré.'); if (pre && pre.done) pre.done(na);
     });
   }
 
@@ -4737,7 +4744,7 @@ button.back { display: none !important; }
   var ROLES = {
     dg: { n: 'Poste 1', nom: 'Direction', user: 'DG', ini: 'DG', home: ['dashboard', null], menu: null, voit: 'Tout', regles: ['Contrôle total', 'Seul à voir les salaires, les marges et les coûts de l’usine', 'Seul à fixer les prix, les plafonds de crédit et les blocages'] },
     ctrl: { n: 'Poste 2', nom: 'Contrôle', user: 'Contrôleur', ini: 'CO', home: ['controle', null], menu: { dashboard: 1, controle: 1, facturation: 1, pdv: ['Stock produits'], oued: 1, carriere: 1, location: 1, charges: 1, personnel: ['Employés', 'Présences', 'Alertes', 'Statistiques'], stock: ['Pièces de rechange', 'Gasoil', 'Huiles et graisses'] }, voit: 'À contrôler · Dashboard · Stock produits · Oued · Carrière · Gasoil · Huiles', regles: ['Marque chaque élément comme « Vu »', 'Approuve la journée', 'Ne modifie aucune donnée', 'Voit Oued, Carrière et les prix du gasoil et des huiles'] },
-    compta: { n: 'Poste 3', nom: 'Comptabilité et saisie', user: 'Comptable', ini: 'CP', home: ['asaisir', null], menu: { asaisir: 1, facturation: 1, clients: 1, fournisseurs: 1, banque: 1, pdv: ['Stock produits'], oued: 1, carriere: 1, location: 1, charges: 1, personnel: 1, stock: 1 }, voit: 'À saisir · Clients · Fournisseurs · Banque · Oued · Carrière · Magasin · Stock produits', regles: ['Clients complets, sans toucher au plafond ni au blocage', 'Fournisseurs : ajoute les factures, ne voit aucun montant', 'Saisit Oued, Carrière et le Magasin ; voit les coûts de ces sections ; ni salaires, ni marges'] },
+    compta: { n: 'Poste 3', nom: 'Comptabilité et saisie', user: 'Comptable', ini: 'CP', home: ['asaisir', null], menu: { asaisir: 1, facturation: 1, documents: 1, clients: 1, fournisseurs: 1, banque: 1, pdv: ['Stock produits'], oued: 1, carriere: 1, location: 1, charges: 1, personnel: 1, stock: 1 }, voit: 'À saisir · Clients · Fournisseurs · Banque · Oued · Carrière · Magasin · Stock produits', regles: ['Clients complets, sans toucher au plafond ni au blocage', 'Fournisseurs : ajoute les factures, ne voit aucun montant', 'Saisit Oued, Carrière et le Magasin ; voit les coûts de ces sections ; ni salaires, ni marges'] },
     pdv: { n: 'Poste 4', nom: 'Point de vente', user: 'Caisse', ini: 'PV', home: ['pdv', 'Caisse'], menu: { dashboard: 1, pdv: ['Caisse', 'Règlement', 'Dépense', 'Stock produits'], stock: ['Pièces de rechange', 'Huiles et graisses', 'Gasoil'], asaisir: 1 }, voit: 'Dashboard · Caisse · Règlement · Dépense · Stock produits · Magasin (sorties, sans prix) · À saisir', regles: ['Émet les BL', 'Encaisse les règlements des clients et remet le reçu', 'Ne modifie ni les prix ni les plafonds', 'Un client bloqué : seul le DG peut débloquer', 'Magasin : enregistre les sorties seulement, ne voit aucun prix'] }
   };
   var ROLE = 'dg';
@@ -5828,6 +5835,230 @@ button.back { display: none !important; }
     if (e.target.closest('[data-mgin]')) return magIn(magFiche); if (e.target.closest('[data-mgday]')) return magDay(); if (e.target.closest('[data-mginv]')) return magInv(magFiche); if (e.target.closest('[data-mgedit]')) return go('parametres', 'Magasin'); if (e.target.closest('[data-mgnew]')) return magNew();
   });
 
+
+  /* ===== Documents : devis (clients), bons de commande (fournisseurs) et registre de tous les documents ===== */
+  var DEVS = [], BCS = [], dcTab = 'dev', dcQ = '', dcSt = '', dcTy = '', dcMore = 60, dcReg = [];
+  var BC_ST = ['Brouillon', 'Envoyé', 'Confirmé', 'Reçu partiellement', 'Reçu', 'Facturé', 'Annulé'], DEV_ST = ['Brouillon', 'Envoyé', 'Accepté', 'Refusé', 'Expiré'];
+  var DCLS = { 'Brouillon': 'mute', 'Envoyé': 'warn', 'Accepté': 'ok', 'Refusé': 'bad', 'Expiré': 'bad', 'Confirmé': 'ok', 'Reçu partiellement': 'warn', 'Reçu': 'ok', 'Facturé': 'ok', 'Annulé': 'mute' };
+  var dcCan = function () { return ROLE === 'dg' || ROLE === 'compta'; };
+  var dcFree = function (list) { var used = {}; list.forEach(function (x) { used[x.n] = 1; }); for (var i = 1; ; i++) if (!used[i]) return i; };
+  var dcNo = function (p, n) { return p + '-' + TODAY.getFullYear() + '-' + String(n).padStart(4, '0'); };
+  var dcStOf = function (x) { return x.valid && x.st === 'Envoyé' && x.valid < TODAY ? 'Expiré' : x.st; };
+  var dcChip = function (st) { return '<span class="st ' + (DCLS[st] || 'mute') + '">' + esc(st) + '</span>'; };
+  var devTot = function (x) { var ttc = 0; x.lines.forEach(function (l) { ttc += l.q * l.pu; }); var ht = ttc / (1 + x.rate); return { ttc: ttc, ht: ht, tva: ttc - ht }; };
+  var bcTot = function (x) { var ht = 0; x.lines.forEach(function (l) { ht += l.q * l.p; }); return { ht: ht, tva: ht * x.tva / 100, ttc: ht * (1 + x.tva / 100) }; };
+  var devPrice = function (c, k, u) { var f = 1 + rateOf(c), ht = u === 'mille' ? pxHT(k, 'b', c) * 1000 : pxHT(k, u, c); return Math.round(ht * f * 100) / 100; };
+  var devUnits = function (k) { return P[k].u === 'mille' ? ['mille'] : ['t', 'm3']; };
+  var dcCli = function (x) { return clients.filter(function (c) { return c.nom === x.client; })[0]; };
+  var dcSet = function (x, list, st, note) { x.st = st; x.hist.push({ d: nowT(), st: st, n: note || '' }); audit((list === DEVS ? 'Devis ' : 'Bon de commande ') + st.toLowerCase(), x.no, note || ''); };
+  var dcHist = function (x) { return x.hist.map(function (h) { return esc(h.st) + ' ' + dfmt.format(h.d) + (h.n ? ' (' + esc(h.n) + ')' : ''); }).join(' → '); };
+  (function () {
+    var cl = function (n) { return clients.filter(function (c) { return c.nom.indexOf(n) === 0; })[0]; };
+    var mkD = function (c, ago, val, st, ls, note) { var rate = rateOf(c), n = dcFree(DEVS), x = { n: n, no: dcNo('DEV', n), d: addDays(TODAY, -ago), valid: addDays(TODAY, val), client: c.nom, rate: rate, lines: ls.map(function (l) { return { k: l[0], u: l[1], q: l[2], pu: devPrice(c, l[0], l[1]) }; }), note: note || 'EXEMPLE', st: st, hist: [{ d: addDays(TODAY, -ago), st: 'Brouillon', n: '' }] }; if (st !== 'Brouillon') x.hist.push({ d: addDays(TODAY, -ago + 1), st: st === 'Expiré' ? 'Envoyé' : st, n: st === 'Envoyé' || st === 'Expiré' ? 'e-mail' : '' }); DEVS.push(x); };
+    var a = cl('Atlas'), b = cl('BTP Souss'), r = cl('Routes du Sud');
+    if (a) mkD(a, 3, 27, 'Brouillon', [['g8', 't', 120], ['sa', 't', 80]]);
+    if (r) mkD(r, 9, 21, 'Envoyé', [['gr', 'm3', 200], ['tv', 't', 150]]);
+    if (b) mkD(b, 20, 10, 'Accepté', [['b8', 'mille', 40]]);
+    if (a) mkD(a, 70, -40, 'Envoyé', [['g15', 't', 60]]);
+    var sp = sups.filter(function (s) { return !s.isClient; }), pp = sp.filter(function (s) { return /Pièces Poids/.test(s.nom); })[0] || sp[0], pts = MAGI.filter(function (x) { return x.k === 'part'; });
+    var mkB = function (s, ago, exp, st, ls) { var n = dcFree(BCS), x = { n: n, no: dcNo('BC', n), d: addDays(TODAY, -ago), exp: addDays(TODAY, exp), sid: s.id, tva: 20, lines: ls.map(function (l) { return { i: String(l[0].id), des: '', q: l[1], p: l[0].px0, rec: 0 }; }), note: 'EXEMPLE', st: st, hist: [{ d: addDays(TODAY, -ago), st: 'Brouillon', n: '' }] }; if (st !== 'Brouillon') x.hist.push({ d: addDays(TODAY, -ago + 1), st: 'Envoyé', n: 'e-mail' }); if (st === 'Confirmé') x.hist.push({ d: addDays(TODAY, -ago + 2), st: 'Confirmé', n: '' }); BCS.push(x); };
+    if (pp && pts.length > 3) { mkB(pp, 2, 8, 'Brouillon', [[pts[0], 12], [pts[1], 6]]); mkB(pp, 6, 4, 'Envoyé', [[pts[2], 8], [pts[3], 4]]); mkB(pp, 11, 1, 'Confirmé', [[pts[4] || pts[0], 6]]); }
+  })();
+  /* ---- feuilles imprimables ---- */
+  function dcHead(titre, no, extra) { return '<div class="inv-top"><div><div class="inv-brand">' + esc(COMPANY.nom) + '</div><div class="inv-sub">' + esc(COMPANY.ville) + '</div></div><div class="inv-ti"><h1>' + titre + '</h1><div><span>N°</span><b>' + esc(no) + '</b></div><div class="inv-ed">Édité le ' + fdt(nowT()) + ' · ' + esc(USER) + '</div></div></div>' + (extra || '') + '<div class="inv-co">' + esc(COMPANY.nom) + ' · ' + esc(COMPANY.adresse) + ', ' + esc(COMPANY.ville) + ' · Tél. ' + esc(COMPANY.tel) + '<br>ICE ' + esc(COMPANY.ice) + ' · RC ' + esc(COMPANY.rc) + ' · IF ' + esc(COMPANY.ifs) + '</div>'; }
+  var dcFoot = function () { return '<div class="inv-foot"><span>Tél. ' + esc(COMPANY.tel) + '</span><span>' + esc(COMPANY.adresse) + ', ' + esc(COMPANY.ville) + '</span><span>ICE ' + esc(COMPANY.ice) + ' · RC ' + esc(COMPANY.rc) + ' · IF ' + esc(COMPANY.ifs) + '</span></div>'; };
+  var dcQty = function (q, u) { return nf2.format(q) + ' ' + (u === 'm3' ? 'm³' : (u === 'mille' ? 'mille' : u === 't' ? 't' : esc(u || ''))); };
+  function devSheet(x) {
+    var c = dcCli(x), t = devTot(x), st = dcStOf(x), n2 = function (i) { return String(i + 1).padStart(2, '0'); };
+    return '<div class="inv-sheet">' + dcHead('DEVIS', x.no, st === 'Refusé' ? '<div class="pcopy" style="color:#b42318">DEVIS REFUSÉ</div>' : (st === 'Expiré' ? '<div class="pcopy" style="color:#b42318">DEVIS EXPIRÉ</div>' : '')) +
+      '<div class="inv-mid"><div><span class="inv-l">Client</span><b class="inv-cl">' + esc(x.client) + '</b>' + (c && c.ice ? '<div>ICE ' + esc(c.ice) + '</div>' : '') + (c && c.ville ? '<div>' + esc(c.ville) + '</div>' : '') + '</div><dl class="inv-dl"><dt>Date</dt><dd>' + dfmt.format(x.d) + '</dd><dt>Valable jusqu’au</dt><dd>' + dfmt.format(x.valid) + '</dd></dl></div>' +
+      '<table class="inv-tb"><thead><tr><th style="width:44px">N°</th><th>Désignation</th><th class="r">Quantité</th><th class="r">Prix unitaire HT</th><th class="r">Total HT</th></tr></thead><tbody>' + x.lines.map(function (l, i) { var pu = l.pu / (1 + x.rate); return '<tr><td class="mute">' + n2(i) + '</td><td><b>' + esc(P[l.k].n) + '</b></td><td class="r">' + dcQty(l.q, l.u) + '</td><td class="r">' + nf2.format(pu) + '</td><td class="r">' + nf2.format(l.q * pu) + '</td></tr>'; }).join('') + '</tbody></table>' +
+      '<div class="inv-sum"><div><span>Total HT</span><b>' + nf2.format(t.ht) + '</b></div><div><span>TVA ' + Math.round(x.rate * 100) + ' %</span><b>' + nf2.format(t.tva) + '</b></div><div class="inv-ttc"><span>Total TTC</span><b>' + nf2.format(t.ttc) + '</b></div></div>' +
+      '<p class="inv-words">Arrêté le présent devis à la somme de : <b>' + madWords(t.ttc) + '</b></p>' + (x.note ? '<p class="inv-words" style="margin-top:6px">Remarque : ' + esc(x.note) + '</p>' : '') +
+      '<div class="inv-bot"><div class="inv-sig"><span>Bon pour accord · date, signature et cachet du client</span></div></div>' + dcFoot() + '</div>';
+  }
+  function bcSheet(x) {
+    var s = supBy(x.sid), t = bcTot(x), st = x.st, n2 = function (i) { return String(i + 1).padStart(2, '0'); };
+    return '<div class="inv-sheet">' + dcHead('BON DE COMMANDE', x.no, st === 'Annulé' ? '<div class="pcopy" style="color:#b42318">BON DE COMMANDE ANNULÉ</div>' : '') +
+      '<div class="inv-mid"><div><span class="inv-l">Fournisseur</span><b class="inv-cl">' + esc(s ? s.nom : '—') + '</b>' + (s && s.ville ? '<div>' + esc(s.ville) + '</div>' : '') + (s && s.tel ? '<div>Tél. ' + esc(s.tel) + '</div>' : '') + '</div><dl class="inv-dl"><dt>Date</dt><dd>' + dfmt.format(x.d) + '</dd><dt>Livraison souhaitée</dt><dd>' + dfmt.format(x.exp) + '</dd><dt>Paiement</dt><dd>' + (s ? esc(delaiTxt(s.delai)) : '—') + '</dd></dl></div>' +
+      '<table class="inv-tb"><thead><tr><th style="width:44px">N°</th><th>Désignation</th><th class="r">Quantité</th><th class="r">Prix unitaire HT</th><th class="r">Total HT</th></tr></thead><tbody>' + x.lines.map(function (l, i) { var it = l.i === 'svc' ? null : magItem(l.i); return '<tr><td class="mute">' + n2(i) + '</td><td><b>' + esc(it ? it.nom : l.des) + '</b>' + (it && it.no ? '<small>N° de pièce ' + esc(it.no) + '</small>' : '') + '</td><td class="r">' + nf2.format(l.q) + (it ? ' ' + esc(it.unit) : '') + '</td><td class="r">' + nf2.format(l.p) + '</td><td class="r">' + nf2.format(l.q * l.p) + '</td></tr>'; }).join('') + '</tbody></table>' +
+      '<div class="inv-sum"><div><span>Total HT</span><b>' + nf2.format(t.ht) + '</b></div><div><span>TVA ' + x.tva + ' %</span><b>' + nf2.format(t.tva) + '</b></div><div class="inv-ttc"><span>Total TTC</span><b>' + nf2.format(t.ttc) + '</b></div></div>' + (x.note ? '<p class="inv-words">Remarque : ' + esc(x.note) + '</p>' : '') +
+      '<div class="inv-bot"><div class="inv-sig"><span>Signature et cachet</span></div></div>' + dcFoot() + '</div>';
+  }
+  /* ---- fenêtre d'un document : feuille + actions selon l'état ---- */
+  function dcOpen(kind, x) {
+    var dev = kind === 'dev', list = dev ? DEVS : BCS, st = dev ? dcStOf(x) : x.st, w = dcCan(), btn = function (id, cls, t) { return '<button type="button" class="btn ' + cls + '" id="' + id + '">' + t + '</button>'; }, a = '';
+    if (w) {
+      if (st === 'Brouillon') a += btn('dc-edit', '', 'Modifier') + btn('dc-del', 'danger', 'Supprimer') + btn('dc-send', 'primary', 'Envoyer');
+      else if (dev && (st === 'Envoyé' || st === 'Expiré')) a += btn('dc-ok', 'primary', 'Marquer accepté') + btn('dc-no', '', 'Marquer refusé') + btn('dc-send', '', 'Renvoyer');
+      else if (dev && st === 'Accepté') a += btn('dc-caisse', 'primary', 'Ouvrir à la Caisse');
+      else if (!dev && st === 'Envoyé') a += btn('dc-conf', 'primary', 'Marquer confirmé') + btn('dc-recv', '', 'Enregistrer la réception') + btn('dc-send', '', 'Renvoyer') + btn('dc-cancel', 'danger', 'Annuler la commande');
+      else if (!dev && st === 'Confirmé') a += btn('dc-recv', 'primary', 'Enregistrer la réception') + btn('dc-send', '', 'Renvoyer') + btn('dc-cancel', 'danger', 'Annuler la commande');
+      else if (!dev && st === 'Reçu partiellement') a += btn('dc-recv', 'primary', 'Enregistrer la réception') + btn('dc-inv', '', 'Créer la facture') ;
+      else if (!dev && st === 'Reçu') a += btn('dc-inv', 'primary', 'Créer la facture');
+      if (st !== 'Brouillon' || true) a += btn('dc-dup', '', 'Dupliquer');
+    }
+    openModal('<div class="mact dc-act" style="flex-wrap:wrap;justify-content:flex-start;margin:0 0 12px"><button type="button" class="btn" id="dc-close">Fermer</button><button type="button" class="btn blue" id="dc-print">' + printerSvg + ' Imprimer</button>' + a + '</div><p class="pmute" style="margin:0 2px 10px">' + (dev ? 'Devis' : 'Commande') + ' · ' + dcChip(st) + ' · ' + dcHist(x) + (x.inv ? ' · Facture ' + esc(x.inv) : '') + '</p><div class="paper">' + (dev ? devSheet(x) : bcSheet(x)) + '</div>', 'big');
+    var on = function (id, f) { var e = $(id); if (e) e.addEventListener('click', f); };
+    on('dc-close', closeModal); on('dc-print', function () { try { window.print(); } catch (e) {} toast('Si la fenêtre d’impression ne s’ouvre pas : Ctrl+P, puis « Enregistrer en PDF ».'); });
+    on('dc-edit', function () { dev ? dcDevForm(x) : dcBcForm(x); });
+    on('dc-del', function () { confirmDanger('Supprimer ce brouillon ?', x.no + ' · le numéro sera réutilisé.', 'Supprimer', function () { list.splice(list.indexOf(x), 1); audit((dev ? 'Devis' : 'Bon de commande') + ' supprimé', x.no, ''); dcRender(); toast('Brouillon supprimé.'); }); });
+    on('dc-send', function () { dcSend(kind, x); });
+    on('dc-ok', function () { dcSet(x, list, 'Accepté'); closeModal(); dcRender(); dcOpen(kind, x); });
+    on('dc-no', function () { confirmDanger('Marquer ce devis refusé ?', x.no + ' · ' + x.client, 'Refusé', function () { dcSet(x, list, 'Refusé'); dcRender(); dcOpen(kind, x); }); });
+    on('dc-caisse', function () { var c = dcCli(x); closeModal(); go('pdv', 'Caisse'); if (c) pdvSelect(c.id, ''); });
+    on('dc-conf', function () { dcSet(x, list, 'Confirmé'); closeModal(); dcRender(); dcOpen(kind, x); });
+    on('dc-cancel', function () { confirmDanger('Annuler cette commande ?', x.no + ' · le numéro reste réservé.', 'Annuler la commande', function () { dcSet(x, list, 'Annulé'); dcRender(); dcOpen(kind, x); }); });
+    on('dc-recv', function () { dcRecv(x); });
+    on('dc-inv', function () { dcInv(x); });
+    on('dc-dup', function () { var n = dcFree(list), c = JSON.parse(JSON.stringify(x)); c.n = n; c.no = dcNo(dev ? 'DEV' : 'BC', n); c.d = TODAY; c.hist = [{ d: nowT(), st: 'Brouillon', n: 'copie de ' + x.no }]; c.st = 'Brouillon'; delete c.inv; if (dev) { c.valid = addDays(TODAY, 30); c.d = TODAY; } else { c.exp = addDays(TODAY, 7); c.lines.forEach(function (l) { l.rec = 0; }); } list.push(c); audit((dev ? 'Devis' : 'Bon de commande') + ' dupliqué', c.no, 'depuis ' + x.no); closeModal(); dcRender(); dcOpen(kind, c); });
+  }
+  /* dates : conversion depuis le JSON copié */
+  /* ---- envoi : e-mail ou WhatsApp avec message prêt ---- */
+  function dcSend(kind, x) {
+    var dev = kind === 'dev', list = dev ? DEVS : BCS, tp = dev ? dcCli(x) : supBy(x.sid), ch = 'mail', tt = dev ? devTot(x).ttc : bcTot(x).ttc;
+    var subj = (dev ? 'Devis ' : 'Bon de commande ') + x.no + ' · ' + COMPANY.nom;
+    var msg = 'Bonjour,\n\n' + (dev ? 'Veuillez trouver ci-joint notre devis ' + x.no + ' d’un montant de ' + nf2.format(tt) + ' TTC, valable jusqu’au ' + dfmt.format(x.valid) + '.' : 'Veuillez trouver ci-joint notre bon de commande ' + x.no + ' (' + x.lines.length + ' ligne' + (x.lines.length > 1 ? 's' : '') + '), livraison souhaitée le ' + dfmt.format(x.exp) + '.') + '\n\nCordialement,\n' + COMPANY.nom + ' · ' + COMPANY.tel;
+    var rc = function () { return ch === 'mail' ? (tp && mailOk(tp.mail) ? tp.mail : '') : (tp ? (tp.mob || tp.tel || '') : ''); };
+    openModal('<h2>Envoyer ' + (dev ? 'le devis ' : 'le bon de commande ') + esc(x.no) + '</h2><p class="m">' + esc(dev ? x.client : (tp ? tp.nom : '')) + '</p><div class="f"><label>Canal</label><div class="modes" id="ds-ch"><button type="button" data-ch="mail" aria-pressed="true">E-mail</button><button type="button" data-ch="wa" aria-pressed="false">WhatsApp</button></div></div>' +
+      '<div class="f"><label for="ds-to" id="ds-tol">Adresse e-mail</label><input class="in" id="ds-to" value="' + esc(rc()) + '"></div><div class="f"><label for="ds-msg">Message</label><textarea class="in" id="ds-msg" rows="7" style="height:auto;padding:10px 12px">' + esc(msg) + '</textarea></div>' +
+      '<p class="sugg">Le bouton ouvre votre messagerie avec le message prêt. Joignez ensuite le PDF : Imprimer, puis « Enregistrer en PDF ». L’envoi automatique avec pièce jointe viendra avec la version finale du programme.</p><p class="err" id="ds-err" hidden></p><div class="mact"><button type="button" class="btn" id="ds-cancel">Annuler</button><button type="button" class="btn primary" id="ds-go">Ouvrir l’e-mail</button></div>');
+    var sync = function () { $('ds-tol').textContent = ch === 'mail' ? 'Adresse e-mail' : 'Numéro WhatsApp'; $('ds-to').value = rc(); $('ds-go').textContent = ch === 'mail' ? 'Ouvrir l’e-mail' : 'Ouvrir WhatsApp'; };
+    $('ds-ch').addEventListener('click', function (e) { var b = e.target.closest('button[data-ch]'); if (!b) return; ch = b.dataset.ch; $('ds-ch').querySelectorAll('button').forEach(function (q) { q.setAttribute('aria-pressed', q === b ? 'true' : 'false'); }); sync(); });
+    $('ds-cancel').addEventListener('click', function () { closeModal(); dcOpen(kind, x); });
+    $('ds-go').addEventListener('click', function () {
+      var to = $('ds-to').value.trim(), m = $('ds-msg').value, err = function (t) { $('ds-err').textContent = t; $('ds-err').hidden = false; }, url;
+      if (ch === 'mail') { if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) return err('Saisissez une adresse e-mail valide.'); url = 'mailto:' + to + '?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(m); }
+      else { var d = to.replace(/\D/g, ''); if (d.charAt(0) === '0') d = '212' + d.slice(1); if (d.length < 11) return err('Saisissez un numéro WhatsApp valide (ex. 06 61 22 41 10).'); url = 'https://wa.me/' + d + '?text=' + encodeURIComponent(m); }
+      try { window.open(url, '_blank'); } catch (e) {}
+      var via = ch === 'mail' ? 'e-mail' : 'WhatsApp';
+      if (x.st === 'Brouillon') dcSet(x, list, 'Envoyé', via); else { x.hist.push({ d: nowT(), st: 'Renvoyé', n: via }); audit((dev ? 'Devis' : 'Bon de commande') + ' renvoyé', x.no, via); }
+      closeModal(); dcRender(); toast('Marqué comme envoyé par ' + via + '. Joignez le PDF au message.'); dcOpen(kind, x);
+    });
+  }
+  /* ---- réception d'un bon de commande : les lignes de stock entrent au Magasin ---- */
+  function dcRecv(x) {
+    var s = supBy(x.sid);
+    openModal('<h2>Réception · ' + esc(x.no) + '</h2><p class="m">' + esc(s ? s.nom : '') + ' · les articles de stock entrent au Magasin automatiquement.</p><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Article</th><th>Commandé</th><th>Déjà reçu</th><th>Reçu maintenant</th></tr></thead><tbody>' + x.lines.map(function (l, i) { var it = l.i === 'svc' ? null : magItem(l.i), rest = Math.max(0, l.q - l.rec); return '<tr><td>' + esc(it ? it.nom : l.des) + (it ? '' : '<small>Service (sans stock)</small>') + '</td><td class="num">' + nf2.format(l.q) + (it ? ' ' + esc(it.unit) : '') + '</td><td class="num">' + nf2.format(l.rec) + '</td><td><input class="in" data-rq="' + i + '" inputmode="decimal" value="' + String(rest).replace('.', ',') + '" style="max-width:120px"></td></tr>'; }).join('') + '</tbody></table></div><p class="err" id="rc-err" hidden></p><div class="mact"><button type="button" class="btn" id="rc-cancel">Annuler</button><button type="button" class="btn primary" id="rc-save">Enregistrer la réception</button></div>', 'big');
+    $('rc-cancel').addEventListener('click', function () { closeModal(); dcOpen('bc', x); });
+    $('rc-save').addEventListener('click', function () {
+      var err = function (t) { $('rc-err').textContent = t; $('rc-err').hidden = false; }, qs = [], tot = 0, bad = '';
+      x.lines.forEach(function (l, i) { var q = num(document.querySelector('[data-rq="' + i + '"]').value) || 0, rest = Math.max(0, l.q - l.rec); if (q < 0 || q > rest + 1e-9) bad = 'La quantité reçue ne peut pas dépasser le reste à recevoir.'; qs.push(q); tot += q; });
+      if (bad) return err(bad); if (!(tot > 0)) return err('Saisissez au moins une quantité reçue.');
+      var over = x.lines.filter(function (l, i) { var it = l.i === 'svc' ? null : magItem(l.i); return it && it.cap && magCalc()[it.id].q + qs[i] > it.cap; })[0]; if (over) return err('La citerne déborderait : capacité ' + nf0.format(magItem(over.i).cap) + ' L.');
+      x.lines.forEach(function (l, i) { if (qs[i] > 0) { if (l.i !== 'svc') magSave(magItem(l.i), { type: 'in', d: TODAY, q: qs[i], px: l.p, sup: s ? s.nom : '', ref: x.no }); l.rec += qs[i]; } });
+      var full = x.lines.every(function (l) { return l.rec >= l.q - 1e-9; }); dcSet(x, BCS, full ? 'Reçu' : 'Reçu partiellement', 'réception enregistrée');
+      closeModal(); dcRender(); if (!$('view-mag').hidden) renderMag(); toast(full ? 'Commande reçue : stock mis à jour.' : 'Réception partielle enregistrée : stock mis à jour.'); dcOpen('bc', x);
+    });
+  }
+  function dcInv(x) {
+    var s = supBy(x.sid); if (!s) return;
+    var ls = x.lines.map(function (l) { return { i: l.i, q: String(l.i === 'svc' ? l.q : l.rec).replace('.', ','), p: String(l.p).replace('.', ','), d: l.des || '' }; }).filter(function (l) { return num(l.q) > 0; });
+    if (!ls.length) { toast('Rien n’a encore été reçu : enregistrez d’abord la réception.', 'err'); return; }
+    closeModal(); buyModal(s, { lines: ls, noStock: true, lib: 'Commande ' + x.no, tva: x.tva, done: function (na) { x.inv = na.piece || na.lib; dcSet(x, BCS, 'Facturé', 'facture fournisseur créée'); dcRender(); } });
+  }
+  /* ---- formulaire de devis ---- */
+  function dcDevForm(x) {
+    var edit = !!x, cl = clients.filter(function (c) { return !c.comptant; }).sort(function (a, b) { return a.nom.localeCompare(b.nom); });
+    var D = x ? { cid: (dcCli(x) || {}).id, d: iso(x.d), valid: iso(x.valid), lines: x.lines.map(function (l) { return { k: l.k, u: l.u, q: String(l.q).replace('.', ','), pu: String(l.pu).replace('.', ','), t: true }; }), note: x.note === 'EXEMPLE' ? '' : (x.note || '') } : { cid: '', d: iso(TODAY), valid: iso(addDays(TODAY, 30)), lines: [{ k: '', u: 't', q: '', pu: '', t: false }], note: '' };
+    var cur = function () { return clients.filter(function (c) { return c.id === +D.cid; })[0]; };
+    var pk = Object.keys(P).filter(function (k) { return P[k].actif !== false; });
+    openModal('<h2>' + (edit ? 'Modifier le devis ' + esc(x.no) : 'Nouveau devis') + '</h2><p class="m">Les prix du client (prix convenus) sont proposés automatiquement ; vous pouvez les modifier. Tous les prix sont TTC.</p>' +
+      '<div class="row3"><div class="f"><label for="dv-c">Client *</label><select class="in" id="dv-c"><option value="">— Choisir —</option>' + cl.map(function (c) { return '<option value="' + c.id + '"' + (+D.cid === c.id ? ' selected' : '') + '>' + esc(c.nom) + '</option>'; }).join('') + '</select></div><div class="f"><label for="dv-d">Date</label><input class="in" id="dv-d" type="date" value="' + D.d + '"></div><div class="f"><label for="dv-v">Valable jusqu’au</label><input class="in" id="dv-v" type="date" value="' + D.valid + '"></div></div>' +
+      '<div id="dv-ll"></div><button type="button" class="btn mini" id="dv-add">+ Ajouter une ligne</button><p class="sugg" id="dv-tot" style="margin:8px 0 12px"></p><div class="f"><label for="dv-n">Remarque (facultatif)</label><input class="in" id="dv-n" value="' + esc(D.note) + '"></div><p class="err" id="dv-err" hidden></p><div class="mact"><button type="button" class="btn" id="dv-cancel">Annuler</button><button type="button" class="btn primary" id="dv-save">Enregistrer</button></div>', 'big');
+    var tot = function () { var c = cur(), r = c ? rateOf(c) : 0.2, ttc = 0; D.lines.forEach(function (l) { if (l.k && num(l.q) > 0 && num(l.pu) >= 0) ttc += num(l.q) * num(l.pu); }); var ht = ttc / (1 + r); $('dv-tot').textContent = 'Total HT : ' + nf2.format(ht) + '  ·  TVA (' + Math.round(r * 100) + ' %) : ' + nf2.format(ttc - ht) + '  ·  TTC : ' + nf2.format(ttc); };
+    var autoPx = function (l) { var c = cur(); if (c && l.k && !l.t) l.pu = String(devPrice(c, l.k, l.u)).replace('.', ','); };
+    var draw = function () { $('dv-ll').innerHTML = D.lines.map(function (l, n) { return '<div class="row3" style="grid-template-columns:2fr 0.8fr 1fr 1fr auto;align-items:end;margin-bottom:6px"><div class="f"><label>Produit</label><select class="in" data-dk="' + n + '"><option value="">— Produit —</option>' + pk.map(function (k) { return '<option value="' + k + '"' + (l.k === k ? ' selected' : '') + '>' + esc(P[k].n) + '</option>'; }).join('') + '</select></div><div class="f"><label>Unité</label><select class="in" data-du="' + n + '">' + (l.k ? devUnits(l.k) : ['t']).map(function (u) { return '<option value="' + u + '"' + (l.u === u ? ' selected' : '') + '>' + (u === 'm3' ? 'm³' : u) + '</option>'; }).join('') + '</select></div><div class="f"><label>Quantité</label><input class="in" data-dq="' + n + '" inputmode="decimal" value="' + esc(l.q) + '"></div><div class="f"><label>Prix unitaire TTC</label><input class="in" data-dp="' + n + '" inputmode="decimal" value="' + esc(l.pu) + '"></div>' + (D.lines.length > 1 ? '<button type="button" class="btn mini danger" data-dx="' + n + '" aria-label="Retirer la ligne">×</button>' : '<span></span>') + '</div>'; }).join(''); tot(); };
+    draw();
+    $('dv-add').addEventListener('click', function () { D.lines.push({ k: '', u: 't', q: '', pu: '', t: false }); draw(); });
+    $('dv-c').addEventListener('change', function () { D.cid = $('dv-c').value; D.lines.forEach(autoPx); draw(); });
+    $('dv-ll').addEventListener('input', function (e) { var t = e.target; if (t.dataset.dq != null) D.lines[+t.dataset.dq].q = t.value; else if (t.dataset.dp != null) { var l = D.lines[+t.dataset.dp]; l.pu = t.value; l.t = true; } tot(); });
+    $('dv-ll').addEventListener('change', function (e) { var t = e.target, l; if (t.dataset.dk != null) { l = D.lines[+t.dataset.dk]; l.k = t.value; l.u = l.k ? devUnits(l.k)[0] : 't'; l.t = false; autoPx(l); draw(); } else if (t.dataset.du != null) { l = D.lines[+t.dataset.du]; l.u = t.value; l.t = false; autoPx(l); draw(); } });
+    $('dv-ll').addEventListener('click', function (e) { var b = e.target.closest('[data-dx]'); if (b) { D.lines.splice(+b.dataset.dx, 1); draw(); } });
+    $('dv-cancel').addEventListener('click', function () { closeModal(); if (edit) dcOpen('dev', x); });
+    $('dv-save').addEventListener('click', function () {
+      var err = function (t) { $('dv-err').textContent = t; $('dv-err').hidden = false; }, c = cur(), d = parseIso($('dv-d').value), v = parseIso($('dv-v').value);
+      if (!c) return err('Choisissez le client.'); if (!d || !v) return err('Choisissez les dates.'); if (v < d) return err('La validité ne peut pas précéder la date du devis.');
+      var ls = D.lines.filter(function (l) { return l.k || num(l.q) || num(l.pu); });
+      if (!ls.length || ls.some(function (l) { return !l.k || !(num(l.q) > 0) || !(num(l.pu) >= 0) || l.pu === ''; })) return err('Chaque ligne doit avoir un produit, une quantité supérieure à zéro et un prix.');
+      var o = { client: c.nom, rate: rateOf(c), d: d, valid: v, lines: ls.map(function (l) { return { k: l.k, u: l.u, q: num(l.q), pu: num(l.pu) }; }), note: $('dv-n').value.trim() };
+      if (!(o.lines.reduce(function (t, l) { return t + l.q * l.pu; }, 0) > 0)) return err('Le total doit être supérieur à zéro.');
+      var y = x; if (edit) { Object.keys(o).forEach(function (k) { y[k] = o[k]; }); audit('Devis modifié', y.no, y.client); } else { var n = dcFree(DEVS); y = { n: n, no: dcNo('DEV', n), st: 'Brouillon', hist: [{ d: nowT(), st: 'Brouillon', n: '' }] }; Object.keys(o).forEach(function (k) { y[k] = o[k]; }); DEVS.push(y); audit('Devis créé', y.no, y.client); }
+      closeModal(); dcRender(); dcOpen('dev', y);
+    });
+  }
+  /* ---- formulaire de bon de commande ---- */
+  function dcBcForm(x) {
+    var edit = !!x, fl = sups.filter(function (z) { return !z.isClient; }).sort(function (a, b) { return a.nom.localeCompare(b.nom); });
+    var B = x ? { sid: x.sid, d: iso(x.d), exp: iso(x.exp), tva: x.tva, lines: x.lines.map(function (l) { return { i: l.i, d: l.des || '', q: String(l.q).replace('.', ','), p: String(l.p).replace('.', ','), t: true }; }), note: x.note === 'EXEMPLE' ? '' : (x.note || '') } : { sid: '', d: iso(TODAY), exp: iso(addDays(TODAY, 7)), tva: 20, lines: [{ i: '', d: '', q: '', p: '', t: false }], note: '' };
+    openModal('<h2>' + (edit ? 'Modifier le bon de commande ' + esc(x.no) : 'Nouveau bon de commande') + '</h2><p class="m">Commande à un fournisseur. Les articles de stock entreront au Magasin à la réception.</p>' +
+      '<div class="row3"><div class="f"><label for="bc-s">Fournisseur *</label><select class="in" id="bc-s"><option value="">— Choisir —</option>' + fl.map(function (z) { return '<option value="' + z.id + '"' + (+B.sid === z.id ? ' selected' : '') + '>' + esc(z.nom) + '</option>'; }).join('') + '</select></div><div class="f"><label for="bc-d">Date</label><input class="in" id="bc-d" type="date" value="' + B.d + '"></div><div class="f"><label for="bc-e">Livraison souhaitée</label><input class="in" id="bc-e" type="date" value="' + B.exp + '"></div></div>' +
+      '<div id="bc-ll"></div><button type="button" class="btn mini" id="bc-add">+ Ajouter une ligne</button><div class="row2" style="margin-top:10px"><div class="f"><label for="bc-t">Taux de TVA</label><select class="in" id="bc-t">' + [10, 14, 20, 0].map(function (r) { return '<option value="' + r + '"' + (+B.tva === r ? ' selected' : '') + '>' + r + ' %</option>'; }).join('') + '</select></div><div class="f"><label for="bc-n">Remarque (facultatif)</label><input class="in" id="bc-n" value="' + esc(B.note) + '"></div></div><p class="sugg" id="bc-tot" style="margin:6px 0 12px"></p><p class="err" id="bc-err" hidden></p><div class="mact"><button type="button" class="btn" id="bc-cancel">Annuler</button><button type="button" class="btn primary" id="bc-save">Enregistrer</button></div>', 'big');
+    var grp = function (k, lab) { return '<optgroup label="' + lab + '">' + MAGI.filter(function (q) { return q.k === k; }).map(function (q) { return '<option value="' + q.id + '">' + esc(q.nom) + ' (' + esc(q.unit) + ')</option>'; }).join('') + '</optgroup>'; };
+    var opts = '<option value="">— Article —</option>' + grp('part', 'Pièces de rechange') + grp('oil', 'Huiles et graisses') + grp('fuel', 'Gasoil') + '<option value="svc">Service / autre (sans stock)</option>';
+    var tot = function () { var ht = 0; B.lines.forEach(function (l) { if (l.i && num(l.q) > 0 && num(l.p) >= 0) ht += num(l.q) * num(l.p); }); var r = +$('bc-t').value; $('bc-tot').textContent = 'Total HT : ' + nf2.format(ht) + '  ·  TVA (' + r + ' %) : ' + nf2.format(ht * r / 100) + '  ·  TTC : ' + nf2.format(ht * (1 + r / 100)); };
+    var draw = function () { $('bc-ll').innerHTML = B.lines.map(function (l, n) { return '<div class="row3" style="grid-template-columns:2fr 1fr 1fr auto;align-items:end;margin-bottom:6px"><div class="f"><label>Article</label><select class="in" data-bi="' + n + '">' + opts.replace('value="' + l.i + '"', 'value="' + l.i + '" selected') + '</select>' + (l.i === 'svc' ? '<input class="in" data-bd="' + n + '" placeholder="Désignation du service" value="' + esc(l.d) + '" style="margin-top:6px">' : '') + '</div><div class="f"><label>Quantité</label><input class="in" data-bq="' + n + '" inputmode="decimal" value="' + esc(l.q) + '"></div><div class="f"><label>Prix unitaire HT</label><input class="in" data-bp="' + n + '" inputmode="decimal" value="' + esc(l.p) + '"></div>' + (B.lines.length > 1 ? '<button type="button" class="btn mini danger" data-bx="' + n + '" aria-label="Retirer la ligne">×</button>' : '<span></span>') + '</div>'; }).join(''); tot(); };
+    draw();
+    $('bc-add').addEventListener('click', function () { B.lines.push({ i: '', d: '', q: '', p: '', t: false }); draw(); });
+    $('bc-t').addEventListener('change', tot);
+    $('bc-ll').addEventListener('input', function (e) { var t = e.target; if (t.dataset.bq != null) B.lines[+t.dataset.bq].q = t.value; else if (t.dataset.bp != null) { B.lines[+t.dataset.bp].p = t.value; B.lines[+t.dataset.bp].t = true; } else if (t.dataset.bd != null) B.lines[+t.dataset.bd].d = t.value; tot(); });
+    $('bc-ll').addEventListener('change', function (e) { var t = e.target; if (t.dataset.bi != null) { var l = B.lines[+t.dataset.bi]; l.i = t.value; var it = t.value && t.value !== 'svc' ? magItem(t.value) : null; if (t.value === 'svc' && !l.q) l.q = '1'; if (it && !l.t) l.p = String(it.px0).replace('.', ','); draw(); } });
+    $('bc-ll').addEventListener('click', function (e) { var b = e.target.closest('[data-bx]'); if (b) { B.lines.splice(+b.dataset.bx, 1); draw(); } });
+    $('bc-cancel').addEventListener('click', function () { closeModal(); if (edit) dcOpen('bc', x); });
+    $('bc-save').addEventListener('click', function () {
+      var err = function (t) { $('bc-err').textContent = t; $('bc-err').hidden = false; }, s = supBy($('bc-s').value), d = parseIso($('bc-d').value), e2 = parseIso($('bc-e').value);
+      if (!s) return err('Choisissez le fournisseur.'); if (!d || !e2) return err('Choisissez les dates.'); if (e2 < d) return err('La livraison ne peut pas précéder la date de la commande.');
+      var ls = B.lines.filter(function (l) { return l.i || num(l.q) || num(l.p); });
+      if (!ls.length || ls.some(function (l) { return !l.i || (l.i === 'svc' && !l.d.trim()) || !(num(l.q) > 0) || !(num(l.p) >= 0) || l.p === ''; })) return err('Chaque ligne doit avoir un article (ou un service désigné), une quantité supérieure à zéro et un prix.');
+      var o = { sid: s.id, d: d, exp: e2, tva: +$('bc-t').value, lines: ls.map(function (l, i) { var old = edit ? x.lines[i] : null; return { i: l.i, des: l.i === 'svc' ? l.d.trim() : '', q: num(l.q), p: num(l.p), rec: 0 }; }), note: $('bc-n').value.trim() };
+      var y = x; if (edit) { Object.keys(o).forEach(function (k) { y[k] = o[k]; }); audit('Bon de commande modifié', y.no, s.nom); } else { var n = dcFree(BCS); y = { n: n, no: dcNo('BC', n), st: 'Brouillon', hist: [{ d: nowT(), st: 'Brouillon', n: '' }] }; Object.keys(o).forEach(function (k) { y[k] = o[k]; }); BCS.push(y); audit('Bon de commande créé', y.no, s.nom); }
+      closeModal(); dcRender(); dcOpen('bc', y);
+    });
+  }
+  /* ---- registre de tous les documents ---- */
+  function dcRegBuild() {
+    var L = [], bl = {};
+    DEVS.forEach(function (x) { L.push({ ty: 'Devis', no: x.no, d: x.d, who: x.client, amt: devTot(x).ttc, open: function () { dcOpen('dev', x); } }); });
+    BCS.forEach(function (x) { var s = supBy(x.sid); L.push({ ty: 'Bon de commande', no: x.no, d: x.d, who: s ? s.nom : '—', amt: bcTot(x).ttc, open: function () { dcOpen('bc', x); } }); });
+    FINV.forEach(function (x) { L.push({ ty: 'Facture', no: x.no, d: x.d, who: x.client, amt: x.st === 'Annulée' ? null : fTot(x.lines, x.rate).ttc, open: function () { fPrint(x); } }); });
+    rows.forEach(function (r) { if (r.ttc == null) return; var b = bl[r.bl] || (bl[r.bl] = { ty: 'Bon de livraison', no: r.bl, d: r.date, who: r.client, amt: 0, open: (function (n) { return function () { openBL(n); }; })(r.bl) }); b.amt += r.ttc; });
+    Object.keys(bl).forEach(function (k) { L.push(bl[k]); });
+    clients.forEach(function (c) { c.reglements.forEach(function (p) { if (p.rec) L.push({ ty: 'Reçu', no: p.rec, d: p.date, who: c.nom, amt: p.montant, open: function () { recDoc(c, p, p.montant); } }); }); });
+    MAGM.forEach(function (x) { if (x.type === 'out') L.push({ ty: 'Bon de sortie', no: bonNo(x), d: x.d, who: x.mach || x.who || '—', amt: null, open: function () { bonDoc(x); } }); });
+    return L.sort(function (a, b) { return b.d - a.d || (a.no < b.no ? 1 : -1); });
+  }
+  /* ---- page Documents ---- */
+  function dcRender() {
+    var tabs = [['dev', 'Devis'], ['bc', 'Bons de commande'], ['reg', 'Registre']], w = dcCan(), q = dcQ.trim().toLowerCase(), h = '';
+    $('docs-tabs').innerHTML = tabs.map(function (t) { return '<button type="button" role="tab" data-dtab="' + t[0] + '" aria-selected="' + (dcTab === t[0]) + '">' + t[1] + '</button>'; }).join('');
+    $('docs-s').textContent = { dev: 'Devis aux clients : création, envoi et suivi', bc: 'Bons de commande aux fournisseurs : envoi, réception et facturation', reg: 'Tous les documents émis par le programme' }[dcTab];
+    $('docs-a').innerHTML = w && dcTab === 'dev' ? '<button type="button" class="btn primary" data-dnew="dev">+ Nouveau devis</button>' : (w && dcTab === 'bc' ? '<button type="button" class="btn primary" data-dnew="bc">+ Nouveau bon de commande</button>' : '');
+    var bar = function (opts, val, ph) { return '<div class="tools-row" style="margin:0 0 12px"><label class="search" for="docs-q"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="docs-q" type="search" placeholder="' + ph + '" autocomplete="off" value="' + esc(dcQ) + '"></label><select class="in" id="docs-f" style="max-width:220px" aria-label="Filtre"><option value="">' + (dcTab === 'reg' ? 'Tous les types' : 'Tous les états') + '</option>' + opts.map(function (o) { return '<option' + (o === val ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select></div>'; };
+    if (dcTab === 'dev') {
+      var l = DEVS.filter(function (x) { return (!dcSt || dcStOf(x) === dcSt) && (!q || (x.no + ' ' + x.client).toLowerCase().indexOf(q) >= 0); }).sort(function (a, b) { return a.n - b.n; }), sum = l.reduce(function (t, x) { return t + devTot(x).ttc; }, 0);
+      h = bar(DEV_ST, dcSt, 'Rechercher par numéro ou client') + '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>N° de devis</th><th>Date</th><th>Client</th><th>Valable jusqu’au</th><th>Total TTC</th><th>État</th><th>Actions</th></tr></thead><tbody>' + (l.length ? l.map(function (x) { return '<tr><td class="mono"><b style="font-weight:600">' + esc(x.no) + '</b></td><td>' + dfmt.format(x.d) + '</td><td>' + esc(x.client) + '</td><td>' + dfmt.format(x.valid) + '</td><td class="num">' + nf2.format(devTot(x).ttc) + '</td><td>' + dcChip(dcStOf(x)) + '</td><td><button type="button" class="btn mini" data-dopen="dev|' + x.n + '">Ouvrir</button></td></tr>'; }).join('') : '<tr><td colspan="7" class="pmute">Aucun devis.</td></tr>') + '</tbody><tfoot><tr class="tot"><td colspan="4">Total · ' + l.length + ' devis</td><td class="num">' + nf2.format(sum) + '</td><td></td><td></td></tr></tfoot></table></div><div class="foot"><span>Les devis marqués EXEMPLE sont des données d’exemple.</span></div>';
+    } else if (dcTab === 'bc') {
+      var lb = BCS.filter(function (x) { var s = supBy(x.sid); return (!dcSt || x.st === dcSt) && (!q || (x.no + ' ' + (s ? s.nom : '')).toLowerCase().indexOf(q) >= 0); }).sort(function (a, b) { return a.n - b.n; }), sb = lb.reduce(function (t, x) { return t + bcTot(x).ttc; }, 0);
+      h = bar(BC_ST, dcSt, 'Rechercher par numéro ou fournisseur') + '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>N° de commande</th><th>Date</th><th>Fournisseur</th><th>Livraison souhaitée</th><th>Total TTC</th><th>État</th><th>Actions</th></tr></thead><tbody>' + (lb.length ? lb.map(function (x) { var s = supBy(x.sid); return '<tr><td class="mono"><b style="font-weight:600">' + esc(x.no) + '</b></td><td>' + dfmt.format(x.d) + '</td><td>' + esc(s ? s.nom : '—') + '</td><td>' + dfmt.format(x.exp) + '</td><td class="num">' + nf2.format(bcTot(x).ttc) + '</td><td>' + dcChip(x.st) + '</td><td><button type="button" class="btn mini" data-dopen="bc|' + x.n + '">Ouvrir</button></td></tr>'; }).join('') : '<tr><td colspan="7" class="pmute">Aucun bon de commande.</td></tr>') + '</tbody><tfoot><tr class="tot"><td colspan="4">Total · ' + lb.length + ' commande' + (lb.length > 1 ? 's' : '') + '</td><td class="num">' + nf2.format(sb) + '</td><td></td><td></td></tr></tfoot></table></div><div class="foot"><span>Les bons de commande marqués EXEMPLE sont des données d’exemple.</span></div>';
+    } else {
+      dcReg = dcRegBuild().filter(function (r) { return (!dcTy || r.ty === dcTy) && (!q || (r.no + ' ' + r.who).toLowerCase().indexOf(q) >= 0); });
+      var shown = dcReg.slice(0, dcMore), sr = dcReg.reduce(function (t, r) { return t + (r.amt || 0); }, 0);
+      h = bar(['Devis', 'Bon de commande', 'Facture', 'Bon de livraison', 'Reçu', 'Bon de sortie'], dcTy, 'Rechercher par numéro ou nom') + '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Type</th><th>N°</th><th>Date</th><th>Tiers</th><th>Montant TTC</th><th>Action</th></tr></thead><tbody>' + (shown.length ? shown.map(function (r, i) { return '<tr><td>' + esc(r.ty) + '</td><td class="mono">' + esc(r.no) + '</td><td>' + dfmt.format(r.d) + '</td><td>' + esc(r.who) + '</td><td class="num">' + (r.amt == null ? '—' : nf2.format(r.amt)) + '</td><td><button type="button" class="btn mini" data-dreg="' + i + '">Ouvrir</button></td></tr>'; }).join('') : '<tr><td colspan="6" class="pmute">Aucun document.</td></tr>') + '</tbody><tfoot><tr class="tot"><td colspan="4">Total · ' + dcReg.length + ' document' + (dcReg.length > 1 ? 's' : '') + '</td><td class="num">' + nf2.format(sr) + '</td><td></td></tr></tfoot></table></div>' + (dcReg.length > shown.length ? '<div class="foot"><span>' + shown.length + ' documents affichés sur ' + dcReg.length + '</span><button type="button" class="btn" data-dmore>Afficher plus</button></div>' : '');
+    }
+    $('docs-body').innerHTML = '<div class="sheet"><section class="box">' + h + '</section></div>';
+    if (dcQ) { var qi = $('docs-q'); if (qi) { qi.focus(); qi.setSelectionRange(dcQ.length, dcQ.length); } }
+  }
+  VIEWHOOKS['view-docs'] = function () { dcTab = dcTab || 'dev'; dcQ = ''; dcSt = ''; dcTy = ''; dcMore = 60; dcRender(); };
+  $('view-docs').addEventListener('input', function (e) { if (e.target.id === 'docs-q') { dcQ = e.target.value; dcMore = 60; dcRender(); } });
+  $('view-docs').addEventListener('change', function (e) { if (e.target.id === 'docs-f') { if (dcTab === 'reg') dcTy = e.target.value; else dcSt = e.target.value; dcMore = 60; dcRender(); } });
+  $('view-docs').addEventListener('click', function (e) {
+    var b;
+    if ((b = e.target.closest('[data-dtab]'))) { dcTab = b.dataset.dtab; dcQ = ''; dcSt = ''; dcTy = ''; dcMore = 60; return dcRender(); }
+    if ((b = e.target.closest('[data-dnew]'))) { if (!dcCan()) return; return b.dataset.dnew === 'dev' ? dcDevForm(null) : dcBcForm(null); }
+    if ((b = e.target.closest('[data-dopen]'))) { var p = b.dataset.dopen.split('|'), x = (p[0] === 'dev' ? DEVS : BCS).filter(function (z) { return z.n === +p[1]; })[0]; if (x) dcOpen(p[0], x); return; }
+    if ((b = e.target.closest('[data-dreg]'))) { var r = dcReg[+b.dataset.dreg]; if (r) r.open(); return; }
+    if (e.target.closest('[data-dmore]')) { dcMore += 60; return dcRender(); }
+  });
 
   /* ===== Oued (extraction de Tout-venant) et Carrière (lignes de concassage) ===== */
   var qSites = ['Bouaanfir', 'Nfifa'];

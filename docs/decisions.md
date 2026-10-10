@@ -477,3 +477,12 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
   - **Pastilles rouges** (alertes) à droite de la ligne quand le menu est déplié.
   - **Fiche utilisateur** en bas (initiales, nom du poste, « Changer de poste ») qui ouvre le changement de poste ; bouton clair / sombre en dessous.
   - Corrigé : l'icône de Rentabilité manquait au premier affichage.
+
+## 56. v78 — Documents : devis, bons de commande, registre
+
+- [D] **Documents** (menu Ventes et achats ; **DG et Comptabilité uniquement**, Caisse et Contrôle ne le voient pas) : trois onglets — **Devis · Bons de commande · Registre**. Une série de numéros par type : **DEV-AAAA-NNNN** et **BC-AAAA-NNNN**. Le numéro d'un brouillon supprimé est réutilisé ; un document refusé ou annulé garde son numéro.
+- [D] **Devis** (clients) : client, date, validité (30 jours par défaut), lignes produit / unité (t, m³, mille) / quantité / **prix TTC** ; le prix du client (prix convenus) est proposé et **modifiable ligne par ligne**. États : Brouillon → Envoyé → Accepté ou Refusé ; **Expiré** (calculé : envoyé et validité dépassée). Feuille A4 (HT, TVA, TTC, « Bon pour accord »). Accepté : bouton « Ouvrir à la Caisse » avec le client déjà choisi. Dupliquer à tout moment.
+- [D] **Bon de commande** (fournisseurs) : fournisseur, date, livraison souhaitée, lignes article de stock (pièces, huiles, gasoil) ou **Service / autre**, quantité, prix HT, TVA, remarque. États : Brouillon → Envoyé → Confirmé → Reçu partiellement → Reçu → **Facturé** ; Annulé possible. **Réception** (totale ou partielle) : les lignes de stock **entrent automatiquement au Magasin** ; « Créer la facture » ouvre la facture fournisseur préremplie (sans re-saisie du stock) et marque la commande Facturée.
+- [D] **Envoyer** : fenêtre E-mail / WhatsApp, destinataire pris de la fiche (e-mail ou mobile), message prêt. Le bouton ouvre la messagerie du poste avec le message ; le PDF est joint à la main (Imprimer › Enregistrer en PDF). L'état passe à Envoyé (ou « Renvoyé » dans l'historique). **L'envoi automatique avec pièce jointe est prévu pour la version finale avec serveur.**
+- [D] **Registre** : tous les documents (devis, bons de commande, factures, bons de livraison, reçus, bons de sortie) avec recherche, filtre par type et ouverture du document ; ligne de total.
+- [D] Historique des états visible sur chaque document ; chaque changement est tracé dans Audit.
