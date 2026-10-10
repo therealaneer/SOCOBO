@@ -439,3 +439,9 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 
 - [D] Fiche client : les boutons **Imprimer situation journalière / détaillée** sont à l'extrême **droite** de la ligne des onglets (BL · Factures), visibles dans l'onglet BL seulement ; la ligne suivante ne contient que la **recherche**, au-dessus du tableau. Situation journalière : en-têtes **Date · Nombre de BL · Total BL · Paiements · Reste cumulé** (sans « du jour »).
 
+
+## 51. v73 — Relevé de compte simplifié, situation détaillée cumulative, solde à l'ouverture
+
+- [D] **Relevé de compte** (client / fournisseur) : 3 cartes seulement — client : Chiffre d'affaires · Total encaissé · Reste dû ; fournisseur : Total achats · Total payé · Reste à payer. Plus de carte « Solde au début » ni de ligne d'ouverture. Tableau : **Date · Pièce · Montant · Réglé · Solde dû** (cumulatif) ; colonne Libellé supprimée.
+- [D] **Situation détaillée** (onglet BL du client) : colonnes **Date · N° BL · Qté · Désignation · Prix · Total · Total général** (cumulatif). Plus d'en-têtes camion / mode / jour. Les **paiements** sont des lignes vertes dans le même tableau (Désignation « Paiement · mode réf. », Total « − montant », le cumul diminue). Ligne « Solde à l'ouverture de la période » conservée. Prix = prix unitaire TTC (total ÷ quantité).
+- [D] **Solde à l'ouverture** : champ facultatif dans Nouveau / Modifier client (montant déjà dû au démarrage du programme) ; ajouté au Reste dû ; visible dans Détails du client ; sa modification est tracée dans Audit.

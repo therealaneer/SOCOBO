@@ -592,6 +592,7 @@ td .mono, .mono { font-size: 14px; }
 .paper .inv-sheet { box-sizing: border-box; width: 210mm; max-width: 100%; aspect-ratio: 210 / 297; margin: 0 auto; padding: 14mm 14mm 12mm; background: #fff; box-shadow: 0 6px 24px rgba(20, 24, 60, 0.22); }
 .inv-foot { margin-top: auto; } .inv-bot { margin-top: 18mm; }
 .inv-day td { background: #eceefb; font-weight: 600; }
+.inv-pay td { background: #e7f6ea; color: #14532d; }
 .paper .inv-tb tfoot td { font-weight: 600; background: #f3f4fb; border-bottom: 0; }
 .paper .inv-tb tfoot tr:first-child td { border-top: 2px solid #1b22a7; }
 .inv-tb td small { white-space: normal; }
@@ -1949,7 +1950,7 @@ button.back { display: none !important; }
   function calc(s) {
     s.allAchats = s.achats.reduce(function (a, x) { return a + x.ttc; }, 0);
     s.allPaye = paidList(s).reduce(function (a, x) { return a + x.montant; }, 0);
-    s.solde = s.allAchats - s.allPaye;
+    s.solde = (s.ouv || 0) + s.allAchats - s.allPaye;
     s.totalAchats = s.achats.filter(function (a) { return inP(a.date); }).reduce(function (a, x) { return a + x.ttc; }, 0);
     s.totalPaye = paidList(s).filter(function (p) { return inP(p.ech); }).reduce(function (a, x) { return a + x.montant; }, 0);
     s.next = pendList(s)[0] || null;
@@ -2033,7 +2034,7 @@ button.back { display: none !important; }
     var ev = s.achats.map(function (a) { return { d: a.date, piece: pieceTxt(a), lib: a.lib, deb: a.ttc, cre: 0 }; })
       .concat(paidList(s).map(function (p) { return { d: p.ech, piece: p.ref, lib: (s.isClient ? 'Encaissement par ' : 'Règlement par ') + p.mode.toLowerCase(), deb: 0, cre: p.montant }; }));
     ev.sort(function (a, b) { return a.d - b.d; });
-    var run = 0; ev.forEach(function (e) { run += e.deb - e.cre; e.sol = run; });
+    var run = s.ouv || 0; ev.forEach(function (e) { run += e.deb - e.cre; e.sol = run; });
     ev = ev.filter(function (e) { return inP(e.d); });
     if (!ev.length) return '<div class="empty">Aucune opération sur cette période.</div>';
     return '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Pièce</th><th>Libellé</th><th class="r">Facturé</th><th class="r">Réglé</th><th class="r">Solde dû</th></tr></thead><tbody>' +
@@ -2377,7 +2378,7 @@ button.back { display: none !important; }
     var ev = s.achats.map(function (a) { return { d: a.date, piece: pieceTxt(a), lib: a.lib, deb: a.ttc, cre: 0 }; })
       .concat(paidList(s).map(function (p) { return { d: p.ech, piece: p.ref, lib: (s.isClient ? 'Encaissement par ' : 'Règlement par ') + p.mode.toLowerCase(), deb: 0, cre: p.montant }; }));
     ev.sort(function (a, b) { return a.d - b.d; });
-    var run = 0; ev.forEach(function (e) { run += e.deb - e.cre; e.sol = run; });
+    var run = s.ouv || 0; ev.forEach(function (e) { run += e.deb - e.cre; e.sol = run; });
     return ev;
   }
   function yearOpts() { var o = ''; for (var y = TODAY.getFullYear(); y >= DATA_START.getFullYear(); y--) o += '<option value="' + y + '">' + y + '</option>'; return o; }
@@ -2406,7 +2407,7 @@ button.back { display: none !important; }
   function previewDoc(s, from, to) {
     calc(s);
     var ev = ledgerFull(s), before = ev.filter(function (e) { return e.d < from; });
-    var opening = before.length ? before[before.length - 1].sol : 0;
+    var opening = before.length ? before[before.length - 1].sol : (s.ouv || 0);
     var inn = ev.filter(function (e) { return e.d >= from && e.d <= to; });
     var fact = inn.reduce(function (a, e) { return a + e.deb; }, 0), regl = inn.reduce(function (a, e) { return a + e.cre; }, 0);
     var closing = inn.length ? inn[inn.length - 1].sol : opening, pend = pendList(s), co = s.type === 'Société';
@@ -2416,10 +2417,10 @@ button.back { display: none !important; }
       '<h3>' + esc(s.nom) + '</h3><div class="pmute">' + esc(s.type) + ' · ' + esc(s.cat) + ' · ' + v(s.ville) + '</div>' +
       '<div class="pgrid"><div><span>' + (co ? 'ICE' : 'CIN') + '</span><b>' + v(co ? s.ice : s.cin) + '</b></div><div><span>Téléphone</span><b>' + v(s.tel) + '</b></div>' +
       '<div><span>Délai de paiement</span><b>' + delaiTxt(s.delai) + '</b></div><div><span>Modes acceptés</span><b>' + s.modes.join(', ') + '</b></div></div>' +
-      '<div class="psum"><div><span>Solde au début</span><b>' + nf2.format(opening) + '</b></div><div><span>Facturé</span><b>' + nf2.format(fact) + '</b></div><div><span>Réglé</span><b>' + nf2.format(regl) + '</b></div><div class="pk"><span>Solde à la fin</span><b>' + nf2.format(closing) + '</b></div></div>' +
+      '<div class="psum" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div><span>' + (s.isClient ? 'Chiffre d’affaires' : 'Total achats') + '</span><b>' + nf2.format(fact) + '</b></div><div><span>' + (s.isClient ? 'Total encaissé' : 'Total payé') + '</span><b>' + nf2.format(regl) + '</b></div><div class="pk"><span>' + (s.isClient ? 'Reste dû' : 'Reste à payer') + '</span><b>' + nf2.format(closing) + '</b></div></div>' +
       '<h3>Opérations</h3>';
-    html += inn.length ? '<table><thead><tr><th>Date</th><th>Pièce</th><th>Libellé</th><th>Facturé</th><th>Réglé</th><th>Solde dû</th></tr></thead><tbody>' +
-      inn.map(function (e) { return '<tr><td>' + dfmt.format(e.d) + '</td><td>' + esc(e.piece) + '</td><td>' + esc(e.lib) + '</td><td>' + (e.deb ? nf2.format(e.deb) : '') + '</td><td>' + (e.cre ? nf2.format(e.cre) : '') + '</td><td>' + nf2.format(e.sol) + '</td></tr>'; }).join('') + '</tbody></table>'
+    html += inn.length ? '<table><thead><tr><th>Date</th><th>Pièce</th><th>Montant</th><th>Réglé</th><th>Solde dû</th></tr></thead><tbody>' +
+      inn.map(function (e) { return '<tr><td>' + dfmt.format(e.d) + '</td><td>' + esc(e.piece) + '</td><td>' + (e.deb ? nf2.format(e.deb) : '') + '</td><td>' + (e.cre ? nf2.format(e.cre) : '') + '</td><td>' + nf2.format(e.sol) + '</td></tr>'; }).join('') + '</tbody></table>'
       : '<div class="pmute">Aucune opération sur cette période.</div>';
     if (pend.length) html += '<h3>Échéances à venir</h3><table><thead><tr><th>Échéance</th><th>Mode</th><th>Référence</th><th>Montant</th></tr></thead><tbody>' +
       pend.map(function (p) { return '<tr><td>' + dfmt.format(p.ech) + '</td><td>' + p.mode + '</td><td>' + esc(p.ref) + '</td><td>' + nf2.format(p.montant) + '</td></tr>'; }).join('') + '</tbody></table>';
@@ -3339,16 +3340,23 @@ button.back { display: none !important; }
     return { open: open, days: days, nbl: days.reduce(function (t, x) { return t + x.l.length; }, 0), vente: days.reduce(function (t, x) { return t + x.v; }, 0), paid: days.reduce(function (t, x) { return t + x.pm; }, 0), rest: cum };
   }
   function sitSheet(c, a, b, kind) {
-    var d = sitData(c, a, b), det = kind === 'det', cols = det ? 6 : 5, N = nf2;
-    var head = det ? '<th style="width:140px">N° BL</th><th>Camion</th><th>Désignation</th><th class="r">Quantité</th><th>Mode</th><th class="r">Montant TTC</th>' : '<th>Date</th><th class="r">Nombre de BL</th><th class="r">Total BL</th><th class="r">Paiements</th><th class="r">Reste cumulé</th>';
-    var body = Math.abs(d.open) > 0.005 ? '<tr class="inv-day"><td colspan="' + (cols - 1) + '">Solde à l’ouverture de la période</td><td class="r">' + N.format(d.open) + '</td></tr>' : '';
-    d.days.forEach(function (x) {
-      if (!det) { body += '<tr><td>' + dfmt.format(x.d) + '</td><td class="r">' + (x.l.length || '—') + '</td><td class="r">' + (x.l.length ? N.format(x.v) : '—') + '</td><td class="r">' + (x.ps.length ? N.format(x.pm) + '<small>' + x.ps.map(function (q) { return esc(q.mode); }).join(', ') + '</small>' : '—') + '</td><td class="r"><b style="font-weight:600">' + N.format(x.cum) + '</b></td></tr>'; return; }
-      body += '<tr class="inv-day"><td colspan="' + (cols - 1) + '"><b>' + dfmt.format(x.d) + '</b> · total BL ' + N.format(x.v) + (x.pm ? ' · paiements ' + N.format(x.pm) : '') + '</td><td class="r">Reste cumulé ' + N.format(x.cum) + '</td></tr>';
-      x.l.forEach(function (r) { body += '<tr><td class="mono">' + esc(r.bl) + '<small>' + esc(r.time) + '</small></td><td class="mono">' + esc(r.plate || '—') + '</td><td>' + esc(r.prod.n) + '</td><td class="r">' + qtyTxt(r) + '</td><td>' + esc(payOf(r)) + '</td><td class="r">' + N.format(r.ttc) + '</td></tr>'; });
-      x.ps.forEach(function (q) { body += '<tr><td colspan="' + (cols - 2) + '" style="color:#555">Paiement · ' + esc(q.mode) + ' ' + esc(q.ref) + '</td><td></td><td class="r">− ' + N.format(q.montant) + '</td></tr>'; });
-    });
-    if (!d.days.length) body += '<tr><td colspan="' + cols + '" style="color:#777">Aucun mouvement sur cette période.</td></tr>';
+    var d = sitData(c, a, b), det = kind === 'det', N = nf2;
+    var unitPx = function (r) { var u = r.units ? r.units : (r.mille ? r.qty * 1000 : r.qty); return u > 0 ? r.ttc / u : 0; };
+    var head = det ? '<th>Date</th><th>N° BL</th><th class="r">Qté</th><th>Désignation</th><th class="r">Prix</th><th class="r">Total</th><th class="r">Total général</th>' : '<th>Date</th><th class="r">Nombre de BL</th><th class="r">Total BL</th><th class="r">Paiements</th><th class="r">Reste cumulé</th>';
+    var cols = det ? 7 : 5, body = '';
+    if (det) {
+      body += '<tr class="inv-day"><td colspan="' + (cols - 1) + '">Solde à l’ouverture de la période</td><td class="r">' + N.format(d.open) + '</td></tr>';
+      var run = d.open;
+      d.days.forEach(function (x) {
+        x.l.forEach(function (r) { run += r.ttc; body += '<tr><td>' + dfmt.format(x.d) + '</td><td class="mono">' + esc(r.bl) + '</td><td class="r">' + qtyTxt(r) + '</td><td>' + esc(r.prod.n) + '</td><td class="r">' + (r.mille || r.units ? nf3 : N).format(unitPx(r)) + '</td><td class="r">' + N.format(r.ttc) + '</td><td class="r"><b style="font-weight:600">' + N.format(run) + '</b></td></tr>'; });
+        x.ps.forEach(function (q) { run -= q.montant; body += '<tr class="inv-pay"><td>' + dfmt.format(x.d) + '</td><td></td><td></td><td>Paiement · ' + esc(q.mode) + ' ' + esc(q.ref) + '</td><td></td><td class="r">− ' + N.format(q.montant) + '</td><td class="r"><b style="font-weight:600">' + N.format(run) + '</b></td></tr>'; });
+      });
+      if (!d.days.length) body += '<tr><td colspan="' + cols + '" style="color:#777">Aucun mouvement sur cette période.</td></tr>';
+    } else {
+      body = Math.abs(d.open) > 0.005 ? '<tr class="inv-day"><td colspan="' + (cols - 1) + '">Solde à l’ouverture de la période</td><td class="r">' + N.format(d.open) + '</td></tr>' : '';
+      d.days.forEach(function (x) { body += '<tr><td>' + dfmt.format(x.d) + '</td><td class="r">' + (x.l.length || '—') + '</td><td class="r">' + (x.l.length ? N.format(x.v) : '—') + '</td><td class="r">' + (x.ps.length ? N.format(x.pm) + '<small>' + x.ps.map(function (q) { return esc(q.mode); }).join(', ') + '</small>' : '—') + '</td><td class="r"><b style="font-weight:600">' + N.format(x.cum) + '</b></td></tr>'; });
+      if (!d.days.length) body += '<tr><td colspan="' + cols + '" style="color:#777">Aucun mouvement sur cette période.</td></tr>';
+    }
     var foot = det ? '<tr class="inv-tot"><td colspan="' + (cols - 1) + '">Total BL · ' + d.nbl + '</td><td class="r">' + N.format(d.vente) + '</td></tr><tr class="inv-tot"><td colspan="' + (cols - 1) + '">Total paiements</td><td class="r">− ' + N.format(d.paid) + '</td></tr><tr class="inv-tot"><td colspan="' + (cols - 1) + '">Reste dû</td><td class="r">' + N.format(d.rest) + '</td></tr>'
       : '<tr class="inv-tot"><td>Total</td><td class="r">' + d.nbl + '</td><td class="r">' + N.format(d.vente) + '</td><td class="r">' + N.format(d.paid) + '</td><td class="r">' + N.format(d.rest) + '</td></tr>';
     return '<div class="inv-sheet"><div class="inv-top"><div><div class="inv-brand">' + esc(COMPANY.nom) + '</div><div class="inv-sub">' + esc(COMPANY.ville) + '</div></div>' +
@@ -3450,7 +3458,7 @@ button.back { display: none !important; }
   function cDrawerHtml(c) {
     var v = function (x) { return x ? esc(x) : '—'; };
     var info = [['Type', esc(c.type)], [c.type === 'Société' ? 'Raison sociale' : 'Nom complet', esc(c.nom)], [c.type === 'Société' ? 'ICE' : 'CIN', '<span class="mono">' + v(c.type === 'Société' ? c.ice : c.cin) + '</span>'], ['Catégorie', esc(c.cat)], ['Adresse', v(c.adr)], ['Téléphone', v(c.tel)], ['Mobile', v(c.mob)], ['E-mail', v(c.mail)], ['Note pour l’équipe', c.note ? '<span style="white-space:pre-wrap">' + esc(c.note) + '</span>' : '—']];
-    var cond = [['Délai de paiement', delaiTxt(c.delai)], ['TVA', c.tva === 'HT' ? 'HT (sans TVA)' : '20 %'], ['Plafond de crédit', c.plafond && !c.comptant ? nf2.format(c.plafond) : 'Sans plafond'], ['Camions', String(c.camions.length)]];
+    var cond = [['Délai de paiement', delaiTxt(c.delai)], ['TVA', c.tva === 'HT' ? 'HT (sans TVA)' : '20 %'], ['Plafond de crédit', c.plafond && !c.comptant ? nf2.format(c.plafond) : 'Sans plafond'], ['Solde à l’ouverture', nf2.format(c.ouv || 0)], ['Camions', String(c.camions.length)]];
     if (c.bloque) cond.push(['Blocage', '<span class="st bad">Bloqué</span> ' + esc(c.bloque.motif)]);
     var dl = function (a) { return '<dl class="info">' + a.map(function (r) { return '<div><dt>' + r[0] + '</dt><dd>' + r[1] + '</dd></div>'; }).join('') + '</dl>'; };
     return '<section class="box"><div class="box-head"><div><h2>Informations</h2></div></div>' + dl(info) + '</section><section class="box"><div class="box-head"><div><h2>Conditions</h2></div></div>' + dl(cond) + '</section>' +
@@ -3540,6 +3548,7 @@ button.back { display: none !important; }
       '<div class="row2"><div class="f"><label for="nc-id" id="nc-idl"></label><input class="in" id="nc-id"></div><div class="f"><label for="nc-mob">Mobile (WhatsApp)</label><input class="in" id="nc-mob" inputmode="tel" placeholder="06 00 00 00 00" value="' + (edit ? cl(c.mob) : '') + '"></div></div>' +
       '<div class="f"><label>TVA *</label><div class="modes" id="nc-tva"><button type="button" data-tva="HT" aria-pressed="' + (tva === 'HT') + '">HT (sans TVA)</button><button type="button" data-tva="20" aria-pressed="' + (tva !== 'HT') + '">TVA 20 %</button></div></div>' +
       '<div class="row2"><div class="f"><label for="nc-delai">Délai de paiement</label><select class="in" id="nc-delai">' + delaiOpts(c ? c.delai : 30) + '</select></div>' +
+      '<div class="f"><label for="nc-ouv">Solde à l’ouverture</label><input class="in" id="nc-ouv" inputmode="decimal" placeholder="0,00" value="' + (c && c.ouv ? String(c.ouv).replace('.', ',') : '') + '"><small class="sugg">Montant déjà dû au démarrage du programme (facultatif)</small></div>' +
       '<div class="f"><label for="nc-plaf">Plafond de crédit</label><input class="in" id="nc-plaf" inputmode="decimal" placeholder="Vide = sans plafond" value="' + (c && c.plafond ? String(c.plafond).replace('.', ',') : '') + '"></div></div>' +
       '<div class="row2"><div class="f"><label for="nc-mail">E-mail</label><input class="in" id="nc-mail" type="email" value="' + (edit ? cl(c.mail) : '') + '"></div><div class="f"><label for="nc-tel">Téléphone fixe</label><input class="in" id="nc-tel" value="' + (edit ? cl(c.tel) : '') + '"></div></div>' +
       '<div class="f"><label for="nc-note">Note pour l’équipe</label><textarea class="in" id="nc-note" rows="3" style="height:auto;padding:12px" placeholder="Facultatif : une information utile à toute l’équipe">' + (edit ? esc(c.note || '') : '') + '</textarea></div>' +
@@ -3583,7 +3592,7 @@ button.back { display: none !important; }
       var t = edit ? c : { id: Math.max.apply(null, clients.map(function (x) { return x.id; })) + 1, isClient: true, achats: [], reglements: [], bloque: null, modes: ['Chèque', 'Effet', 'Espèces', 'Virement'], statut: 'Actif', camions: trucks };
       if (pxg) { if (edit && JSON.stringify(c.prix || []) !== JSON.stringify(pxg.rows)) audit('Prix convenus modifiés', nom, pxg.rows.length + ' produit' + (pxg.rows.length > 1 ? 's' : '')); t.prix = pxg.rows; } else if (!t.prix) t.prix = [];
       t.type = type; t.nom = nom; t.cat = $('nc-cat').value; t.ville = $('nc-ville').value.trim(); t.mob = mob; t.mail = mail; t.tel = $('nc-tel').value.trim();
-      t.ice = co ? idv : ''; t.cin = co ? '' : idv.toUpperCase(); t.tva = tva; t.delai = +$('nc-delai').value; t.plafond = plaf; var nt = $('nc-note').value.trim(); if (edit && (t.note || '') !== nt) audit('Note du client modifiée', nom, nt ? 'Note enregistrée' : 'Note supprimée'); t.note = nt; t.adr = t.adr || (t.ville ? 'Zone industrielle, ' + t.ville : '');
+      t.ice = co ? idv : ''; t.cin = co ? '' : idv.toUpperCase(); t.tva = tva; t.delai = +$('nc-delai').value; t.plafond = plaf; var ov = $('nc-ouv').value.trim() ? num($('nc-ouv').value) : 0; if (!isFinite(ov)) return err('Le solde à l’ouverture n’est pas valide.'); if (edit && (t.ouv || 0) !== ov) audit('Solde à l’ouverture modifié', nom, nf2.format(t.ouv || 0) + ' → ' + nf2.format(ov)); t.ouv = ov; var nt = $('nc-note').value.trim(); if (edit && (t.note || '') !== nt) audit('Note du client modifiée', nom, nt ? 'Note enregistrée' : 'Note supprimée'); t.note = nt; t.adr = t.adr || (t.ville ? 'Zone industrielle, ' + t.ville : '');
       if (!edit) { clients.unshift(t); audit('Création client', nom, 'TVA : ' + (tva === 'HT' ? 'HT' : '20 %') + (trucks.length ? ' · ' + trucks.length + ' camion(s)' : '')); }
       else audit('Modification client', nom, '');
       closeModal(); afterClientChange(); toast(edit ? 'Fiche mise à jour.' : 'Client ajouté.');
