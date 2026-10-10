@@ -476,6 +476,11 @@ td .mono, .mono { font-size: 14px; }
 .paper .psum { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 10px 0 4px; }
 .paper .psum > div { border: 1px solid #c9cde0; border-radius: 6px; padding: 10px 12px; }
 .paper .psum .pk { background: #eceefb; border-color: #1b22a7; }
+.paper .bon .sigs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+.paper .bon .sigb { border: 1px solid #c9cde0; padding: 8px 10px; min-height: 120px; display: flex; flex-direction: column; font-size: 13px; }
+.paper .bon .sigb small { display: block; color: #666; font-weight: 400; font-size: 11.5px; }
+.paper .bon .sigb span { margin-top: 4px; }
+.paper .bon .sigb i { flex: 1; }
 .paper .psum b { font-size: 18px; }
 .paper table { min-width: 0; margin-top: 6px; }
 .paper th { background: #1b22a7; color: #fff; font-size: 13px; padding: 8px 10px; text-align: left; border-right: 1px solid rgba(255, 255, 255, 0.3); border-radius: 0; }
@@ -2318,40 +2323,40 @@ button.back { display: none !important; }
     if (CATS.indexOf(cur) >= 0) $('sf-cat').value = cur;
   }
   function pieceTxt(a) { return a.piece || (a.bl ? 'BL ' + a.bl : '—'); }
-  function buyModal(s, preDest) {
-    var dirty = false, LN = [{ i: '', q: '', p: '' }], PD = 'Pièces de rechange';
+  function buyModal(s) {
+    var dirty = false, LN = [{ i: '', q: '', p: '', d: '' }];
     openModal('<h2>Nouvel achat</h2><p class="m">' + esc(s.nom) + ' · délai de paiement : ' + delaiTxt(s.delai).toLowerCase() + '</p>' +
       '<div class="row2"><div class="f"><label for="bm-piece">N° de la facture</label><input class="in" id="bm-piece" placeholder="Facultatif"></div>' +
       '<div class="f"><label for="bm-bl">N° du bon de livraison</label><input class="in" id="bm-bl" placeholder="Facultatif"></div></div>' +
       '<div class="row2"><div class="f"><label for="bm-date">Date de l’achat</label><input class="in" id="bm-date" type="date" value="' + iso(TODAY) + '"></div>' +
       '<div class="f"><label for="bm-ech">Échéance</label><input class="in" id="bm-ech" type="date"' + (s.delai < 0 ? ' placeholder="Sans échéance"' : '') + '></div></div>' +
-      '<div class="f"><label for="bm-dest">Destination de l’achat</label><select class="in" id="bm-dest"><option>Général</option><option>Carrière</option><option>Usine</option><option>' + PD + '</option></select></div>' +
-      '<div id="bm-lines" hidden><div id="bm-ll"></div><button type="button" class="btn mini" id="bm-ladd">+ Ajouter une ligne</button><p class="sugg" id="bm-lt" style="margin:8px 0 12px"></p></div>' +
-      '<div class="f"><label for="bm-lib">Désignation</label><input class="in" id="bm-lib" placeholder="Ex. : Gasoil 50 ppm, citerne Bouaanfir"></div>' +
+      '<div id="bm-lines"><div id="bm-ll"></div><button type="button" class="btn mini" id="bm-ladd">+ Ajouter une ligne</button><p class="sugg" id="bm-lt" style="margin:8px 0 12px"></p></div>' +
+      '<div class="f"><label for="bm-lib">Désignation de la facture</label><input class="in" id="bm-lib" placeholder="Facultatif"></div>' +
       '<div class="row2"><div class="f"><label for="bm-amt">Montant TTC</label><input class="in" id="bm-amt" inputmode="decimal" placeholder="0,00"></div>' +
       '<div class="f"><label for="bm-tva">Taux de TVA</label><select class="in" id="bm-tva">' + [10, 14, 20].map(function (r) { return '<option value="' + r + '"' + (r === (s.tva || 20) ? ' selected' : '') + '>' + r + ' %</option>'; }).join('') + '</select></div></div>' +
       '<p class="m" id="bm-calc" style="margin:-4px 0 14px;font-size:14.5px"></p>' +
       '<p class="err" id="bm-err" hidden></p><div class="mact"><button type="button" class="btn" id="bm-cancel">Annuler</button><button type="button" class="btn primary" id="bm-save">Enregistrer</button></div>');
     var sync = function () { if (!dirty) { var dt = parseIso($('bm-date').value) || TODAY; $('bm-ech').value = s.delai < 0 ? '' : iso(addDays(dt, s.delai)); } };
     sync();
-    var parts = function () { return $('bm-dest').value === PD; };
+    var parts = function () { return true; };
     var lnHT = function () { return LN.reduce(function (t, l) { return t + (num(l.q) > 0 && num(l.p) >= 0 ? num(l.q) * num(l.p) : 0); }, 0); };
     var lnSync = function () { var ht = lnHT(), r = +$('bm-tva').value, ttc = Math.round(ht * (1 + r / 100) * 100) / 100; $('bm-lt').textContent = 'Total HT : ' + nf2.format(ht) + '  ·  TVA (' + r + ' %) : ' + nf2.format(ttc - ht) + '  ·  TTC : ' + nf2.format(ttc); if (parts()) $('bm-amt').value = ttc ? String(ttc).replace('.', ',') : ''; calcHt(); };
     var lnDraw = function () {
-      var opts = '<option value="">— Article —</option>' + MAGI.filter(function (x) { return x.k === 'part'; }).map(function (x) { return '<option value="' + x.id + '">' + esc(x.nom) + '</option>'; }).join('');
-      $('bm-ll').innerHTML = LN.map(function (l, n) { return '<div class="row3" style="grid-template-columns:2fr 1fr 1fr auto;align-items:end;margin-bottom:6px"><div class="f"><label>Article</label><select class="in" data-li="' + n + '">' + opts.replace('value="' + l.i + '"', 'value="' + l.i + '" selected') + '</select></div><div class="f"><label>Quantité</label><input class="in" data-lq="' + n + '" inputmode="decimal" value="' + esc(l.q) + '"></div><div class="f"><label>Prix HT</label><input class="in" data-lp="' + n + '" inputmode="decimal" value="' + esc(l.p) + '"></div>' + (LN.length > 1 ? '<button type="button" class="btn mini danger" data-ld="' + n + '" aria-label="Retirer la ligne">×</button>' : '<span></span>') + '</div>'; }).join('');
+      var grp = function (k, lab) { return '<optgroup label="' + lab + '">' + MAGI.filter(function (x) { return x.k === k; }).map(function (x) { return '<option value="' + x.id + '">' + esc(x.nom) + ' (' + esc(x.unit) + ')</option>'; }).join('') + '</optgroup>'; };
+      var opts = '<option value="">— Article —</option>' + grp('part', 'Pièces de rechange') + grp('oil', 'Huiles et graisses') + grp('fuel', 'Gasoil') + '<option value="svc">Service / autre (sans stock)</option>';
+      $('bm-ll').innerHTML = LN.map(function (l, n) { return '<div class="row3" style="grid-template-columns:2fr 1fr 1fr auto;align-items:end;margin-bottom:6px"><div class="f"><label>Article</label><select class="in" data-li="' + n + '">' + opts.replace('value="' + l.i + '"', 'value="' + l.i + '" selected') + '</select>' + (l.i === 'svc' ? '<input class="in" data-ld2="' + n + '" placeholder="Désignation du service" value="' + esc(l.d || '') + '" style="margin-top:6px">' : '') + '</div><div class="f"><label>Quantité</label><input class="in" data-lq="' + n + '" inputmode="decimal" value="' + esc(l.q) + '"></div><div class="f"><label>Prix HT</label><input class="in" data-lp="' + n + '" inputmode="decimal" value="' + esc(l.p) + '"></div>' + (LN.length > 1 ? '<button type="button" class="btn mini danger" data-ld="' + n + '" aria-label="Retirer la ligne">×</button>' : '<span></span>') + '</div>'; }).join('');
     };
-    var lnToggle = function () { var on = parts(); $('bm-lines').hidden = !on; $('bm-amt').readOnly = on; if (on) { if (!LN.length) LN = [{ i: '', q: '', p: '' }]; lnDraw(); lnSync(); } };
-    $('bm-dest').addEventListener('change', lnToggle); $('bm-ladd').addEventListener('click', function () { LN.push({ i: '', q: '', p: '' }); lnDraw(); });
-    $('bm-lines').addEventListener('input', function (e) { var t = e.target; if (t.dataset.lq != null) LN[+t.dataset.lq].q = t.value; else if (t.dataset.lp != null) LN[+t.dataset.lp].p = t.value; lnSync(); });
-    $('bm-lines').addEventListener('change', function (e) { var t = e.target; if (t.dataset.li != null) { LN[+t.dataset.li].i = t.value; var it = magItem(t.value); if (it && !LN[+t.dataset.li].p) { LN[+t.dataset.li].p = String(it.px0).replace('.', ','); lnDraw(); lnSync(); } } });
+    var lnToggle = function () { $('bm-amt').readOnly = true; lnDraw(); lnSync(); };
+    $('bm-ladd').addEventListener('click', function () { LN.push({ i: '', q: '', p: '', d: '' }); lnDraw(); });
+    $('bm-lines').addEventListener('input', function (e) { var t = e.target; if (t.dataset.lq != null) LN[+t.dataset.lq].q = t.value; else if (t.dataset.lp != null) LN[+t.dataset.lp].p = t.value; else if (t.dataset.ld2 != null) LN[+t.dataset.ld2].d = t.value; lnSync(); });
+    $('bm-lines').addEventListener('change', function (e) { var t = e.target; if (t.dataset.li != null) { var ln = LN[+t.dataset.li]; ln.i = t.value; var it = t.value === 'svc' ? null : magItem(t.value); if (t.value === 'svc' && !ln.q) ln.q = '1'; if (it && !ln.p) ln.p = String(it.px0).replace('.', ','); lnDraw(); lnSync(); } });
     $('bm-lines').addEventListener('click', function (e) { var b = e.target.closest('[data-ld]'); if (b) { LN.splice(+b.dataset.ld, 1); lnDraw(); lnSync(); } });
     var calcHt = function () {
       var a = num($('bm-amt').value), r = +$('bm-tva').value;
       $('bm-calc').textContent = a > 0 ? 'HT : ' + nf2.format(a / (1 + r / 100)) + '  ·  TVA (' + r + ' %) : ' + nf2.format(a - a / (1 + r / 100)) : '';
     };
     $('bm-amt').addEventListener('input', calcHt); $('bm-tva').addEventListener('change', function () { calcHt(); if (parts()) lnSync(); });
-    if (preDest) { $('bm-dest').value = preDest; lnToggle(); }
+    lnToggle();
     $('bm-date').addEventListener('change', sync);
     $('bm-ech').addEventListener('input', function () { dirty = true; });
     $('bm-cancel').addEventListener('click', closeModal);
@@ -2359,9 +2364,10 @@ button.back { display: none !important; }
       var err = function (t) { $('bm-err').textContent = t; $('bm-err').hidden = false; };
       var dt = parseIso($('bm-date').value), ech = parseIso($('bm-ech').value) || (s.delai < 0 ? NOECH : null), amt = num($('bm-amt').value), ok = [];
       if (parts()) {
-        var bad = LN.some(function (l) { return !(l.i || num(l.q) || num(l.p)) ? false : (!l.i || !(num(l.q) > 0) || !(num(l.p) >= 0) || l.p === ''); });
-        ok = LN.filter(function (l) { return l.i && num(l.q) > 0 && num(l.p) >= 0 && l.p !== ''; });
-        if (bad) return err('Chaque ligne doit avoir un article, une quantité supérieure à zéro et un prix.'); if (!ok.length) return err('Ajoutez au moins une ligne de facture.');
+        var lnOk = function (l) { return l.i && (l.i !== 'svc' || (l.d || '').trim()) && num(l.q) > 0 && num(l.p) >= 0 && l.p !== ''; };
+        var bad = LN.some(function (l) { return !(l.i || num(l.q) || num(l.p)) ? false : !lnOk(l); });
+        ok = LN.filter(lnOk);
+        if (bad) return err('Chaque ligne doit avoir un article (ou un service désigné), une quantité supérieure à zéro et un prix.'); if (!ok.length) return err('Ajoutez au moins une ligne de facture.');
         amt = Math.round(lnHT() * (1 + (+$('bm-tva').value) / 100) * 100) / 100;
       }
       if (!dt) return err('Choisissez la date de l’achat.');
@@ -2369,8 +2375,9 @@ button.back { display: none !important; }
       if (!(amt > 0)) return err('Saisissez un montant supérieur à zéro.');
       if (!ech) return err('Choisissez une date d’échéance.');
       if (ech < dt) return err('L’échéance ne peut pas précéder la date de l’achat.');
-      var na = { date: dt, piece: $('bm-piece').value.trim(), bl: $('bm-bl').value.trim(), lib: $('bm-lib').value.trim() || (parts() ? 'Pièces de rechange (' + ok.length + ' ligne' + (ok.length > 1 ? 's' : '') + ')' : 'Achat'), tva: +$('bm-tva').value, ttc: amt, ech: ech, dest: $('bm-dest').value }; if (parts()) na.lines = ok.map(function (l) { return { item: +l.i, q: num(l.q), px: num(l.p) }; }); s.achats.push(na);
-      if (parts()) { na.lines.forEach(function (l) { magSave(magItem(l.item), { type: 'in', d: dt, q: l.q, px: l.px, sup: s.nom, ref: na.piece || na.bl || '' }); }); audit('Facture de pièces', s.nom, na.lines.length + ' ligne' + (na.lines.length > 1 ? 's' : '') + ' · ' + nf2.format(amt)); if (!$('view-mag').hidden) renderMag(); } if (typeof onBuy === 'function') onBuy(s, na);
+      var na = { date: dt, piece: $('bm-piece').value.trim(), bl: $('bm-bl').value.trim(), lib: $('bm-lib').value.trim() || (ok.length === 1 ? (ok[0].i === 'svc' ? ok[0].d.trim() : magItem(ok[0].i).nom) : 'Achat (' + ok.length + ' lignes)'), tva: +$('bm-tva').value, ttc: amt, ech: ech, dest: 'Général' }; na.lines = ok.filter(function (l) { return l.i !== 'svc'; }).map(function (l) { return { item: +l.i, q: num(l.q), px: num(l.p) }; }); na.svc = ok.filter(function (l) { return l.i === 'svc'; }).map(function (l) { return { d: l.d.trim(), q: num(l.q), px: num(l.p) }; }); s.achats.push(na);
+      { var over = na.lines.filter(function (l) { var it = magItem(l.item); return it.cap && magCalc()[it.id].q + l.q > it.cap; })[0]; if (over) { s.achats.pop(); return err('La citerne déborderait : capacité ' + nf0.format(magItem(over.item).cap) + ' L.'); } }
+      { na.lines.forEach(function (l) { magSave(magItem(l.item), { type: 'in', d: dt, q: l.q, px: l.px, sup: s.nom, ref: na.piece || na.bl || '' }); }); audit('Facture d’achat', s.nom, (na.lines.length + na.svc.length) + ' ligne' + (na.lines.length + na.svc.length > 1 ? 's' : '') + ' · ' + nf2.format(amt)); if (!$('view-mag').hidden) renderMag(); } if (typeof onBuy === 'function') onBuy(s, na);
       s.achats.sort(function (a, b) { return a.date - b.date; });
       closeModal(); renderSups(); if (!$('view-fiche').hidden && curSup === s) renderFiche();
       toast('Achat enregistré.');
@@ -4508,6 +4515,7 @@ button.back { display: none !important; }
     MATK.forEach(function (m) { mat += cons[m] * matPx(m); });
     var lab = labourCost(from, to)['Usine Agglos'], kwh = elecKwh(from, to), el = kwh * FC.kwh, mc = machCost('Usine Agglos', from, to), ach = 0;
     sups.forEach(function (s) { s.achats.forEach(function (a) { if (a.dest === 'Usine' && a.date >= from && a.date <= to) ach += a.ttc / (1 + (a.tva || 20) / 100); }); });
+    MAGM.forEach(function (x) { if (x.type === 'out' && x.site === 'Usine Agglos' && !x.mach && x.d >= from && x.d <= to) ach += x.cost; });
     var shared = lab + el + mc + ach, tot = mat + shared;
     return { ps: ps, mat: mat, cons: cons, lab: lab, kwh: kwh, el: el, mc: mc, ach: ach, shared: shared, tot: tot, perMille: ps.net > 0 ? tot / (ps.net / 1000) : 0, perBrick: ps.net > 0 ? tot / ps.net : 0 };
   }
@@ -5526,6 +5534,15 @@ button.back { display: none !important; }
       if (r() < 0.55) { var it2 = pts[Math.floor(r() * pts.length)], m = ms[Math.floor(r() * ms.length)], q = 1 + Math.floor(r() * 2); if (qtyAt(it2) - q >= 0) add(it2, d, 'out', { q: q, mach: m.nom, who: who[Math.floor(r() * 3)] }); }
     }
   })();
+  (function () { var c = 0; MAGI.forEach(function (x) { if (x.k === 'part' && !x.no) { c += 1; x.no = 'PR-' + String(c).padStart(3, '0'); } }); })();
+  var magNo = function () { var m = 0; MAGI.forEach(function (x) { var t = /^PR-(\d+)$/.exec(x.no || ''); if (t) m = Math.max(m, +t[1]); }); return 'PR-' + String(m + 1).padStart(3, '0'); };
+  var magQ0 = '';
+  var magMachs = function (id) { var g = {}; MAGM.forEach(function (x) { if (x.item === id && x.type === 'out' && x.mach) g[x.mach] = 1; }); return Object.keys(g); };
+  var magHit = function (hay) { var q = magQ0.trim().toLowerCase(); return !q || q.split(/\s+/).every(function (t) { return hay.toLowerCase().indexOf(t) >= 0; }); };
+  var magItemHit = function (it) { return magHit(it.nom + ' ' + (it.no || '') + ' ' + magMachs(it.id).join(' ')); };
+  var magMoveHit = function (x, it) { return magHit(it.nom + ' ' + (it.no || '') + ' ' + (x.mach || '') + ' ' + (x.who || '') + ' ' + (x['for'] || '')); };
+  var magSearchBar = function () { return '<div class="search-row" style="margin-bottom:12px"><label class="search" for="mag-q"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mag-q" type="search" placeholder="Rechercher par nom, numéro ou machine" autocomplete="off" value="' + esc(magQ0) + '"></label></div>'; };
+  var magFocusQ = function () { if (magQ0) { var qi = $('mag-q'); if (qi) { qi.focus(); qi.setSelectionRange(magQ0.length, magQ0.length); } } };
   /* coût moyen pondéré : chaque sortie est valorisée au coût moyen du moment */
   function magCalc() {
     var res = {};
@@ -5539,8 +5556,8 @@ button.back { display: none !important; }
   function magRange() { return perRange(magPer); }
   var magQ = function (v, u) { return nf2.format(v) + ' ' + u; };
   function renderMag(sub) {
-    var kind = sub === 'Huiles et graisses' ? 'oil' : (sub === 'Gasoil' ? 'fuel' : (sub === 'Pièces de rechange' ? 'part' : magKind)); if (kind !== magKind) { magKind = kind; magTab = 'stock'; magMore = 60; }
-    if (sub) magFiche = null; var fi = magFiche && magItem(magFiche); if (fi && fi.k !== kind) { magFiche = null; fi = null; }
+    var kind = sub === 'Huiles et graisses' ? 'oil' : (sub === 'Gasoil' ? 'fuel' : (sub === 'Pièces de rechange' ? 'part' : magKind)); if (kind !== magKind) { magKind = kind; magTab = 'stock'; magMore = 60; magQ0 = ''; }
+    if (sub) { magFiche = null; magQ0 = ''; } var fi = magFiche && magItem(magFiche); if (fi && fi.k !== kind) { magFiche = null; fi = null; }
     var K = MAGK[kind], items = MAGI.filter(function (x) { return x.k === kind; }), ids = items.map(function (x) { return x.id; }), st = magCalc(), rg = magRange(), w = magCanWrite();
     var mv = MAGM.filter(function (x) { return x.k === kind && x.d >= rg.from && x.d <= rg.to; }).sort(function (a, b) { return a.d - b.d || a.id - b.id; });
     var ins = mv.filter(function (x) { return x.type === 'in'; }), outs = mv.filter(function (x) { return x.type === 'out'; });
@@ -5555,27 +5572,28 @@ button.back { display: none !important; }
       kpiH('Entrées · ' + rg.lab, un ? magQ(sum(ins, function (x) { return x.q; }), un) : nf2.format(sum(ins, function (x) { return x.cost; })), 'Montant : ' + nf2.format(sum(ins, function (x) { return x.cost; }))) +
       kpiH('Consommation · ' + rg.lab, un ? magQ(sum(outs, function (x) { return x.q; }), un) : nf2.format(sum(outs, function (x) { return x.cost; })), 'Coût : ' + nf2.format(sum(outs, function (x) { return x.cost; }))) +
       kpiH(kind === 'fuel' ? 'Coût moyen par litre' : 'Valeur du stock', kind === 'fuel' ? nf2.format(qTot > 0 ? vTot / qTot : 0) : nf2.format(vTot), kind === 'fuel' ? 'Valeur du stock : ' + nf2.format(vTot) : 'Au coût moyen');
+    var vis = items.filter(magItemHit); ins = ins.filter(function (x) { return magMoveHit(x, magItem(x.item)); }); outs = outs.filter(function (x) { return magMoveHit(x, magItem(x.item)); });
     var tabs = [['stock', 'Stock'], ['in', 'Entrées'], ['out', kind === 'part' ? 'Sorties' : 'Consommation'], ['mach', 'Par machine']];
     $('mag-s').textContent = K.s + ' · ' + tabs.filter(function (t) { return t[0] === magTab; })[0][1] + ' · ' + perStr(rg);
     $('mag-tabs').innerHTML = tabs.map(function (t) { return '<button type="button" role="tab" data-mgtab="' + t[0] + '" aria-selected="' + (magTab === t[0]) + '">' + t[1] + '</button>'; }).join('');
     var h = '', more = function (l) { return l.length > magMore ? '<div class="foot"><span>' + magMore + ' lignes affichées sur ' + l.length + '</span><button type="button" class="btn" data-mgmore>Afficher plus</button></div>' : ''; };
     if (magTab === 'stock') {
-      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Désignation</th>' + (kind === 'part' ? '<th>Groupe</th>' : '') + '<th>Unité</th><th>Stock</th>' + (kind === 'fuel' ? '<th>Capacité</th>' : '') + '<th>Seuil mini</th><th>Coût moyen</th><th>Valeur</th><th>État</th></tr></thead><tbody>' + items.map(function (x) {
-        var s = st[x.id], lw = s.q < x.min; return '<tr class="' + (lw ? 'rs-warn' : '') + '"><td><button type="button" class="lnk-b" data-mgfiche="' + x.id + '">' + esc(x.nom) + '</button></td>' + (kind === 'part' ? '<td>' + esc(x.grp || '—') + '</td>' : '') + '<td>' + esc(x.unit) + '</td><td class="num">' + nf2.format(s.q) + '</td>' + (kind === 'fuel' ? '<td class="num">' + nf0.format(x.cap) + '<small>' + Math.round(s.q / x.cap * 100) + ' % plein</small></td>' : '') + '<td class="num">' + nf2.format(x.min) + '</td><td class="num">' + nf2.format(s.avg) + '</td><td class="num">' + nf2.format(s.val) + '</td><td><span class="st ' + (lw ? 'warn' : 'ok') + '">' + (lw ? 'Sous le seuil' : 'Correct') + '</span></td></tr>';
-      }).join('') + '</tbody><tfoot><tr class="tot"><td>Total</td>' + (kind === 'part' ? '<td></td>' : '') + '<td>' + (kind === 'part' ? '' : esc(un)) + '</td><td class="num">' + (un && kind !== 'part' ? nf2.format(qTot) : '') + '</td>' + (kind === 'fuel' ? '<td></td>' : '') + '<td></td><td></td><td class="num">' + nf2.format(vTot) + '</td><td></td></tr></tfoot></table></div>';
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Désignation</th>' + (kind === 'part' ? '<th>N° de pièce</th><th>Groupe</th>' : '') + '<th>Unité</th><th>Stock</th>' + (kind === 'fuel' ? '<th>Capacité</th>' : '') + '<th>Seuil mini</th><th>Coût moyen</th><th>Valeur</th><th>État</th></tr></thead><tbody>' + vis.map(function (x) {
+        var s = st[x.id], lw = s.q < x.min; return '<tr class="' + (lw ? 'rs-warn' : '') + '"><td><button type="button" class="lnk-b" data-mgfiche="' + x.id + '">' + esc(x.nom) + '</button></td>' + (kind === 'part' ? '<td class="mono">' + esc(x.no || '—') + '</td><td>' + esc(x.grp || '—') + '</td>' : '') + '<td>' + esc(x.unit) + '</td><td class="num">' + nf2.format(s.q) + '</td>' + (kind === 'fuel' ? '<td class="num">' + nf0.format(x.cap) + '<small>' + Math.round(s.q / x.cap * 100) + ' % plein</small></td>' : '') + '<td class="num">' + nf2.format(x.min) + '</td><td class="num">' + nf2.format(s.avg) + '</td><td class="num">' + nf2.format(s.val) + '</td><td><span class="st ' + (lw ? 'warn' : 'ok') + '">' + (lw ? 'Sous le seuil' : 'Correct') + '</span></td></tr>';
+      }).join('') + '</tbody><tfoot><tr class="tot"><td>Total</td>' + (kind === 'part' ? '<td></td><td></td>' : '') + '<td>' + (kind === 'part' ? '' : esc(un)) + '</td><td class="num">' + (un && kind !== 'part' ? nf2.format(sum(vis, function (x) { return st[x.id].q; })) : '') + '</td>' + (kind === 'fuel' ? '<td></td>' : '') + '<td></td><td></td><td class="num">' + nf2.format(sum(vis, function (x) { return st[x.id].val; })) + '</td><td></td></tr></tfoot></table></div>';
     } else if (magTab === 'in') {
       h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Désignation</th><th>Fournisseur</th><th>Référence</th><th>Quantité</th><th>Prix unitaire</th><th>Montant</th></tr></thead><tbody>' + (ins.length ? ins.slice(-magMore).map(function (x) { var it = magItem(x.item); return '<tr><td>' + dfmt.format(x.d) + '</td><td>' + esc(it.nom) + '</td><td>' + esc(x.sup || '—') + '</td><td>' + esc(x.ref || '—') + '</td><td class="num">' + nf2.format(x.q) + ' ' + esc(it.unit) + '</td><td class="num">' + nf2.format(x.px) + '</td><td class="num">' + nf2.format(x.cost) + '</td></tr>'; }).join('') : '<tr><td colspan="7" style="color:var(--ink-2)">Aucune entrée sur cette période.</td></tr>') +
         '</tbody><tfoot><tr class="tot"><td colspan="4">Total · ' + ins.length + ' entrée' + (ins.length > 1 ? 's' : '') + '</td><td class="num">' + (un ? nf2.format(sum(ins, function (x) { return x.q; })) + ' ' + esc(un) : '') + '</td><td></td><td class="num">' + nf2.format(sum(ins, function (x) { return x.cost; })) + '</td></tr></tfoot></table></div>' + more(ins);
     } else if (magTab === 'out') {
-      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Désignation</th><th>Machine</th><th>Compteur</th><th>Remis à</th><th>Quantité</th><th>Coût</th></tr></thead><tbody>' + (outs.length ? outs.slice(-magMore).map(function (x) { var it = magItem(x.item); return '<tr><td>' + dfmt.format(x.d) + '</td><td>' + esc(it.nom) + '</td><td>' + esc(x.mach || '—') + '</td><td class="num">' + (x.h ? nf0.format(x.h) + ' h' : '—') + '</td><td>' + esc(x.who || '—') + '</td><td class="num">' + nf2.format(x.q) + ' ' + esc(it.unit) + '</td><td class="num">' + nf2.format(x.cost) + '</td></tr>'; }).join('') : '<tr><td colspan="7" style="color:var(--ink-2)">Aucune sortie sur cette période.</td></tr>') +
-        '</tbody><tfoot><tr class="tot"><td colspan="5">Total · ' + outs.length + ' sortie' + (outs.length > 1 ? 's' : '') + '</td><td class="num">' + (un ? nf2.format(sum(outs, function (x) { return x.q; })) + ' ' + esc(un) : '') + '</td><td class="num">' + nf2.format(sum(outs, function (x) { return x.cost; })) + '</td></tr></tfoot></table></div>' + more(outs);
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Désignation</th><th>Machine</th><th>Compteur</th><th>Remis à</th><th>Quantité</th><th>Coût</th><th>Bon</th></tr></thead><tbody>' + (outs.length ? outs.slice(-magMore).map(function (x) { var it = magItem(x.item); return '<tr><td>' + dfmt.format(x.d) + '</td><td>' + esc(it.nom) + '</td><td>' + esc(x.mach || '—') + '</td><td class="num">' + (x.h ? nf0.format(x.h) + ' h' : '—') + '</td><td>' + esc(x.who || '—') + '</td><td class="num">' + nf2.format(x.q) + ' ' + esc(it.unit) + '</td><td class="num">' + nf2.format(x.cost) + '</td><td><button type="button" class="btn mini" data-mgbon="' + x.id + '">Bon</button></td></tr>'; }).join('') : '<tr><td colspan="8" style="color:var(--ink-2)">Aucune sortie sur cette période.</td></tr>') +
+        '</tbody><tfoot><tr class="tot"><td colspan="5">Total · ' + outs.length + ' sortie' + (outs.length > 1 ? 's' : '') + '</td><td class="num">' + (un ? nf2.format(sum(outs, function (x) { return x.q; })) + ' ' + esc(un) : '') + '</td><td class="num">' + nf2.format(sum(outs, function (x) { return x.cost; })) + '</td><td></td></tr></tfoot></table></div>' + more(outs);
     } else {
       var g = {}; outs.forEach(function (x) { var k = x.mach || 'Sans machine'; (g[k] = g[k] || []).push(x); });
       var rows2 = Object.keys(g).map(function (k) { var l = g[k], hs = l.filter(function (x) { return x.h; }).map(function (x) { return x.h; }), dh = hs.length > 1 ? Math.max.apply(null, hs) - Math.min.apply(null, hs) : 0; return { k: k, n: l.length, q: sum(l, function (x) { return x.q; }), c: sum(l, function (x) { return x.cost; }), dh: dh }; }).sort(function (a, b) { return b.c - a.c; });
       h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Machine</th><th>Sorties</th><th>Quantité</th><th>Coût</th>' + (kind === 'fuel' ? '<th>Heures</th><th>Litres par heure</th>' : '') + '</tr></thead><tbody>' + (rows2.length ? rows2.map(function (x) { return '<tr><td><b style="font-weight:600">' + esc(x.k) + '</b></td><td class="num">' + x.n + '</td><td class="num">' + (un ? nf2.format(x.q) + ' ' + esc(un) : '—') + '</td><td class="num">' + nf2.format(x.c) + '</td>' + (kind === 'fuel' ? '<td class="num">' + (x.dh > 0 ? nf0.format(x.dh) + ' h' : '—') + '</td><td class="num">' + (x.dh > 0 ? nf2.format(x.q / x.dh) : '—') + '</td>' : '') + '</tr>'; }).join('') : '<tr><td colspan="6" style="color:var(--ink-2)">Aucune consommation sur cette période.</td></tr>') +
         '</tbody><tfoot><tr class="tot"><td>Total</td><td class="num">' + outs.length + '</td><td class="num">' + (un ? nf2.format(sum(outs, function (x) { return x.q; })) + ' ' + esc(un) : '') + '</td><td class="num">' + nf2.format(sum(outs, function (x) { return x.cost; })) + '</td>' + (kind === 'fuel' ? '<td></td><td></td>' : '') + '</tr></tfoot></table></div><div class="foot"><span>Le coût de chaque sortie est calculé au coût moyen du moment ; il alimente les coûts de la machine.</span></div>';
     }
-    $('mag-main').innerHTML = h + printBar();
+    $('mag-main').innerHTML = magSearchBar() + h + printBar(); magFocusQ();
   }
   VIEWHOOKS['view-mag'] = renderMag;
   var magOpts = function (sel) { return MAGI.filter(function (x) { return x.k === magKind; }).map(function (x) { return '<option value="' + x.id + '"' + (+sel === x.id ? ' selected' : '') + '>' + esc(x.nom) + '</option>'; }).join(''); };
@@ -5676,13 +5694,14 @@ button.back { display: none !important; }
     });
   }
   function magNew() {
-    openModal('<h2>' + (magKind === 'part' ? 'Nouvelle référence' : 'Nouveau produit') + '</h2><p class="m">' + (magKind === 'part' ? 'Ajoutez une pièce de rechange ou un consommable.' : 'Ajoutez un type d’huile, de graisse ou de lubrifiant.') + '</p><div class="f"><label for="mn-n">Désignation</label><input class="in" id="mn-n" placeholder="' + (magKind === 'part' ? 'Ex. : Filtre à air' : 'Ex. : Huile de boîte 80W90') + '"></div><div class="row3"><div class="f"><label for="mn-u">Unité</label><select class="in" id="mn-u">' + MAGU.map(function (u) { return '<option>' + u + '</option>'; }).join('') + '</select></div><div class="f"><label for="mn-m">Seuil mini</label><input class="in" id="mn-m" inputmode="decimal" value="0"></div><div class="f"><label for="mn-q">Stock initial</label><input class="in" id="mn-q" inputmode="decimal" value="0"></div></div><div class="row2"><div class="f"><label for="mn-p">Prix unitaire initial HT</label><input class="in" id="mn-p" inputmode="decimal" value="0"></div><div class="f"><label for="mn-b">Suivi par machine</label><select class="in" id="mn-b"><option value="1">Oui (huiles)</option><option value="0">Non, quantité seulement (graisses)</option></select></div></div><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Ajouter</button></div>');
+    openModal('<h2>' + (magKind === 'part' ? 'Nouvelle référence' : 'Nouveau produit') + '</h2><p class="m">' + (magKind === 'part' ? 'Ajoutez une pièce de rechange ou un consommable.' : 'Ajoutez un type d’huile, de graisse ou de lubrifiant.') + '</p><div class="f"><label for="mn-n">Désignation</label><input class="in" id="mn-n" placeholder="' + (magKind === 'part' ? 'Ex. : Filtre à air' : 'Ex. : Huile de boîte 80W90') + '"></div>' + (magKind === 'part' ? '<div class="f"><label for="mn-no">N° de pièce</label><input class="in" id="mn-no" placeholder="Facultatif : attribué automatiquement"></div>' : '') + '<div class="row3"><div class="f"><label for="mn-u">Unité</label><select class="in" id="mn-u">' + MAGU.map(function (u) { return '<option>' + u + '</option>'; }).join('') + '</select></div><div class="f"><label for="mn-m">Seuil mini</label><input class="in" id="mn-m" inputmode="decimal" value="0"></div><div class="f"><label for="mn-q">Stock initial</label><input class="in" id="mn-q" inputmode="decimal" value="0"></div></div><div class="row2"><div class="f"><label for="mn-p">Prix unitaire initial HT</label><input class="in" id="mn-p" inputmode="decimal" value="0"></div><div class="f"><label for="mn-b">Suivi par machine</label><select class="in" id="mn-b"><option value="1">Oui (huiles)</option><option value="0">Non, quantité seulement (graisses)</option></select></div></div><p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Ajouter</button></div>');
     $('mg-cancel').addEventListener('click', closeModal);
     $('mg-save').addEventListener('click', function () {
       var n = $('mn-n').value.trim(), mi = num($('mn-m').value), q = num($('mn-q').value), p = num($('mn-p').value);
+      var nno = magKind === 'part' ? $('mn-no').value.trim().toUpperCase() : ''; if (nno && MAGI.some(function (x) { return x.no === nno; })) return magErr('Ce numéro de pièce existe déjà.');
       if (!n) return magErr('Saisissez la désignation.'); if (MAGI.some(function (x) { return x.k === magKind && x.nom.toLowerCase() === n.toLowerCase(); })) return magErr('Ce produit existe déjà.');
       if (!(mi >= 0) || !(q >= 0) || !(p >= 0)) return magErr('Seuil, stock et prix doivent être des nombres positifs.');
-      var id = MAGI.reduce(function (t, x) { return Math.max(t, x.id); }, 0) + 1; MAGI.push({ id: id, k: magKind, nom: n, grp: magKind === 'part' ? 'Divers' : '', unit: $('mn-u').value, cap: 0, min: mi, open: q, px0: p, byMach: $('mn-b').value === '1' });
+      var id = MAGI.reduce(function (t, x) { return Math.max(t, x.id); }, 0) + 1; MAGI.push({ id: id, k: magKind, nom: n, no: magKind === 'part' ? (nno || magNo()) : '', grp: magKind === 'part' ? 'Divers' : '', unit: $('mn-u').value, cap: 0, min: mi, open: q, px0: p, byMach: $('mn-b').value === '1' });
       audit('Produit ajouté', MAGK[magKind].t, n); closeModal(); renderMag(); toast('Produit ajouté.');
     });
   }
@@ -5692,48 +5711,67 @@ button.back { display: none !important; }
     $('mag-t').textContent = 'Magasin · ' + K.t; $('mag-s').textContent = 'Quantités disponibles et sorties · aucun prix affiché';
     $('mag-a').innerHTML = '<button type="button" class="btn primary" data-mgout>+ Sortie</button>'; $('mag-per').innerHTML = '';
     $('mag-kpis').innerHTML = kpiH(kind === 'part' ? 'Références' : 'Produits', items.length, 'Suivis dans le magasin', false, true) + kpiH('Stock faible', lw, lw ? 'À signaler au comptable' : 'Aucune alerte', lw > 0) + kpiH('Épuisés', ep, ep ? 'Plus aucune unité disponible' : 'Aucun', ep > 0);
+    items = items.filter(magItemHit);
     var tabs = [['stock', 'Disponibilité'], ['mine', 'Sorties récentes']];
     $('mag-tabs').innerHTML = tabs.map(function (t) { return '<button type="button" role="tab" data-mgtab="' + t[0] + '" aria-selected="' + (magTab === t[0]) + '">' + t[1] + '</button>'; }).join('');
     var h;
     if (magTab === 'stock') {
-      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Désignation</th>' + (kind === 'part' ? '<th>Groupe</th>' : '') + '<th>Disponible</th><th>État</th><th></th></tr></thead><tbody>' + items.map(function (x) {
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Désignation</th>' + (kind === 'part' ? '<th>N° de pièce</th><th>Groupe</th>' : '') + '<th>Disponible</th><th>État</th><th></th></tr></thead><tbody>' + items.map(function (x) {
         var q = st[x.id].q, cls = q <= 0 ? 'bad' : (q < x.min ? 'warn' : 'ok'), lab = q <= 0 ? 'Épuisé' : (q < x.min ? 'Stock faible' : 'Disponible');
-        return '<tr class="' + (q <= 0 ? 'rs-bad' : (q < x.min ? 'rs-warn' : '')) + '"><td><b style="font-weight:600">' + esc(x.nom) + '</b></td>' + (kind === 'part' ? '<td>' + esc(x.grp || '—') + '</td>' : '') + '<td class="num">' + nf2.format(q) + ' ' + esc(x.unit) + '</td><td><span class="st ' + cls + '">' + lab + '</span></td><td><button type="button" class="btn mini blue" data-mgout="' + x.id + '"' + (q <= 0 ? ' disabled' : '') + '>Sortie</button></td></tr>';
+        return '<tr class="' + (q <= 0 ? 'rs-bad' : (q < x.min ? 'rs-warn' : '')) + '"><td><b style="font-weight:600">' + esc(x.nom) + '</b></td>' + (kind === 'part' ? '<td class="mono">' + esc(x.no || '—') + '</td><td>' + esc(x.grp || '—') + '</td>' : '') + '<td class="num">' + nf2.format(q) + ' ' + esc(x.unit) + '</td><td><span class="st ' + cls + '">' + lab + '</span></td><td><button type="button" class="btn mini blue" data-mgout="' + x.id + '"' + (q <= 0 ? ' disabled' : '') + '>Sortie</button></td></tr>';
       }).join('') + '</tbody></table></div>';
     } else {
-      var outs = MAGM.filter(function (x) { return x.k === kind && x.type === 'out' && x.d >= addDays(TODAY, -30); }).sort(function (a, b) { return b.d - a.d || b.id - a.id; }).slice(0, 40).reverse();
-      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Désignation</th><th>Quantité</th><th>Remis à</th><th>Installé sur</th></tr></thead><tbody>' + (outs.length ? outs.map(function (x) { var it = magItem(x.item); return '<tr><td>' + dfmt.format(x.d) + '</td><td>' + esc(it.nom) + '</td><td class="num">' + nf2.format(x.q) + ' ' + esc(it.unit) + '</td><td>' + esc(x.who || '—') + '</td><td>' + esc(x.mach || '—') + '</td></tr>'; }).join('') : '<tr><td colspan="5" style="color:var(--ink-2)">Aucune sortie sur les 30 derniers jours.</td></tr>') + '</tbody></table></div><div class="foot"><span>Les 40 dernières sorties des 30 derniers jours.</span></div>';
+      var outs = MAGM.filter(function (x) { return x.k === kind && x.type === 'out' && x.d >= addDays(TODAY, -30) && magMoveHit(x, magItem(x.item)); }).sort(function (a, b) { return b.d - a.d || b.id - a.id; }).slice(0, 40).reverse();
+      h = '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Date</th><th>Désignation</th><th>Quantité</th><th>Remis à</th><th>Installé sur</th><th>Bon</th></tr></thead><tbody>' + (outs.length ? outs.map(function (x) { var it = magItem(x.item); return '<tr><td>' + dfmt.format(x.d) + '</td><td>' + esc(it.nom) + '</td><td class="num">' + nf2.format(x.q) + ' ' + esc(it.unit) + '</td><td>' + esc(x.who || '—') + '</td><td>' + esc(x.mach || '—') + '</td><td><button type="button" class="btn mini" data-mgbon="' + x.id + '">Bon</button></td></tr>'; }).join('') : '<tr><td colspan="6" style="color:var(--ink-2)">Aucune sortie sur les 30 derniers jours.</td></tr>') + '</tbody></table></div><div class="foot"><span>Les 40 dernières sorties des 30 derniers jours.</span></div>';
     }
-    $('mag-main').innerHTML = h;
+    $('mag-main').innerHTML = magSearchBar() + h; magFocusQ();
   }
   /* sortie du magasin : pièces, huiles ou gasoil (ouverte à la Caisse, sans aucun prix) */
   function magOut(pre) {
     var kind = magKind, pdvR = ROLE === 'pdv', items = MAGI.filter(function (x) { return x.k === kind; }), st = magCalc();
     var who = EMP.filter(function (e) { return e.actif; }).map(function (e) { return '<option value="' + esc(e.nom) + '">'; }).join('');
     var mach = '<option value="">— Choisir —</option><optgroup label="Parc">' + MACH.filter(function (m) { return m.actif; }).map(function (m) { return '<option>' + esc(m.nom) + '</option>'; }).join('') + '</optgroup><optgroup label="Matériel loué">' + LFLEET.filter(function (u) { return u.actif; }).map(function (u) { return '<option>' + esc(u.nom) + '</option>'; }).join('') + '</optgroup><option value="__none">Hors machine (atelier)</option>';
+    var siteOf = function (nm) { var m = MACH.filter(function (z) { return z.nom === nm; })[0] || LFLEET.filter(function (z) { return z.nom === nm; })[0]; return m && ['Bouaanfir', 'Nfifa', 'Usine Agglos'].indexOf(m.site) >= 0 ? m.site : ''; };
     openModal('<h2>Sortie du magasin</h2><p class="m">' + esc(MAGK[kind].t) + ' · la sortie est enregistrée à votre nom, elle ne peut plus être modifiée.</p>' + (pdvR ? '' : '<div class="f"><label for="mo-d">Date</label><input class="in" id="mo-d" type="date" value="' + iso(TODAY) + '" max="' + iso(TODAY) + '"></div>') +
       '<div class="row2"><div class="f"><label for="mo-i">' + (kind === 'fuel' ? 'Citerne' : 'Article') + '</label><select class="in" id="mo-i">' + items.map(function (x) { return '<option value="' + x.id + '"' + (+pre === x.id ? ' selected' : '') + '>' + esc(x.nom) + '</option>'; }).join('') + '</select></div><div class="f"><label for="mo-q">Quantité</label><input class="in" id="mo-q" inputmode="decimal"><small class="sugg" id="mo-av"></small></div></div>' +
       '<div class="row2"><div class="f"><label for="mo-w">Remis à *</label><input class="in" id="mo-w" list="mo-wl" placeholder="Nom de la personne"><datalist id="mo-wl">' + who + '</datalist></div><div class="f"><label for="mo-m">Installé sur *</label><select class="in" id="mo-m">' + mach + '</select></div></div>' +
+      '<div class="row2"><div class="f"><label for="mo-f">Pour (facultatif)</label><input class="in" id="mo-f" list="mo-wl" placeholder="Personne pour qui la pièce est installée"></div><div class="f"><label for="mo-s">Imputé à *</label><select class="in" id="mo-s"><option value="">— Choisir —</option><option>Bouaanfir</option><option>Nfifa</option><option>Usine Agglos</option></select><small class="sugg">Le coût est imputé à ce site, à l’usage</small></div></div>' +
       '<p class="err" id="mg-err" hidden></p><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mg-save">Enregistrer la sortie</button></div>');
+    $('mo-m').addEventListener('change', function () { var sv = siteOf($('mo-m').value); if (sv) $('mo-s').value = sv; });
     var av = function () { var it = magItem($('mo-i').value); $('mo-av').textContent = 'Disponible : ' + nf2.format(st[it.id].q) + ' ' + it.unit; }; av(); $('mo-i').addEventListener('change', av);
     $('mg-cancel').addEventListener('click', closeModal);
     $('mg-save').addEventListener('click', function () {
       var it = magItem($('mo-i').value), q = num($('mo-q').value), wh = $('mo-w').value.trim(), mc = $('mo-m').value, d = pdvR ? TODAY : parseIso($('mo-d').value), avl = magCalc()[it.id].q;
       if (!d || d > TODAY) return magErr('Choisissez une date valide, pas dans le futur.'); if (!(q > 0)) return magErr('Saisissez une quantité supérieure à zéro.');
       if (q > avl + 1e-9) return magErr('Quantité indisponible : il reste ' + nf2.format(avl) + ' ' + it.unit + '.');
-      if (!wh) return magErr('Indiquez à qui la pièce est remise.'); if (!mc) return magErr('Choisissez où elle est installée, ou « Hors machine ».');
-      var mn = mc === '__none' ? '' : mc; magSave(it, { type: 'out', d: d, q: q, mach: mn, who: wh }); var x = MAGM[MAGM.length - 1]; x.u = ROLE;
+      if (!wh) return magErr('Indiquez à qui la pièce est remise.'); if (!mc) return magErr('Choisissez où elle est installée, ou « Hors machine ».'); if (!$('mo-s').value) return magErr('Choisissez le site auquel imputer le coût.');
+      var mn = mc === '__none' ? '' : mc; magSave(it, { type: 'out', d: d, q: q, mach: mn, who: wh }); var x = MAGM[MAGM.length - 1]; x.u = ROLE; x.site = $('mo-s').value; x['for'] = $('mo-f').value.trim(); x.by = USER; var nw = new Date(); x.time = pad2(nw.getHours()) + ':' + pad2(nw.getMinutes());
       var m = kind === 'part' && mn ? MACH.filter(function (z) { return z.nom === mn; })[0] : null;
       if (m) { var pc = { nom: it.nom, qte: q, cout: x.cost / q }, ex = m.ints.filter(function (z) { return z.src === 'magasin' && +z.d === +d; })[0]; if (ex) ex.pieces.push(pc); else m.ints.push({ id: newId(), d: d, h: m.h, type: 'Réparation', desc: 'Pièces sorties du magasin', mo: 0, pieces: [pc], cause: 'Sortie magasin · remis à ' + wh, plan: null, src: 'magasin' }); afterMach(); }
-      audit('Sortie magasin', it.nom, nf2.format(q) + ' ' + it.unit + ' · remis à ' + wh + ' · ' + (mn || 'hors machine')); closeModal(); renderMag(); toast('Sortie enregistrée.');
+      audit('Sortie magasin', it.nom, nf2.format(q) + ' ' + it.unit + ' · remis à ' + wh + ' · ' + (mn || 'hors machine')); closeModal(); renderMag(); bonDoc(x);
     });
+  }
+  /* bon de sortie du magasin : une page, trois signatures, aucun prix */
+  var BONP = {};
+  var bonNo = function (x) { return 'BS-' + x.d.getFullYear() + '-' + String(x.id).padStart(5, '0'); };
+  function bonDoc(x) {
+    var it = magItem(x.item), no = bonNo(x), n = BONP[no] || 0, site = x.site || '';
+    var sig = function (lab, who) { return '<div class="sigb"><b>' + lab + '</b><span>' + esc(who || '') + '</span><i></i></div>'; };
+    var body = '<div class="recc bon"><h3>BON DE SORTIE MAGASIN ' + esc(no) + (n > 0 ? ' <small>(DUPLICATA)</small>' : '') + '</h3>' +
+      '<p>Date : <b>' + dfmt.format(x.d) + (x.time ? ' · ' + esc(x.time) : '') + '</b> · Magasin : <b>' + esc(MAGK[x.k].t) + '</b></p>' +
+      '<table><thead><tr><th>Article</th>' + (it.no ? '<th>N° de pièce</th>' : '') + '<th>Quantité</th><th>Installé sur</th><th>Imputé à</th></tr></thead><tbody><tr><td>' + esc(it.nom) + '</td>' + (it.no ? '<td>' + esc(it.no) + '</td>' : '') + '<td>' + nf2.format(x.q) + ' ' + esc(it.unit) + '</td><td>' + esc(x.mach || 'Hors machine (atelier)') + '</td><td>' + esc(site || '—') + '</td></tr></tbody></table>' +
+      '<p>Remis à : <b>' + esc(x.who || '—') + '</b>' + (x['for'] ? ' · Pour : <b>' + esc(x['for']) + '</b>' : '') + '</p>' + (x.by ? '<p>Sortie enregistrée par : <b>' + esc(x.by) + '</b></p>' : '') +
+      '<div class="sigs">' + sig('Magasinier<small>a remis la pièce</small>', x.by) + sig('Mécanicien<small>a pris la pièce</small>', x.who) + sig('Bénéficiaire<small>pour qui la pièce est installée</small>', x['for']) + '</div></div>';
+    docModal('Bon de sortie ' + no, body, COMPANY.nom + ' · ' + COMPANY.ville, null, { rec: no });
+    var pb = $('dm-print'); if (pb) pb.addEventListener('click', function () { BONP[no] = (BONP[no] || 0) + 1; audit(BONP[no] > 1 ? 'Bon de sortie réimprimé (duplicata)' : 'Bon de sortie imprimé', no, it.nom + ' · ' + nf2.format(x.q) + ' ' + it.unit); });
   }
   /* entrée de pièces par facture : choix du fournisseur puis facture à lignes */
   function magBuy() {
     var fl = sups.filter(function (z) { return !z.isClient; });
     openModal('<h2>Facture de pièces de rechange</h2><p class="m">Choisissez le fournisseur : la facture sera enregistrée chez lui et les pièces entreront en stock.</p><div class="f"><label for="mb-s">Fournisseur</label><select class="in" id="mb-s">' + fl.map(function (z) { return '<option value="' + z.id + '">' + esc(z.nom) + '</option>'; }).join('') + '</select></div><div class="mact"><button type="button" class="btn" id="mg-cancel">Annuler</button><button type="button" class="btn primary" id="mb-ok">Continuer</button></div>');
-    $('mg-cancel').addEventListener('click', closeModal); $('mb-ok').addEventListener('click', function () { var z = supBy($('mb-s').value); closeModal(); buyModal(z, 'Pièces de rechange'); });
+    $('mg-cancel').addEventListener('click', closeModal); $('mb-ok').addEventListener('click', function () { var z = supBy($('mb-s').value); closeModal(); buyModal(z); });
   }
+  $('view-mag').addEventListener('input', function (e) { if (e.target.id === 'mag-q') { magQ0 = e.target.value; renderMag(); } });
   $('view-mag').addEventListener('click', function (e) {
     var b;
     if ((b = e.target.closest('[data-mgtab]'))) { magTab = b.dataset.mgtab; magMore = 60; return renderMag(); }
@@ -5743,6 +5781,7 @@ button.back { display: none !important; }
     if ((b = e.target.closest('[data-mgftab]'))) { magFTab = b.dataset.mgftab; return renderMag(); }
     if (e.target.closest('[data-mgmore]')) { magMore += 60; return renderMag(); }
     if ((b = e.target.closest('[data-mgout]'))) return magOut(b.dataset.mgout || magFiche);
+    if ((b = e.target.closest('[data-mgbon]'))) { var bx = MAGM.filter(function (z) { return z.id === +b.dataset.mgbon; })[0]; if (bx) bonDoc(bx); return; }
     if (!magCanWrite()) return;
     if (e.target.closest('[data-mgbuy]')) return magBuy();
     if (e.target.closest('[data-mgin]')) return magIn(magFiche); if (e.target.closest('[data-mgday]')) return magDay(); if (e.target.closest('[data-mginv]')) return magInv(magFiche); if (e.target.closest('[data-mgedit]')) return go('parametres', 'Magasin'); if (e.target.closest('[data-mgnew]')) return magNew();

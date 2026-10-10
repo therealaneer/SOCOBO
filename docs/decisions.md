@@ -453,3 +453,12 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] Les **espèces** encaissées dans Règlement s'ajoutent aux Espèces encaissées de la Caisse (Dashboard caisse et Dépense, donc au Reste).
 - [D] **Situation détaillée** : quantités en **m³** (produits vendus à la tonne convertis avec la densité des Paramètres) ; Prix = total ÷ m³.
 - [D] **Tableaux des feuilles** (situations, relevé, facture) : même style que les tableaux du programme — en-tête bleu à séparateurs blancs, grille complète, ligne de totaux bleu clair, chiffres alignés à gauche.
+
+## 53. v75 — Magasin : recherche, N° de pièce, Bon de sortie ; facture fournisseur à lignes
+
+- [D] **Recherche** au-dessus des tableaux du Magasin (Pièces de rechange, Huiles et graisses, Gasoil ; DG, Comptabilité et Caisse) : par **nom**, **numéro de pièce** ou **machine** (machines sur lesquelles l'article est sorti). Filtre aussi les listes Entrées / Sorties / Sorties récentes.
+- [D] **N° de pièce** (PR-001…, exemples à remplacer) : colonne dans le tableau des pièces ; champ facultatif dans « + Nouvelle référence » (numéro attribué automatiquement sinon, unique).
+- [D] **Bon de sortie magasin** (BS-AAAA-NNNNN) après chaque Sortie : une seule page, sans prix : article, N° de pièce, quantité, installé sur, imputé à, remis à, « Pour » facultatif, enregistré par ; **3 signatures** : Magasinier (a remis la pièce), Mécanicien (a pris la pièce), Bénéficiaire (pour qui la pièce est installée — pas forcément un chauffeur). Bouton **Bon** dans les sorties ; réimpression marquée DUPLICATA et tracée dans Audit.
+- [D] **Fenêtre Sortie** : nouveau champ facultatif **Pour** et champ **Imputé à** (Bouaanfir / Nfifa / Usine Agglos, proposé d'après la machine).
+- [D] **Coûts à la consommation** : le coût d'une pièce est imputé au site au moment de la sortie, pas à l'achat. Les sorties sans machine imputées à l'Usine s'ajoutent aux achats de l'usine dans le coût du mille (les sorties avec machine y sont déjà via la maintenance des machines).
+- [D] **Facture fournisseur** (+ Achat) : plus de champ « Destination de l'achat » (un seul magasin de pièces pour toute la société). La facture est **toujours à lignes** : article (pièces, huiles et graisses, gasoil) ou **Service / autre (sans stock)**, quantité, prix HT ; les lignes de stock entrent automatiquement au Magasin. Facture classée « Général ». Ciment et matières premières de l'usine restent dans Usine Agglos.

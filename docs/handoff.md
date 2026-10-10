@@ -59,3 +59,4 @@ Read this file together with `CLAUDE.md` (company, roles, engineering rules) and
 - v72 : disposition de l'onglet BL et en-têtes de la situation journalière (decisions §50).
 - v73 : Relevé de compte à 3 cartes, situation détaillée cumulative avec paiements, solde à l’ouverture du client (decisions §51).
 - v74 : page Règlement (Caisse) + reçu, quantités en m³ dans la situation détaillée, tableaux des feuilles unifiés (decisions §52).
+- v75 : recherche Magasin, N° de pièce, Bon de sortie, facture fournisseur à lignes sans destination (decisions §53).
