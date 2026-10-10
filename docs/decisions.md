@@ -445,3 +445,11 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] **Relevé de compte** (client / fournisseur) : 3 cartes seulement — client : Chiffre d'affaires · Total encaissé · Reste dû ; fournisseur : Total achats · Total payé · Reste à payer. Plus de carte « Solde au début » ni de ligne d'ouverture. Tableau : **Date · Pièce · Montant · Réglé · Solde dû** (cumulatif) ; colonne Libellé supprimée.
 - [D] **Situation détaillée** (onglet BL du client) : colonnes **Date · N° BL · Qté · Désignation · Prix · Total · Total général** (cumulatif). Plus d'en-têtes camion / mode / jour. Les **paiements** sont des lignes vertes dans le même tableau (Désignation « Paiement · mode réf. », Total « − montant », le cumul diminue). Ligne « Solde à l'ouverture de la période » conservée. Prix = prix unitaire TTC (total ÷ quantité).
 - [D] **Solde à l'ouverture** : champ facultatif dans Nouveau / Modifier client (montant déjà dû au démarrage du programme) ; ajouté au Reste dû ; visible dans Détails du client ; sa modification est tracée dans Audit.
+
+## 52. v74 — Règlement à la Caisse, reçu, quantités en m³, tableaux des feuilles
+
+- [D] **Point de vente › Règlement** (nouvelle page, entre Caisse et Dépense ; poste Caisse et DG) : liste de **tous les clients à compte** (recherche) avec **Reste dû** et bouton **Encaisser** (même fenêtre que Clients › Encaisser : Espèces, Chèque, Effet, Virement). Après l'enregistrement le **reçu** (REC-AAAA-NNNNN, deux exemplaires Client / Société, DUPLICATA à la réimpression, tracé dans Audit) s'affiche pour impression et remise au client. Sous la liste : « Règlements du jour » avec bouton Reçu et ligne de total.
+- [D] Le reçu existe partout où un client paie : Clients › Encaisser, Règlement, et bouton « Reçu » dans la liste des règlements du client.
+- [D] Les **espèces** encaissées dans Règlement s'ajoutent aux Espèces encaissées de la Caisse (Dashboard caisse et Dépense, donc au Reste).
+- [D] **Situation détaillée** : quantités en **m³** (produits vendus à la tonne convertis avec la densité des Paramètres) ; Prix = total ÷ m³.
+- [D] **Tableaux des feuilles** (situations, relevé, facture) : même style que les tableaux du programme — en-tête bleu à séparateurs blancs, grille complète, ligne de totaux bleu clair, chiffres alignés à gauche.

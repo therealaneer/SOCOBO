@@ -572,9 +572,10 @@ td .mono, .mono { font-size: 14px; }
 .inv-dl { display: grid; grid-template-columns: auto 1fr; gap: 7px 18px; margin: 0; font-size: 13.5px; }
 .inv-dl dt { color: #777; } .inv-dl dd { margin: 0; font-weight: 500; }
 .paper .inv-tb { width: 100%; border-collapse: collapse; margin-top: 0; }
-.paper .inv-tb th { background: #1b22a7; color: #fff; font-size: 12.5px; padding: 9px 10px; text-align: left; border: 0; font-weight: 600; }
-.paper .inv-tb td { font-size: 13px; padding: 10px; border: 0; border-bottom: 1px solid #d5d8e6; background: #fff; vertical-align: top; }
-.paper .inv-tb .r { text-align: right; } .paper .inv-tb .mute { color: #777; }
+.paper .inv-tb th { background: #1b22a7; color: #fff; font-size: 13px; padding: 8px 10px; text-align: left; border: 0; border-right: 1px solid rgba(255, 255, 255, 0.3); font-weight: 500; }
+.paper .inv-tb th:last-child { border-right: 0; }
+.paper .inv-tb td { font-size: 13px; padding: 7px 10px; border: 1px solid #c9cde0; background: #fff; vertical-align: top; }
+.paper .inv-tb .r { text-align: left; white-space: nowrap; } .paper .inv-tb .mute { color: #777; }
 .paper .inv-tb small { display: block; color: #666; font-size: 11.5px; margin-top: 2px; }
 .inv-sum { align-self: flex-end; width: 46%; margin-top: 14px; }
 .inv-sum > div { display: flex; justify-content: space-between; padding: 6px 10px; font-size: 13.5px; }
@@ -593,8 +594,7 @@ td .mono, .mono { font-size: 14px; }
 .inv-foot { margin-top: auto; } .inv-bot { margin-top: 18mm; }
 .inv-day td { background: #eceefb; font-weight: 600; }
 .inv-pay td { background: #e7f6ea; color: #14532d; }
-.paper .inv-tb tfoot td { font-weight: 600; background: #f3f4fb; border-bottom: 0; }
-.paper .inv-tb tfoot tr:first-child td { border-top: 2px solid #1b22a7; }
+.paper .inv-tb tfoot td { font-weight: 600; background: #eceefb; border: 1px solid #c9cde0; }
 .inv-tb td small { white-space: normal; }
 @media print { .paper:has(.inv-sheet) { background: #fff !important; padding: 0 !important; } .paper .inv-sheet { width: auto; min-height: 268mm; padding: 0; box-shadow: none; margin: 0; } }
 
@@ -1383,6 +1383,11 @@ button.back { display: none !important; }
       <div id="pd-body"></div>
     </section>
 
+    <section id="view-reglement" hidden>
+      <div class="head"><div><h1>Règlement</h1><p class="sub">Encaisser le paiement d’un client et remettre le reçu</p></div></div>
+      <div id="rg-body"></div>
+    </section>
+
     <section id="view-depense" hidden>
       <div class="head"><div><h1>Dépense</h1><p class="sub">Sorties d’argent de la caisse</p></div></div>
       <div id="dp-body"></div>
@@ -1465,7 +1470,7 @@ button.back { display: none !important; }
     { k: 'chat', l: 'Chat', i: 'chat' },
     { k: 'clients', l: 'Clients', i: 'users' },
     { k: 'fournisseurs', l: 'Fournisseurs', i: 'truck' },
-    { k: 'pdv', l: 'Point de vente', i: 'cart', sub: ['Caisse', 'Dépense', 'Stock produits', 'Produits'] },
+    { k: 'pdv', l: 'Point de vente', i: 'cart', sub: ['Caisse', 'Règlement', 'Dépense', 'Stock produits', 'Produits'] },
     { k: 'facturation', l: 'Facturation', i: 'file', sub: ['Carrière', 'Usine Agglos'] },
     { k: 'historique', l: 'Historique opérations', i: 'layers' },
     { k: 'documents', l: 'Documents', i: 'file' },
@@ -1514,7 +1519,7 @@ button.back { display: none !important; }
     }).join('');
   }
   var SOON_HTML = '';
-  var ALLV = ['view-dashboard', 'view-pesees', 'view-produits', 'view-fournisseurs', 'view-clients', 'view-fiche', 'view-cheques', 'view-machines', 'view-machine', 'view-usine', 'view-personnel', 'view-stockp', 'view-mag', 'view-params', 'view-rent', 'view-charges', 'view-location', 'view-chrec', 'view-oued', 'view-carr', 'view-asaisir', 'view-controle', 'view-users', 'view-fsaisie', 'view-pdvdash', 'view-hist', 'view-fact', 'view-depense', 'view-soon'];
+  var ALLV = ['view-dashboard', 'view-pesees', 'view-produits', 'view-fournisseurs', 'view-clients', 'view-fiche', 'view-cheques', 'view-machines', 'view-machine', 'view-usine', 'view-personnel', 'view-stockp', 'view-mag', 'view-params', 'view-rent', 'view-charges', 'view-location', 'view-chrec', 'view-oued', 'view-carr', 'view-asaisir', 'view-controle', 'view-users', 'view-fsaisie', 'view-pdvdash', 'view-hist', 'view-fact', 'view-depense', 'view-reglement', 'view-soon'];
   var PERV = ['view-dashboard', 'view-hist', 'view-fournisseurs', 'view-fiche', 'view-fsaisie', 'view-clients'];
   var VIEWHOOKS = {}, PRINTV = ['view-dashboard', 'view-pdvdash', 'view-clients', 'view-fournisseurs', 'view-produits', 'view-machines', 'view-usine', 'view-stockp', 'view-depense', 'view-cheques', 'view-hist', 'view-controle', 'view-rent', 'view-fact'];
   /* --- Historique et bouton Retour --- */
@@ -1553,6 +1558,7 @@ button.back { display: none !important; }
     if (k === 'pdv' && sub === 'Produits') target = 'view-produits';
     if (k === 'pdv' && sub === 'Stock produits') target = 'view-stockp';
     if (k === 'pdv' && sub === 'Dépense') target = 'view-depense';
+    if (k === 'pdv' && sub === 'Règlement') target = 'view-reglement';
     if (k === 'stock' && (sub === 'Gasoil' || sub === 'Huiles et graisses' || sub === 'Pièces de rechange')) target = 'view-mag';
     var pv = ALLV.filter(function (id) { return !$(id).hidden; })[0]; if (pv && pv !== target) resetPer();
     ALLV.forEach(function (id) { $(id).hidden = id !== target; });
@@ -3341,14 +3347,16 @@ button.back { display: none !important; }
   }
   function sitSheet(c, a, b, kind) {
     var d = sitData(c, a, b), det = kind === 'det', N = nf2;
-    var unitPx = function (r) { var u = r.units ? r.units : (r.mille ? r.qty * 1000 : r.qty); return u > 0 ? r.ttc / u : 0; };
+    var m3Of = function (r) { if (r.mille || r.units) return null; if (r.mu === 'm3') return r.qty; var k = Object.keys(P).filter(function (x) { return P[x] === r.prod; })[0]; return r.qty / (DENS[k] || 1.5); };
+    var qtyM3 = function (r) { var m = m3Of(r); return m == null ? qtyTxt(r) : nf2.format(m) + ' m³'; };
+    var unitPx = function (r) { var m = m3Of(r), u = m != null ? m : (r.units ? r.units : r.qty * 1000); return u > 0 ? r.ttc / u : 0; };
     var head = det ? '<th>Date</th><th>N° BL</th><th class="r">Qté</th><th>Désignation</th><th class="r">Prix</th><th class="r">Total</th><th class="r">Total général</th>' : '<th>Date</th><th class="r">Nombre de BL</th><th class="r">Total BL</th><th class="r">Paiements</th><th class="r">Reste cumulé</th>';
     var cols = det ? 7 : 5, body = '';
     if (det) {
       body += '<tr class="inv-day"><td colspan="' + (cols - 1) + '">Solde à l’ouverture de la période</td><td class="r">' + N.format(d.open) + '</td></tr>';
       var run = d.open;
       d.days.forEach(function (x) {
-        x.l.forEach(function (r) { run += r.ttc; body += '<tr><td>' + dfmt.format(x.d) + '</td><td class="mono">' + esc(r.bl) + '</td><td class="r">' + qtyTxt(r) + '</td><td>' + esc(r.prod.n) + '</td><td class="r">' + (r.mille || r.units ? nf3 : N).format(unitPx(r)) + '</td><td class="r">' + N.format(r.ttc) + '</td><td class="r"><b style="font-weight:600">' + N.format(run) + '</b></td></tr>'; });
+        x.l.forEach(function (r) { run += r.ttc; body += '<tr><td>' + dfmt.format(x.d) + '</td><td class="mono">' + esc(r.bl) + '</td><td class="r">' + qtyM3(r) + '</td><td>' + esc(r.prod.n) + '</td><td class="r">' + (r.mille || r.units ? nf3 : N).format(unitPx(r)) + '</td><td class="r">' + N.format(r.ttc) + '</td><td class="r"><b style="font-weight:600">' + N.format(run) + '</b></td></tr>'; });
         x.ps.forEach(function (q) { run -= q.montant; body += '<tr class="inv-pay"><td>' + dfmt.format(x.d) + '</td><td></td><td></td><td>Paiement · ' + esc(q.mode) + ' ' + esc(q.ref) + '</td><td></td><td class="r">− ' + N.format(q.montant) + '</td><td class="r"><b style="font-weight:600">' + N.format(run) + '</b></td></tr>'; });
       });
       if (!d.days.length) body += '<tr><td colspan="' + cols + '" style="color:#777">Aucun mouvement sur cette période.</td></tr>';
@@ -3616,6 +3624,9 @@ button.back { display: none !important; }
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-recp]'); if (!b) return; var p = PAYREG[+b.dataset.recp]; if (p && p.sup) recDoc(p.sup, p, p.montant);
   });
+  var encFrom = '', REGS = [];
+  var regCash = function (d) { return REGS.reduce(function (t, x) { return t + (+x.d === +d && x.p.mode === 'Espèces' ? x.p.montant : 0); }, 0); };
+  var regCashRange = function (rg) { return REGS.reduce(function (t, x) { return t + (x.d >= rg.from && x.d <= rg.to && x.p.mode === 'Espèces' ? x.p.montant : 0); }, 0); };
   function encModal(c, inv) {
     var mode = 'Chèque';
     openModal('<h2>' + (inv ? 'Encaisser ' + esc(pieceTxt(inv)) : 'Nouvel encaissement') + '</h2><p class="m">' + esc(c.nom) + (inv ? ' · reste à encaisser sur cette facture : ' + mad(openAmt(inv)) : ' · reste dû ' + mad(Math.max(0, c.solde))) + '</p>' +
@@ -3636,7 +3647,7 @@ button.back { display: none !important; }
     sync();
     $('en-modes').addEventListener('click', function (e) { var b = e.target.closest('button[data-mode]'); if (!b) return; mode = b.dataset.mode; echTouched = false; $('en-modes').querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); sync(); });
     $('en-amt').addEventListener('input', sync); $('en-date').addEventListener('input', sync); $('en-ech').addEventListener('input', function () { echTouched = true; });
-    $('en-cancel').addEventListener('click', closeModal);
+    $('en-cancel').addEventListener('click', function () { encFrom = ''; closeModal(); });
     $('en-save').addEventListener('click', function () {
       var err = function (x) { $('en-err').textContent = x; $('en-err').hidden = false; };
       var amt = num($('en-amt').value), dt = parseIso($('en-date').value), cheq = mode === 'Chèque' || mode === 'Effet', ech = cheq ? parseIso($('en-ech').value) : dt, rf = $('en-ref').value.trim();
@@ -3648,7 +3659,8 @@ button.back { display: none !important; }
       if (inv) order = [inv].concat(order.filter(function (a) { return a !== inv; }));
       order.forEach(function (a) { var o = openAmt(a); if (left <= 0.005 || o <= 0.005) return; var al = Math.min(o, left); linkPay(a, p, al); left -= al; });
       audit('Encaissement', c.nom, mode + ' ' + p.ref + ' · ' + mad(amt));
-      closeModal(); afterClientChange(); toast(p.statut === 'Payé' ? 'Encaissement enregistré.' : mode + ' enregistré, échéance le ' + dfmt.format(ech) + '.'); recDoc(c, p, amt);
+      if (encFrom === 'reg') { var nw = new Date(); REGS.push({ c: c, p: p, d: TODAY, time: pad2(nw.getHours()) + ':' + pad2(nw.getMinutes()), by: USER }); encFrom = ''; }
+      closeModal(); afterClientChange(); if (!$('view-reglement').hidden) renderRegl(); toast(p.statut === 'Payé' ? 'Encaissement enregistré.' : mode + ' enregistré, échéance le ' + dfmt.format(ech) + '.'); recDoc(c, p, amt);
     });
   }
 
@@ -4686,7 +4698,7 @@ button.back { display: none !important; }
     dg: { n: 'Poste 1', nom: 'Direction', user: 'DG', ini: 'DG', home: ['dashboard', null], menu: null, voit: 'Tout', regles: ['Contrôle total', 'Seul à voir les salaires, les marges et les coûts de l’usine', 'Seul à fixer les prix, les plafonds de crédit et les blocages'] },
     ctrl: { n: 'Poste 2', nom: 'Contrôle', user: 'Contrôleur', ini: 'CO', home: ['controle', null], menu: { dashboard: 1, controle: 1, facturation: 1, pdv: ['Stock produits'], oued: 1, carriere: 1, location: 1, charges: 1, personnel: ['Employés', 'Présences', 'Alertes', 'Statistiques'], stock: ['Pièces de rechange', 'Gasoil', 'Huiles et graisses'] }, voit: 'À contrôler · Dashboard · Stock produits · Oued · Carrière · Gasoil · Huiles', regles: ['Marque chaque élément comme « Vu »', 'Approuve la journée', 'Ne modifie aucune donnée', 'Voit Oued, Carrière et les prix du gasoil et des huiles'] },
     compta: { n: 'Poste 3', nom: 'Comptabilité et saisie', user: 'Comptable', ini: 'CP', home: ['asaisir', null], menu: { asaisir: 1, facturation: 1, clients: 1, fournisseurs: 1, banque: 1, pdv: ['Stock produits'], oued: 1, carriere: 1, location: 1, charges: 1, personnel: 1, stock: 1 }, voit: 'À saisir · Clients · Fournisseurs · Banque · Oued · Carrière · Magasin · Stock produits', regles: ['Clients complets, sans toucher au plafond ni au blocage', 'Fournisseurs : ajoute les factures, ne voit aucun montant', 'Saisit Oued, Carrière et le Magasin ; voit les coûts de ces sections ; ni salaires, ni marges'] },
-    pdv: { n: 'Poste 4', nom: 'Point de vente', user: 'Caisse', ini: 'PV', home: ['pdv', 'Caisse'], menu: { dashboard: 1, pdv: ['Caisse', 'Dépense', 'Stock produits'], stock: ['Pièces de rechange', 'Huiles et graisses', 'Gasoil'], asaisir: 1 }, voit: 'Dashboard · Caisse · Dépense · Stock produits · Magasin (sorties, sans prix) · À saisir', regles: ['Émet les BL', 'Ne modifie ni les prix ni les plafonds', 'Un client bloqué : seul le DG peut débloquer', 'Magasin : enregistre les sorties seulement, ne voit aucun prix'] }
+    pdv: { n: 'Poste 4', nom: 'Point de vente', user: 'Caisse', ini: 'PV', home: ['pdv', 'Caisse'], menu: { dashboard: 1, pdv: ['Caisse', 'Règlement', 'Dépense', 'Stock produits'], stock: ['Pièces de rechange', 'Huiles et graisses', 'Gasoil'], asaisir: 1 }, voit: 'Dashboard · Caisse · Règlement · Dépense · Stock produits · Magasin (sorties, sans prix) · À saisir', regles: ['Émet les BL', 'Encaisse les règlements des clients et remet le reçu', 'Ne modifie ni les prix ni les plafonds', 'Un client bloqué : seul le DG peut débloquer', 'Magasin : enregistre les sorties seulement, ne voit aucun prix'] }
   };
   var ROLE = 'dg';
   var visibleMenu = function () {
@@ -5016,6 +5028,7 @@ button.back { display: none !important; }
       var bk = multi ? iso(r.date) : (r.time || '00:00').slice(0, 2), b = (buckets[bk] = buckets[bk] || { cash: 0, cred: 0, n: {} }); if (isC) b.cash += v; else b.cred += v; b.n[r.bl] = 1;
       if (isC) { var cr = (cashRows[r.bl] = cashRows[r.bl] || { bl: r.bl, d: r.date, time: r.time || '', client: r.client, v: 0 }); cr.v += v; }
     });
+    cash += regCashRange(rg);
     var cashList = Object.keys(cashRows).map(function (k) { return cashRows[k]; }).sort(function (a, b) { return a.d - b.d || (a.time > b.time ? 1 : -1); });
     nCash = cashList.length; if (cashList.length) lastCash = cashList[cashList.length - 1].time;
     var nBl = Object.keys(bls).length, label = { today: 'Aujourd’hui', yesterday: 'Hier', '7': '7 derniers jours', '30': '30 derniers jours' }[pdDay];
@@ -5173,7 +5186,7 @@ button.back { display: none !important; }
       for (var k = 0; k < n; k++) { var c = DEPCATS[Math.floor(r() * DEPCATS.length)], a = amt[c]; depSeq += 1; DEPS.push({ id: depSeq, d: d, time: pad2(8 + Math.floor(r() * 9)) + ':' + pad2(Math.floor(r() * 60)), cat: c, who: who[Math.floor(r() * who.length)], note: '', amt: Math.round((a[0] + r() * (a[1] - a[0])) / 10) * 10, by: 'Caisse' }); }
     }
   })();
-  var cashOfDay = function (d) { var t = 0; rows.forEach(function (r) { if (+r.date === +d && payOf(r) === 'Espèces') t += r.ttc || 0; }); return t; };
+  var cashOfDay = function (d) { var t = regCash(d); rows.forEach(function (r) { if (+r.date === +d && payOf(r) === 'Espèces') t += r.ttc || 0; }); return t; };
   function depTotals(rg) { var t = { sum: 0, n: 0 }; DEPS.forEach(function (x) { if (x.d >= rg.from && x.d <= rg.to) { t.sum += x.amt; t.n += 1; } }); return t; }
   function depTable(list, edit) {
     var sum = list.reduce(function (t, x) { return t + x.amt; }, 0);
@@ -5218,6 +5231,29 @@ button.back { display: none !important; }
     $('de-save').addEventListener('click', function () { var a = num($('de-a').value); if (!(a > 0)) { $('de-err').textContent = 'Montant invalide.'; $('de-err').hidden = false; return; } var old = x.amt; x.amt = a; x.cat = $('de-c').value; x.who = $('de-w').value.trim(); x.note = $('de-n').value.trim(); audit('Dépense modifiée', x.cat, nf2.format(old) + ' → ' + nf2.format(a)); closeModal(); renderDepense(); toast('Dépense mise à jour.'); });
   }
   VIEWHOOKS['view-depense'] = renderDepense;
+  /* Règlement (Point de vente) : encaisser le paiement d'un client et remettre le reçu */
+  var rgQ = '';
+  function renderRegl() {
+    var q = rgQ.trim().toLowerCase(), list = clients.filter(function (c) { return !c.comptant && (!q || c.nom.toLowerCase().indexOf(q) >= 0); }).sort(function (a, b) { return a.nom.localeCompare(b.nom); });
+    var tot = list.reduce(function (t, c) { return t + Math.max(0, c.solde); }, 0);
+    var today = REGS.filter(function (x) { return +x.d === +TODAY; }), sumT = today.reduce(function (t, x) { return t + x.p.montant; }, 0);
+    var h = '<div class="sheet"><section class="box"><div class="search-row" style="margin-bottom:12px"><label class="search" for="rg-q"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="rg-q" type="search" placeholder="Rechercher un client" autocomplete="off" value="' + esc(rgQ) + '"></label></div>' +
+      '<div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Client</th><th>Catégorie</th><th>Reste dû</th><th>Action</th></tr></thead><tbody>' +
+      (list.length ? list.map(function (c) { return '<tr><td><b>' + esc(c.nom) + '</b>' + (c.bloque ? ' <span class="st bad">Bloqué</span>' : '') + '</td><td>' + esc(c.cat) + '</td><td class="num">' + nf2.format(c.solde) + '</td><td><button type="button" class="btn mini primary" data-rgenc="' + c.id + '">Encaisser</button></td></tr>'; }).join('') : '<tr><td colspan="4" class="pmute">Aucun client trouvé.</td></tr>') +
+      '</tbody><tfoot><tr class="tot"><td colspan="2">Total · ' + list.length + ' client' + (list.length > 1 ? 's' : '') + '</td><td class="num">' + nf2.format(tot) + '</td><td></td></tr></tfoot></table></div></section></div>' +
+      '<div class="sheet" style="margin-top:22px"><section class="box"><h3 class="sech" style="margin-top:0">Règlements du ' + dfmt.format(TODAY) + '</h3><div class="tablewrap"><table class="tbl-lite"><thead><tr><th>Heure</th><th>Client</th><th>Mode</th><th>Référence</th><th>Montant</th><th>Reçu</th></tr></thead><tbody>' +
+      (today.length ? today.map(function (x) { return '<tr><td>' + esc(x.time) + '</td><td>' + esc(x.c.nom) + '</td><td>' + esc(x.p.mode) + '</td><td>' + esc(x.p.ref) + '</td><td class="num">' + nf2.format(x.p.montant) + '</td><td><button type="button" class="btn mini" data-rgrec="' + REGS.indexOf(x) + '">Reçu</button></td></tr>'; }).join('') : '<tr><td colspan="6" class="pmute">Aucun règlement aujourd’hui.</td></tr>') +
+      '</tbody><tfoot><tr class="tot"><td colspan="4">Total · ' + today.length + ' règlement' + (today.length > 1 ? 's' : '') + '</td><td class="num">' + nf2.format(sumT) + '</td><td></td></tr></tfoot></table></div></section></div>';
+    $('rg-body').innerHTML = h;
+    var qi = $('rg-q'); if (rgQ) { qi.focus(); qi.setSelectionRange(rgQ.length, rgQ.length); }
+  }
+  $('rg-body').addEventListener('input', function (e) { if (e.target.id === 'rg-q') { rgQ = e.target.value; renderRegl(); } });
+  $('rg-body').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-rgenc]');
+    if (b) { var c = clients.filter(function (x) { return x.id === +b.dataset.rgenc; })[0]; if (c) { encFrom = 'reg'; encModal(c); } return; }
+    if ((b = e.target.closest('[data-rgrec]'))) { var x = REGS[+b.dataset.rgrec]; if (x) recDoc(x.c, x.p, x.p.montant); }
+  });
+  VIEWHOOKS['view-reglement'] = function () { rgQ = ''; renderRegl(); };
   /* Stock restant par produit */
   function soldAmt(k) { var p = P[k], t = 0; rows.forEach(function (r) { if (r.prod !== p) return; if (r.mille) t += r.units || Math.round(r.qty * 1000); else t += r.mu === 'm3' ? r.qty * (DENS[k] || 1.5) : r.qty; }); return t; }
   function stockLeft(k) {

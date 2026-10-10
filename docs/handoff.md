@@ -58,3 +58,4 @@ Read this file together with `CLAUDE.md` (company, roles, engineering rules) and
 - v71 : « Relevé de compte » + situations journalière / détaillée du client (decisions §49) ; test `tests/e2e/t94.js` ; l'impression multi-pages d'un document en fenêtre fonctionne (html.mlock en overflow visible à l'impression). v70 conservé par défaut (décision en attente du propriétaire).
 - v72 : disposition de l'onglet BL et en-têtes de la situation journalière (decisions §50).
 - v73 : Relevé de compte à 3 cartes, situation détaillée cumulative avec paiements, solde à l’ouverture du client (decisions §51).
+- v74 : page Règlement (Caisse) + reçu, quantités en m³ dans la situation détaillée, tableaux des feuilles unifiés (decisions §52).
