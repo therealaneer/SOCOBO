@@ -468,3 +468,12 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 - [D] **Vocabulaire par section** (fenêtre Sortie, Bon de sortie, listes) : Pièces de rechange : Article · **Installé sur** · signature **Mécanicien** ; Huiles et graisses : Produit · **Utilisé sur** · signature **Récepteur** ; Gasoil : Citerne · **Servi à** · signature **Récepteur**. Les messages et le champ « Pour » parlent de la pièce, du produit ou du gasoil selon la section ; le mot « pièce » n'apparaît plus ailleurs que dans Pièces de rechange.
 - [D] **Remis par \*** (liste de choix dans la Sortie) : le responsable du magasin ou de l'atelier qui remet la marchandise (le Caisse qui saisit n'est pas toujours celui qui remet : gasoil, huiles, graisses, pneus remis par le responsable de l'atelier). Son nom est la première signature du Bon de sortie (Magasinier) ; l'utilisateur qui saisit reste écrit sur la ligne « Sortie enregistrée par » et dans Audit. Inclus dans la recherche Magasin.
 - [D] **Paramètres › Magasin › Responsables de la remise** : liste modifiable (ajout / retrait, tracée dans Audit) qui alimente « Remis par ». Noms d'exemple marqués EXEMPLE à remplacer.
+
+## 55. v77 — Nouveau menu latéral
+
+- [D] Le menu garde son principe (icônes seules, noms au survol) et le même bleu, avec une présentation plus claire :
+  - **Sections nommées** : Pilotage · Ventes et achats · Finance · Production · Magasin · Société · Système (un simple trait entre les sections quand le menu est replié). Seules les sections visibles pour le poste s'affichent.
+  - **Groupe ouvert sans cadre** blanc : fond léger ; l'élément actif reste en pastille blanche ; sous-menus décalés sans trait vertical, avec une pastille ● devant le sous-menu actif.
+  - **Pastilles rouges** (alertes) à droite de la ligne quand le menu est déplié.
+  - **Fiche utilisateur** en bas (initiales, nom du poste, « Changer de poste ») qui ouvre le changement de poste ; bouton clair / sombre en dessous.
+  - Corrigé : l'icône de Rentabilité manquait au premier affichage.
