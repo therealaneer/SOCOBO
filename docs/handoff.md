@@ -60,3 +60,4 @@ Read this file together with `CLAUDE.md` (company, roles, engineering rules) and
 - v73 : Relevé de compte à 3 cartes, situation détaillée cumulative avec paiements, solde à l’ouverture du client (decisions §51).
 - v74 : page Règlement (Caisse) + reçu, quantités en m³ dans la situation détaillée, tableaux des feuilles unifiés (decisions §52).
 - v75 : recherche Magasin, N° de pièce, Bon de sortie, facture fournisseur à lignes sans destination (decisions §53).
+- v76 : vocabulaire Gasoil / Huiles / Pièces dans la Sortie et le Bon, « Remis par » depuis Paramètres › Magasin (decisions §54).

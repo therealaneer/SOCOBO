@@ -23,7 +23,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   // --- sortie + bon (DG)
   await p.click('[data-mgout]'); await p.waitForTimeout(250);
   ok(await p.locator('#mo-f').count() === 1 && await p.locator('#mo-s').count() === 1, 'champs Pour et Imputé à');
-  await p.fill('#mo-q', '1'); await p.fill('#mo-w', 'Karim Mécano'); await p.fill('#mo-f', 'Hassan chauffeur');
+  await p.selectOption('#mo-k', { index: 1 }); await p.fill('#mo-q', '1'); await p.fill('#mo-w', 'Karim Mécano'); await p.fill('#mo-f', 'Hassan chauffeur');
   const opt = await p.evaluate(() => [...document.querySelectorAll('#mo-m option')].map(o => o.value || o.textContent).filter(x => x && x !== '__none' && !/Choisir/.test(x))[0]);
   await p.selectOption('#mo-m', opt); await p.waitForTimeout(100);
   const site = await p.inputValue('#mo-s'); ok(!!site, 'site proposé selon la machine (' + opt + ' → ' + site + ')');
@@ -33,6 +33,13 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   await p.screenshot({ path: 's97a.png' }); await p.click('#dm-print').catch(() => {}); await p.waitForTimeout(150); await p.click('#dm-close'); await p.waitForTimeout(200);
   await p.click('[data-mgtab="out"]'); await p.waitForTimeout(200); await p.locator('[data-mgbon]').last().click(); await p.waitForTimeout(250);
   ok(/DUPLICATA/.test(await txt('.paper')), 'réimpression : DUPLICATA'); await p.click('#dm-close'); await p.waitForTimeout(200);
+  ok(/Remis par : Responsable atelier/.test(bon), 'bon : Remis par');
+  // --- Paramètres : liste des responsables
+  await L.nav(p, 'parametres'); await p.locator('[data-ptab="Magasin"]').click(); await p.waitForTimeout(300);
+  ok(/Responsables de la remise/.test(await txt('#view-params')), 'Paramètres › Magasin : liste des responsables');
+  await p.fill('#pl-mgk', 'Ali Magasinier'); await p.click('[data-ladd="mgk"]'); await p.waitForTimeout(250);
+  await L.nav(p, 'stock', 'Pièces de rechange'); await p.waitForTimeout(250); await p.click('[data-mgout]'); await p.waitForTimeout(250);
+  ok(await p.locator('#mo-k option', { hasText: 'Ali Magasinier' }).count() === 1, 'nouveau responsable proposé dans Sortie'); await p.click('#mg-cancel'); await p.waitForTimeout(150);
   // --- facture fournisseur
   await L.nav(p, 'fournisseurs'); await p.locator('#view-fournisseurs tbody tr').first().click(); await p.waitForTimeout(350);
   await p.click('#f-buy'); await p.waitForTimeout(250);
@@ -49,5 +56,11 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   ok(await p.locator('#mag-q').count() === 1, 'Caisse : barre de recherche'); await p.fill('#mag-q', 'filtre'); await p.waitForTimeout(200); ok(await rowsN() >= 1, 'Caisse : recherche');
   await p.fill('#mag-q', ''); await p.click('[data-mgtab="mine"]'); await p.waitForTimeout(200); ok(await p.locator('[data-mgbon]').count() > 0, 'Caisse : bouton Bon dans Sorties récentes');
   await p.screenshot({ path: 's97b.png' });
+  // --- vocabulaire gasoil / huiles
+  await L.nav(p, 'stock', 'Gasoil'); await p.waitForTimeout(250); await p.click('[data-mgout]'); await p.waitForTimeout(250);
+  const lab = await txt('#modal'); ok(/Servi à/.test(lab) && !/Installé sur/.test(lab) && !/la pièce/.test(lab), 'Gasoil : vocabulaire (Servi à)');
+  await p.fill('#mo-q', '1'); await p.click('#mg-save'); await p.waitForTimeout(150); ok(/Remis par/.test(await txt('#mg-err')), 'Remis par obligatoire'); await p.click('#mg-cancel'); await p.waitForTimeout(150);
+  await L.nav(p, 'stock', 'Huiles et graisses'); await p.waitForTimeout(250); await p.click('[data-mgout]'); await p.waitForTimeout(250);
+  const lab2 = await txt('#modal'); ok(/Utilisé sur/.test(lab2) && !/la pièce/.test(lab2), 'Huiles : vocabulaire (Utilisé sur)'); await p.click('#mg-cancel'); await p.waitForTimeout(150);
   console.log(fails ? 'FAILS ' + fails : 'ALL PASS'); await b.close();
 })();
