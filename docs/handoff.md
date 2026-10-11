@@ -64,3 +64,4 @@ Read this file together with `CLAUDE.md` (company, roles, engineering rules) and
 - v77 : nouveau menu latéral : sections, groupes sans cadre, fiche utilisateur (decisions §55).
 - v78 : page Documents : devis, bons de commande (réception → stock → facture), registre, envoi e-mail / WhatsApp (decisions §56).
 - v79 : devis sans quantité (deux colonnes de prix HT / TTC, m³ par défaut), registre : documents commerciaux par défaut, période, état (decisions §57).
+- v80 : Documents : ordre du plus ancien au plus récent (decisions §58).
