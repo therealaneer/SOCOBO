@@ -83,7 +83,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   // --- fournisseur « Sans échéance » : achat sans date d'échéance, jamais en retard
   await L.nav(p, 'fournisseurs'); await p.waitForTimeout(250); await p.locator('#view-fournisseurs tbody tr').first().click(); await p.waitForTimeout(300);
   await p.click('#f-edit'); await p.waitForTimeout(250); await p.selectOption('#sm-delai', '-1'); await p.fill('#sm-rib', '123456789012345678901234'); await p.fill('#sm-note', 'Livre le lundi'); await p.evaluate(() => document.getElementById('sm-save').click()); await p.waitForTimeout(300);
-  await p.click('#f-buy'); await p.waitForTimeout(250); await p.fill('#bm-lib', 'Achat test'); await p.fill('#bm-amt', '1000'); await p.evaluate(() => document.getElementById('bm-save').click()); await p.waitForTimeout(300);
+  await p.click('#f-buy'); await p.waitForTimeout(250); await p.fill('#bm-lib', 'Achat test'); await p.selectOption('#bm-ll select', 'svc'); await p.fill('[data-ld2="0"]', 'Service test'); await p.fill('[data-lq="0"]', '1'); await p.fill('[data-lp="0"]', '833,33'); await p.evaluate(() => document.getElementById('bm-save').click()); await p.waitForTimeout(300);
   ok(/Sans échéance/.test(await txt('#f-main')), 'fournisseur sans échéance : achat enregistré sans date d’échéance');
   await p.click('#f-details'); await p.waitForTimeout(250); ok(/Livre le lundi/.test(await txt('#dbody')), 'note du fournisseur dans les détails'); await p.click('#dclose'); await p.waitForTimeout(150);
   console.log(fails ? 'FAILS ' + fails : 'ALL PASS'); await b.close();
