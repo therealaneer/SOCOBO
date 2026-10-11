@@ -496,3 +496,8 @@ Flow, all on one full page: **1 Client → 2 Camion → 3 Marchandise**, ticket 
 ## 58. v80 — Documents : ordre « le plus ancien d'abord »
 
 - [D] Devis, bons de commande et registre suivent la règle du programme : **du plus ancien au plus récent**, les numéros croissent avec les dates (DEV-…0001 est le plus ancien). Le registre affiche les 60 derniers documents et « Afficher plus » ajoute les plus anciens.
+
+## 59. v81 — Devis : prix HT seulement ; Chèques reçus triés par date de réception
+
+- [D] **Feuille du devis** : une seule colonne de prix, **Prix unitaire HT** (plus de colonne TTC). Sous le tableau, la mention en gras : « Prix unitaires hors taxes. TVA 20 % en sus : toute transaction est facturée TTC. » (client HT : « Prix unitaires hors taxes. Transaction sans TVA (client HT). »). Le formulaire continue de saisir les prix en TTC ; avec toutes les quantités, le total HT / TVA / TTC reste sous le tableau.
+- [D] **Banque › Chèques reçus** : tous les onglets sont triés par **date de réception croissante** (le plus ancien d'abord), y compris « À encaisser » (avant : par échéance).

@@ -39,7 +39,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   ok(await p.inputValue('[data-du="0"]') === 'm3', 'unité par défaut : m³');
   const lab = await txt('#dv-ll'); ok(/Quantité \(facultatif\)/.test(lab), 'quantité facultative');
   await p.click('#dv-save'); await p.waitForTimeout(350);
-  const so = await txt('.paper'); ok(/Prix unitaire HT/.test(so) && /Prix unitaire TTC/.test(so) && !/Total TTC/.test(so) && /hors quantité/.test(so) && /Prix par m³/.test(so), 'devis sans quantité : deux colonnes de prix, aucun total');
+  const so = await txt('.paper'); ok(/Prix unitaire HT/.test(so) && !/Prix unitaire TTC/.test(so) && !/Total TTC/.test(so) && /hors quantité/.test(so) && /Prix par m³/.test(so) && /facturée TTC/.test(so), 'devis sans quantité : prix HT seulement, mention TTC, aucun total');
   await p.screenshot({ path: 's99c.png' });
   await p.click('#dc-close'); await p.waitForTimeout(200);
   ok(/—/.test(await txt('#docs-body tbody tr:last-child')), 'tableau : total « — » sans quantité');
