@@ -34,6 +34,15 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   ok(/Envoyé/.test(await txt('.pmute')) || /Envoyé/.test(await txt('#modal')), 'devis marqué Envoyé');
   await p.click('#dc-ok'); await p.waitForTimeout(300); ok(/Accepté/.test(await txt('#modal')), 'devis Accepté');
   await p.click('#dc-close'); await p.waitForTimeout(200);
+  // devis sans quantité (prix seulement), unité par défaut m³
+  await p.click('[data-dnew="dev"]'); await p.waitForTimeout(250); await p.selectOption('#dv-c', cid); await p.selectOption('[data-dk="0"]', 'g15'); await p.waitForTimeout(150);
+  ok(await p.inputValue('[data-du="0"]') === 'm3', 'unité par défaut : m³');
+  const lab = await txt('#dv-ll'); ok(/Quantité \(facultatif\)/.test(lab), 'quantité facultative');
+  await p.click('#dv-save'); await p.waitForTimeout(350);
+  const so = await txt('.paper'); ok(/Prix unitaire HT/.test(so) && /Prix unitaire TTC/.test(so) && !/Total TTC/.test(so) && /hors quantité/.test(so) && /Prix par m³/.test(so), 'devis sans quantité : deux colonnes de prix, aucun total');
+  await p.screenshot({ path: 's99c.png' });
+  await p.click('#dc-close'); await p.waitForTimeout(200);
+  ok(/—/.test(await txt('#docs-body tbody tr:last-child')), 'tableau : total « — » sans quantité');
   // supprimer brouillon libère le numéro
   await p.click('[data-dnew="dev"]'); await p.waitForTimeout(250); await p.selectOption('#dv-c', cid); await p.selectOption('[data-dk="0"]', 'sa'); await p.fill('[data-dq="0"]', '10'); await p.click('#dv-save'); await p.waitForTimeout(300);
   const no2 = (await txt('.paper')).match(/DEV-2026-\d{4}/)[0]; await p.click('#dc-del'); await p.waitForTimeout(200); await p.click('#cd-yes'); await p.waitForTimeout(300);
@@ -61,6 +70,9 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   // registre
   await p.click('[data-dtab="reg"]'); await p.waitForTimeout(300);
   const types = await p.evaluate(() => [...document.querySelectorAll('#docs-f option')].map(o => o.textContent).join(',')); ok(/Devis/.test(types) && /Bon de livraison/.test(types), 'registre : types');
+  ok(await p.locator('#docs-p').count() === 1, 'registre : filtre période');
+  const th2 = await p.evaluate(() => [...document.querySelectorAll('#docs-body thead th')].map(x => x.textContent.trim()).join('|')); ok(/État/.test(th2), 'registre : colonne État');
+  ok(!/Bon de sortie/.test(await txt('#docs-body tbody')), 'registre : bons de sortie masqués par défaut');
   await p.selectOption('#docs-f', 'Devis'); await p.waitForTimeout(250); ok(await p.locator('#docs-body tbody tr').count() >= 5, 'registre : filtre Devis');
   await p.fill('#docs-q', no2); await p.waitForTimeout(250); ok(await p.locator('#docs-body tbody tr').count() === 1, 'registre : recherche par numéro');
   await p.locator('[data-dreg]').first().click(); await p.waitForTimeout(250); ok(/DEVIS/.test(await txt('.paper')), 'registre : ouvre le devis'); await p.click('#dc-close'); await p.waitForTimeout(200);
